@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 
 import '../../../utils/date_formatting.dart';
 
-/// Campo data con [showDatePicker] al tap.
-class DateFormField extends StatelessWidget {
-  const DateFormField({
+/// Campo data con [showDatePicker] al tap (Material 3).
+class DatePickerField extends StatelessWidget {
+  const DatePickerField({
     super.key,
     required this.label,
     this.value,

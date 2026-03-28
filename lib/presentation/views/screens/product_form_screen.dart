@@ -5,7 +5,9 @@ import 'package:uuid/uuid.dart';
 import '../../../domain/entities/product.dart';
 import '../../../utils/product_validators.dart';
 import '../../viewmodels/product_view_model.dart';
-import '../widgets/date_field.dart';
+import '../widgets/date_picker_field.dart';
+import '../widgets/quantity_field.dart';
+import '../widgets/validation_error_widget.dart';
 
 class ProductFormScreen extends StatefulWidget {
   const ProductFormScreen({super.key, this.product});
@@ -27,8 +29,15 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   DateTime? _dataScadenza;
   DateTime? _dataApertura;
   bool _saving = false;
+  List<String> _summaryErrors = [];
 
   bool get _isEdit => widget.product != null;
+
+  int _effectiveTotale() {
+    final t = int.tryParse(_totaleController.text.trim());
+    if (t == null || t < 1) return 1;
+    return t;
+  }
 
   @override
   void initState() {
@@ -55,26 +64,55 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     super.dispose();
   }
 
-  int? _parsePositiveInt(String? s) {
-    if (s == null || s.trim().isEmpty) return null;
-    final v = int.tryParse(s.trim());
-    if (v == null) return null;
-    return v;
+  Future<void> _confirmDelete() async {
+    final p = widget.product;
+    if (p == null) return;
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Eliminare il prodotto?'),
+        content: Text('«${p.nome}» verrà rimosso dall’inventario.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Annulla'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Elimina'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true && mounted) {
+      final err =
+          await context.read<ProductViewModel>().deleteProduct(p.id);
+      if (!mounted) return;
+      if (err == null) {
+        Navigator.of(context).pop();
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+      }
+    }
   }
 
   Future<void> _submit() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    final nome = _nomeController.text.trim();
-    final totale = _parsePositiveInt(_totaleController.text);
-    final rimasta = _parsePositiveInt(_rimastaController.text);
-
-    if (totale == null || rimasta == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Quantità non valide')),
-      );
+    setState(() => _summaryErrors = []);
+    if (!_formKey.currentState!.validate()) {
+      setState(() => _summaryErrors = const [
+        'Controlla i campi evidenziati in rosso.',
+      ]);
       return;
     }
+
+    final nome = _nomeController.text.trim();
+    final totStr = _totaleController.text.trim();
+    final rimStr = _rimastaController.text.trim();
+    final totale = totStr.isEmpty ? 1 : (int.tryParse(totStr) ?? 1);
+    final totaleClamped = totale < 1 ? 1 : totale;
+    final rimasta = rimStr.isEmpty
+        ? totaleClamped
+        : (int.tryParse(rimStr) ?? 0);
 
     final id = widget.product?.id ?? const Uuid().v4();
     final product = Product(
@@ -83,15 +121,13 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       dataAcquisto: _dataAcquisto,
       dataScadenza: _dataScadenza,
       dataApertura: _dataApertura,
-      quantitaTotale: totale,
+      quantitaTotale: totaleClamped,
       quantitaRimasta: rimasta,
     );
 
     final validation = ProductValidators.validateProduct(product);
     if (validation != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(validation)),
-      );
+      setState(() => _summaryErrors = [validation]);
       return;
     }
 
@@ -106,9 +142,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     if (err == null) {
       Navigator.of(context).pop();
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(err)),
-      );
+      setState(() => _summaryErrors = [err]);
     }
   }
 
@@ -117,90 +151,140 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEdit ? 'Modifica prodotto' : 'Nuovo prodotto'),
-      ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
-            TextFormField(
-              controller: _nomeController,
-              decoration: const InputDecoration(
-                labelText: 'Nome',
-                border: OutlineInputBorder(),
-              ),
-              textCapitalization: TextCapitalization.sentences,
-              validator: (v) => ProductValidators.validateNome(v),
+        actions: [
+          if (_isEdit)
+            IconButton(
+              icon: const Icon(Icons.delete_outline),
+              tooltip: 'Elimina',
+              onPressed: _confirmDelete,
             ),
-            const SizedBox(height: 16),
-            Row(
+        ],
+      ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: Form(
+            key: _formKey,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            child: ListView(
+              padding: const EdgeInsets.all(16),
               children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _totaleController,
-                    decoration: const InputDecoration(
-                      labelText: 'Quantità totale',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (v) {
-                      final n = _parsePositiveInt(v);
-                      if (n == null) return 'Inserisci un numero intero';
-                      return ProductValidators.validateQuantitaTotale(n);
-                    },
+                ValidationErrorWidget(messages: _summaryErrors),
+                TextFormField(
+                  controller: _nomeController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nome',
+                    hintText: 'Obbligatorio',
                   ),
+                  textCapitalization: TextCapitalization.sentences,
+                  validator: (v) => ProductValidators.validateNome(v),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: TextFormField(
-                    controller: _rimastaController,
-                    decoration: const InputDecoration(
-                      labelText: 'Quantità rimasta',
-                      border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+                DatePickerField(
+                  label: 'Data acquisto',
+                  value: _dataAcquisto,
+                  onChanged: (d) => setState(() => _dataAcquisto = d),
+                ),
+                const SizedBox(height: 12),
+                DatePickerField(
+                  label: 'Data scadenza',
+                  value: _dataScadenza,
+                  onChanged: (d) => setState(() => _dataScadenza = d),
+                  firstDate: _dataAcquisto,
+                ),
+                const SizedBox(height: 12),
+                DatePickerField(
+                  label: 'Data apertura (opzionale)',
+                  value: _dataApertura,
+                  onChanged: (d) => setState(() => _dataApertura = d),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Quantità',
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Lascia vuoto per usare 1 come valore predefinito.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: QuantityField(
+                        label: 'Totale',
+                        controller: _totaleController,
+                        min: 1,
+                        max: 9999,
+                        onChanged: () {
+                          setState(() {});
+                          _formKey.currentState?.validate();
+                        },
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) return null;
+                          final n = int.tryParse(v.trim());
+                          if (n == null) return 'Numero non valido';
+                          return ProductValidators.validateQuantitaTotale(n);
+                        },
+                      ),
                     ),
-                    keyboardType: TextInputType.number,
-                    validator: (v) {
-                      final n = _parsePositiveInt(v);
-                      if (n == null) return 'Inserisci un numero intero';
-                      final tot = _parsePositiveInt(_totaleController.text);
-                      if (tot == null) return null;
-                      return ProductValidators.validateQuantitaRimasta(n, tot);
-                    },
-                  ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: QuantityField(
+                        label: 'Rimasti',
+                        controller: _rimastaController,
+                        min: 0,
+                        max: _effectiveTotale(),
+                        onChanged: () => _formKey.currentState?.validate(),
+                        validator: (v) {
+                          if (v == null || v.trim().isEmpty) return null;
+                          final n = int.tryParse(v.trim());
+                          if (n == null) return 'Numero non valido';
+                          return ProductValidators.validateQuantitaRimasta(
+                            n,
+                            _effectiveTotale(),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: _saving
+                            ? null
+                            : () => Navigator.of(context).maybePop(),
+                        child: const Text('Annulla'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 2,
+                      child: FilledButton(
+                        onPressed: _saving ? null : _submit,
+                        child: _saving
+                            ? const SizedBox(
+                                height: 22,
+                                width: 22,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Text(_isEdit ? 'Salva' : 'Aggiungi'),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            DateFormField(
-              label: 'Data acquisto',
-              value: _dataAcquisto,
-              onChanged: (d) => setState(() => _dataAcquisto = d),
-            ),
-            const SizedBox(height: 12),
-            DateFormField(
-              label: 'Data scadenza',
-              value: _dataScadenza,
-              onChanged: (d) => setState(() => _dataScadenza = d),
-              firstDate: _dataAcquisto,
-            ),
-            const SizedBox(height: 12),
-            DateFormField(
-              label: 'Data apertura',
-              value: _dataApertura,
-              onChanged: (d) => setState(() => _dataApertura = d),
-            ),
-            const SizedBox(height: 24),
-            FilledButton(
-              onPressed: _saving ? null : _submit,
-              child: _saving
-                  ? const SizedBox(
-                      height: 22,
-                      width: 22,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(_isEdit ? 'Salva' : 'Aggiungi'),
-            ),
-          ],
+          ),
         ),
       ),
     );

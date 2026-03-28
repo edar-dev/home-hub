@@ -79,6 +79,25 @@ void main() {
     await pumpListLoaded(tester);
 
     expect(find.text('Farina'), findsOneWidget);
-    expect(find.text('1 / 2'), findsOneWidget);
+    expect(find.textContaining('Quantità: 1 / 2'), findsOneWidget);
+  });
+
+  testWidgets('tap card apre dettaglio', (tester) async {
+    when(() => mockRepo.getAll()).thenAnswer(
+      (_) async => [
+        Product(
+          id: 'p1',
+          nome: 'Riso',
+          quantitaTotale: 3,
+          quantitaRimasta: 2,
+        ),
+      ],
+    );
+    await pumpListLoaded(tester);
+    await tester.tap(find.text('Riso'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(find.text('Dettaglio'), findsOneWidget);
+    expect(find.text('Riso'), findsWidgets);
   });
 }

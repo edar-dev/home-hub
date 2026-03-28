@@ -3,6 +3,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
 import 'core/di/app_providers.dart';
+import 'core/theme/app_theme.dart';
 import 'data/local/hive_service.dart';
 import 'domain/repositories/product_repository.dart';
 import 'presentation/viewmodels/product_view_model.dart';
@@ -38,20 +39,8 @@ class HousekeepApp extends StatelessWidget {
           Locale('it', 'IT'),
           Locale('en', 'US'),
         ],
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF2E7D32),
-            brightness: Brightness.light,
-          ),
-        ),
-        darkTheme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFF81C784),
-            brightness: Brightness.dark,
-          ),
-        ),
+        theme: buildLightTheme(),
+        darkTheme: buildDarkTheme(),
         themeMode: ThemeMode.system,
         home: const ProductListScreen(),
       ),

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/app_expiry_colors.dart';
 import '../../../domain/entities/product.dart';
 import '../../../utils/date_formatting.dart';
+import '../../theme/product_expiry_status.dart';
+import 'product_expiry_labels.dart';
+import 'status_badge.dart';
 
 class ProductCard extends StatelessWidget {
   const ProductCard({
@@ -18,125 +22,102 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final chips = <Widget>[
-      Chip(
-        label: Text(
-          '${product.quantitaRimasta} / ${product.quantitaTotale}',
-        ),
-        visualDensity: VisualDensity.compact,
-      ),
-    ];
-
-    if (product.isExpired) {
-      chips.add(
-        Chip(
-          label: const Text('Scaduto'),
-          visualDensity: VisualDensity.compact,
-          backgroundColor: theme.colorScheme.errorContainer,
-        ),
-      );
-    } else {
-      final d = product.daysUntilExpiry;
-      if (d != null && d >= 0 && d <= 7) {
-        chips.add(
-          Chip(
-            label: Text(d == 0 ? 'Scade oggi' : 'Tra $d gg'),
-            visualDensity: VisualDensity.compact,
-          ),
-        );
-      }
-    }
-
-    if (product.isLowStock && product.quantitaRimasta > 0) {
-      chips.add(
-        Chip(
-          label: const Text('Poca scorta'),
-          visualDensity: VisualDensity.compact,
-        ),
-      );
-    }
+    final urgency = urgencyOf(product);
+    final accent = AppExpiryColors.borderColor(context, urgency);
 
     return Card(
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      margin: EdgeInsets.zero,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Text(
-                      product.nome,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+              Container(width: 4, color: accent),
+              Expanded(
+                child: InkWell(
+                  onTap: onTap,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    product.nome,
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Scadenza: ${formatDate(product.dataScadenza)}',
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color:
+                                          theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    expiryLineForList(product),
+                                    style: theme.textTheme.bodyLarge?.copyWith(
+                                      color: accent,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            StatusBadge(urgency: urgency, compact: true),
+                            if (onDelete != null)
+                              IconButton(
+                                icon: const Icon(Icons.delete_outline),
+                                onPressed: onDelete,
+                                tooltip: 'Elimina',
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.inventory_2_outlined,
+                              size: 18,
+                              color: theme.colorScheme.primary,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Quantità: ${product.quantitaRimasta} / ${product.quantitaTotale}',
+                              style: theme.textTheme.labelLarge,
+                            ),
+                            if (product.isLowStock &&
+                                product.quantitaRimasta > 0) ...[
+                              const SizedBox(width: 8),
+                              Chip(
+                                label: const Text('Poca scorta'),
+                                visualDensity: VisualDensity.compact,
+                                padding: EdgeInsets.zero,
+                                labelStyle: theme.textTheme.labelSmall,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  if (onDelete != null)
-                    IconButton(
-                      icon: const Icon(Icons.delete_outline),
-                      onPressed: onDelete,
-                      tooltip: 'Elimina',
-                    ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 8,
-                runSpacing: 4,
-                children: chips,
-              ),
-              const SizedBox(height: 8),
-              _DateRow(
-                label: 'Acquisto',
-                value: formatDate(product.dataAcquisto),
-              ),
-              _DateRow(
-                label: 'Scadenza',
-                value: formatDate(product.dataScadenza),
-              ),
-              _DateRow(
-                label: 'Apertura',
-                value: formatDate(product.dataApertura),
+                ),
               ),
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _DateRow extends StatelessWidget {
-  const _DateRow({required this.label, required this.value});
-
-  final String label;
-  final String value;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 4),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 88,
-            child: Text(
-              label,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Text(value, style: theme.textTheme.bodyMedium),
-          ),
-        ],
       ),
     );
   }
