@@ -6,6 +6,8 @@ import 'package:housekeep/data/local/models/product_hive_model.dart';
 import 'package:housekeep/data/local/repositories/local_product_repository.dart';
 import 'package:housekeep/domain/entities/product.dart';
 
+import 'repository_contract_test_helper.dart';
+
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -41,6 +43,10 @@ void main() {
 
   test('getAll returns empty initially', () async {
     expect(await repository.getAll(), isEmpty);
+  });
+
+  test('soddisfa contratto CRUD condiviso', () async {
+    await runProductRepositoryCrudContract(repository);
   });
 
   test('save and getById', () async {

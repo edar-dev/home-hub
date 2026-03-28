@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:housekeep/domain/entities/product.dart';
+import 'package:housekeep/domain/exceptions/validation_exception.dart';
 import 'package:housekeep/utils/product_validators.dart';
 
 void main() {
@@ -20,6 +21,7 @@ void main() {
       expect(ProductValidators.validateQuantitaRimasta(-1, 5), isNotNull);
       expect(ProductValidators.validateQuantitaRimasta(6, 5), isNotNull);
       expect(ProductValidators.validateQuantitaRimasta(3, 5), isNull);
+      expect(ProductValidators.validateQuantitaRimasta(5, 5), isNull);
     });
 
     test('validateDateOrder', () {
@@ -29,6 +31,26 @@ void main() {
       expect(ProductValidators.validateDateOrder(a, sOk), isNull);
       expect(ProductValidators.validateDateOrder(a, sBad), isNotNull);
       expect(ProductValidators.validateDateOrder(null, sOk), isNull);
+    });
+
+    test('validateProductOrThrow lancia ValidationException se invalido', () {
+      final bad = Product(
+        id: '1',
+        nome: '',
+        quantitaTotale: 1,
+        quantitaRimasta: 1,
+      );
+      expect(
+        () => ProductValidators.validateProductOrThrow(bad),
+        throwsA(isA<ValidationException>()),
+      );
+      final good = Product(
+        id: '1',
+        nome: 'Ok',
+        quantitaTotale: 2,
+        quantitaRimasta: 2,
+      );
+      expect(() => ProductValidators.validateProductOrThrow(good), returnsNormally);
     });
 
     test('validateProduct aggregates rules', () {

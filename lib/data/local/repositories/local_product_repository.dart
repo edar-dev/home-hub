@@ -36,6 +36,14 @@ class LocalProductRepository implements ProductRepository {
   @override
   Future<void> save(Product product) async {
     try {
+      assert(() {
+        if (kDebugMode) {
+          debugPrint(
+            'LocalProductRepository.save id=${product.id} nome=${product.nome}',
+          );
+        }
+        return true;
+      }());
       await _box.put(product.id, ProductMapper.toHive(product));
     } catch (e, st) {
       debugPrint('LocalProductRepository.save: $e\n$st');

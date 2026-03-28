@@ -114,16 +114,21 @@ class ProductViewModel extends ChangeNotifier {
   Future<String?> deleteProduct(String id) async {
     _errorMessage = null;
     notifyListeners();
+    final snapshot = List<Product>.from(_products);
+    _products = _products.where((p) => p.id != id).toList();
+    notifyListeners();
     try {
       await _repository.delete(id);
       await loadProducts();
       return null;
     } on ProductException catch (e) {
+      _products = snapshot;
       _errorMessage = e.message;
       notifyListeners();
       return e.message;
     } catch (e, st) {
       debugPrint('deleteProduct: $e\n$st');
+      _products = snapshot;
       _errorMessage = 'Impossibile eliminare il prodotto';
       notifyListeners();
       return _errorMessage;

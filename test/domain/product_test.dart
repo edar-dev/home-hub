@@ -60,6 +60,76 @@ void main() {
       expect(noExpiry.daysUntilExpiry, isNull);
     });
 
+    test('daysUntilExpiry e isExpired con date relative a oggi', () {
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final tomorrow = today.add(const Duration(days: 1));
+      final yesterday = today.subtract(const Duration(days: 1));
+
+      final expiresToday = Product(
+        id: 't',
+        nome: 'T',
+        dataScadenza: today,
+        quantitaTotale: 1,
+        quantitaRimasta: 1,
+      );
+      expect(expiresToday.isExpired, isFalse);
+      expect(expiresToday.daysUntilExpiry, 0);
+
+      final expiresTomorrow = Product(
+        id: 'tm',
+        nome: 'TM',
+        dataScadenza: tomorrow,
+        quantitaTotale: 1,
+        quantitaRimasta: 1,
+      );
+      expect(expiresTomorrow.isExpired, isFalse);
+      expect(expiresTomorrow.daysUntilExpiry, 1);
+
+      final expiredYesterday = Product(
+        id: 'y',
+        nome: 'Y',
+        dataScadenza: yesterday,
+        quantitaTotale: 1,
+        quantitaRimasta: 1,
+      );
+      expect(expiredYesterday.isExpired, isTrue);
+      expect(expiredYesterday.daysUntilExpiry, lessThan(0));
+    });
+
+    test('stesso giorno calendario mese diverso non confonde urgenza', () {
+      final a = Product(
+        id: '1',
+        nome: 'A',
+        dataScadenza: DateTime(2035, 1, 15, 8, 0),
+        quantitaTotale: 1,
+        quantitaRimasta: 1,
+      );
+      final b = Product(
+        id: '2',
+        nome: 'B',
+        dataScadenza: DateTime(2035, 2, 15, 22, 0),
+        quantitaTotale: 1,
+        quantitaRimasta: 1,
+      );
+      expect(a.daysUntilExpiry, isNot(equals(b.daysUntilExpiry)));
+    });
+
+    test('copyWith mantiene stesso comportamento scadenza con ore diverse', () {
+      final morning = DateTime(2040, 5, 10, 6, 0);
+      final night = DateTime(2040, 5, 10, 23, 59);
+      final pAm = Product(
+        id: 'x',
+        nome: 'X',
+        dataScadenza: morning,
+        quantitaTotale: 1,
+        quantitaRimasta: 1,
+      );
+      final pPm = pAm.copyWith(dataScadenza: night);
+      expect(pAm.daysUntilExpiry, pPm.daysUntilExpiry);
+      expect(pAm.isExpired, pPm.isExpired);
+    });
+
     test('isOpened and isLowStock', () {
       final opened = Product(
         id: '1',

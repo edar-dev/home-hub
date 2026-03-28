@@ -7,10 +7,22 @@ import 'models/product_hive_model.dart';
 const String kProductsBoxName = 'products';
 
 /// Inizializzazione Hive e apertura box prodotti.
+///
+/// [storagePath] (es. directory temporanea) usa [Hive.init] invece di
+/// [Hive.initFlutter] — utile per test/integration senza path_provider.
 class HiveService {
+  HiveService({this.storagePath});
+
+  /// Se non null, Hive usa questa directory su disco.
+  final String? storagePath;
+
   Future<void> init() async {
     try {
-      await Hive.initFlutter();
+      if (storagePath != null) {
+        Hive.init(storagePath!);
+      } else {
+        await Hive.initFlutter();
+      }
       if (!Hive.isAdapterRegistered(0)) {
         Hive.registerAdapter(ProductHiveModelAdapter());
       }

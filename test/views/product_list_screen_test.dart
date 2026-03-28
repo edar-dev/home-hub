@@ -35,7 +35,14 @@ void main() {
     );
   });
 
-  Future<void> pumpListLoaded(WidgetTester tester) async {
+  Future<void> pumpListLoaded(
+    WidgetTester tester, {
+    Size surfaceSize = const Size(800, 600),
+  }) async {
+    await tester.binding.setSurfaceSize(surfaceSize);
+    addTearDown(() async {
+      await tester.binding.setSurfaceSize(null);
+    });
     await tester.pumpWidget(
       HousekeepApp(
         dependencies: AppDependencies(
@@ -47,6 +54,15 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
   }
+
+  testWidgets('ricerca placeholder mostra SnackBar', (tester) async {
+    when(() => mockRepo.getAll()).thenAnswer((_) async => []);
+    await pumpListLoaded(tester);
+    await tester.tap(find.byTooltip('Cerca (prossimamente)'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+    expect(find.textContaining('Ricerca'), findsWidgets);
+  });
 
   testWidgets('lista vuota mostra messaggio', (tester) async {
     when(() => mockRepo.getAll()).thenAnswer((_) async => []);
@@ -99,5 +115,59 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
     expect(find.text('Dettaglio'), findsOneWidget);
     expect(find.text('Riso'), findsWidgets);
+  });
+
+  testWidgets('swipe dismiss con conferma elimina prodotto', (tester) async {
+    when(() => mockRepo.getAll()).thenAnswer(
+      (_) async => [
+        Product(
+          id: 'sw1',
+          nome: 'SwipeMe',
+          quantitaTotale: 1,
+          quantitaRimasta: 1,
+        ),
+      ],
+    );
+    when(() => mockRepo.delete('sw1')).thenAnswer((_) async {});
+    await pumpListLoaded(tester);
+
+    expect(find.text('SwipeMe'), findsOneWidget);
+    await tester.fling(
+      find.byKey(const ValueKey<String>('sw1')),
+      const Offset(-500, 0),
+      1200,
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.text('Eliminare il prodotto?'), findsOneWidget);
+    await tester.tap(find.text('Elimina'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 400));
+
+    verify(() => mockRepo.delete('sw1')).called(1);
+  });
+
+  testWidgets('layout wide: tap card mostra riquadro dettaglio', (tester) async {
+    when(() => mockRepo.getAll()).thenAnswer(
+      (_) async => [
+        Product(
+          id: 'wide1',
+          nome: 'Desktop',
+          quantitaTotale: 2,
+          quantitaRimasta: 1,
+        ),
+      ],
+    );
+    await pumpListLoaded(tester, surfaceSize: const Size(1200, 800));
+
+    expect(find.text('Desktop'), findsOneWidget);
+    await tester.tap(find.text('Desktop'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    expect(find.text('Seleziona un prodotto dalla lista'), findsNothing);
+    expect(find.text('Modifica'), findsOneWidget);
   });
 }

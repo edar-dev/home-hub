@@ -13,8 +13,9 @@ class AppDependencies {
 }
 
 class AppFactory {
-  static Future<AppDependencies> create() async {
-    final hiveService = HiveService();
+  /// [hiveStoragePath] consente test/integration con Hive su path dedicato.
+  static Future<AppDependencies> create({String? hiveStoragePath}) async {
+    final hiveService = HiveService(storagePath: hiveStoragePath);
     await hiveService.init();
     final box = await hiveService.openProductsBox();
     final productRepository = LocalProductRepository(box);

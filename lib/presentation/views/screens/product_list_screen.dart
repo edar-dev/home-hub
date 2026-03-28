@@ -165,13 +165,17 @@ class _ProductListScreenState extends State<ProductListScreen> {
             child: Dismissible(
               key: ValueKey(p.id),
               direction: DismissDirection.endToStart,
-              confirmDismiss: (_) => _confirmDismissDelete(p.nome),
-              onDismissed: (_) {
-                context.read<ProductViewModel>().deleteProduct(p.id);
+              confirmDismiss: (_) async {
+                final ok = await _confirmDismissDelete(p.nome);
+                if (ok != true || !context.mounted) return false;
+                await context.read<ProductViewModel>().deleteProduct(p.id);
+                if (!context.mounted) return true;
                 if (_selectedId == p.id) {
                   setState(() => _selectedId = null);
                 }
+                return true;
               },
+              onDismissed: (_) {},
               background: Container(
                 alignment: Alignment.centerRight,
                 padding: const EdgeInsets.only(right: 20),
