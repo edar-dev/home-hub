@@ -1,4 +1,5 @@
-import '../models/product.dart';
+import '../domain/entities/product.dart';
+import '../domain/exceptions/validation_exception.dart';
 
 /// Validazione pura per [Product] e campi form — utilizzabile da ViewModel e test.
 abstract final class ProductValidators {
@@ -43,5 +44,13 @@ abstract final class ProductValidators {
         validateQuantitaTotale(p.quantitaTotale) ??
         validateQuantitaRimasta(p.quantitaRimasta, p.quantitaTotale) ??
         validateDateOrder(p.dataAcquisto, p.dataScadenza);
+  }
+
+  /// Lancia [ValidationException] se non valido.
+  static void validateProductOrThrow(Product p) {
+    final msg = validateProduct(p);
+    if (msg != null) {
+      throw ValidationException(msg);
+    }
   }
 }

@@ -1,14 +1,15 @@
 import 'package:flutter/foundation.dart';
 
-import '../models/product.dart';
-import '../services/product_storage_service.dart';
-import '../services/storage_exception.dart';
-import '../utils/product_validators.dart';
+import '../../domain/entities/product.dart';
+import '../../domain/exceptions/product_exception.dart';
+import '../../domain/exceptions/validation_exception.dart';
+import '../../domain/repositories/product_repository.dart';
+import '../../utils/product_validators.dart';
 
 class ProductViewModel extends ChangeNotifier {
-  ProductViewModel(this._storage);
+  ProductViewModel(this._repository);
 
-  final ProductStorageService _storage;
+  final ProductRepository _repository;
 
   List<Product> _products = [];
   bool _isLoading = false;
@@ -25,27 +26,34 @@ class ProductViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _setLoading(bool v) {
+    _isLoading = v;
+    notifyListeners();
+  }
+
   Future<void> loadProducts() async {
-    _isLoading = true;
+    _setLoading(true);
     _errorMessage = null;
     notifyListeners();
     try {
-      _products = _storage.getAll()
-        ..sort((a, b) => a.nome.toLowerCase().compareTo(b.nome.toLowerCase()));
-    } on StorageException catch (e) {
+      final list = await _repository.getAll();
+      list.sort(
+        (a, b) => a.nome.toLowerCase().compareTo(b.nome.toLowerCase()),
+      );
+      _products = list;
+    } on ProductException catch (e) {
       _errorMessage = e.message;
       _products = [];
     } catch (e, st) {
       debugPrint('loadProducts: $e\n$st');
-      _errorMessage = 'Errore imprevisto durante il caricamento';
+      _errorMessage = 'Qualcosa è andato storto. Riprova.';
       _products = [];
     } finally {
-      _isLoading = false;
-      notifyListeners();
+      _setLoading(false);
     }
   }
 
-  Future<String?> addProduct(Product product) async {
+  Future<String?> createProduct(Product product) async {
     final err = ProductValidators.validateProduct(product);
     if (err != null) {
       _errorMessage = err;
@@ -55,15 +63,19 @@ class ProductViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      await _storage.upsert(product);
+      await _repository.save(product);
       await loadProducts();
       return null;
-    } on StorageException catch (e) {
+    } on ValidationException catch (e) {
+      _errorMessage = e.message;
+      notifyListeners();
+      return e.message;
+    } on ProductException catch (e) {
       _errorMessage = e.message;
       notifyListeners();
       return e.message;
     } catch (e, st) {
-      debugPrint('addProduct: $e\n$st');
+      debugPrint('createProduct: $e\n$st');
       _errorMessage = 'Impossibile aggiungere il prodotto';
       notifyListeners();
       return _errorMessage;
@@ -80,10 +92,14 @@ class ProductViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      await _storage.upsert(product);
+      await _repository.save(product);
       await loadProducts();
       return null;
-    } on StorageException catch (e) {
+    } on ValidationException catch (e) {
+      _errorMessage = e.message;
+      notifyListeners();
+      return e.message;
+    } on ProductException catch (e) {
       _errorMessage = e.message;
       notifyListeners();
       return e.message;
@@ -99,10 +115,10 @@ class ProductViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      await _storage.delete(id);
+      await _repository.delete(id);
       await loadProducts();
       return null;
-    } on StorageException catch (e) {
+    } on ProductException catch (e) {
       _errorMessage = e.message;
       notifyListeners();
       return e.message;

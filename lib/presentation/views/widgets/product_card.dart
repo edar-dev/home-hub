@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../models/product.dart';
-import '../../utils/date_formatting.dart';
+import '../../../domain/entities/product.dart';
+import '../../../utils/date_formatting.dart';
 
 class ProductCard extends StatelessWidget {
   const ProductCard({
@@ -18,6 +18,44 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final chips = <Widget>[
+      Chip(
+        label: Text(
+          '${product.quantitaRimasta} / ${product.quantitaTotale}',
+        ),
+        visualDensity: VisualDensity.compact,
+      ),
+    ];
+
+    if (product.isExpired) {
+      chips.add(
+        Chip(
+          label: const Text('Scaduto'),
+          visualDensity: VisualDensity.compact,
+          backgroundColor: theme.colorScheme.errorContainer,
+        ),
+      );
+    } else {
+      final d = product.daysUntilExpiry;
+      if (d != null && d >= 0 && d <= 7) {
+        chips.add(
+          Chip(
+            label: Text(d == 0 ? 'Scade oggi' : 'Tra $d gg'),
+            visualDensity: VisualDensity.compact,
+          ),
+        );
+      }
+    }
+
+    if (product.isLowStock && product.quantitaRimasta > 0) {
+      chips.add(
+        Chip(
+          label: const Text('Poca scorta'),
+          visualDensity: VisualDensity.compact,
+        ),
+      );
+    }
+
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -50,14 +88,7 @@ class ProductCard extends StatelessWidget {
               Wrap(
                 spacing: 8,
                 runSpacing: 4,
-                children: [
-                  Chip(
-                    label: Text(
-                      '${product.quantitaRimasta} / ${product.quantitaTotale}',
-                    ),
-                    visualDensity: VisualDensity.compact,
-                  ),
-                ],
+                children: chips,
               ),
               const SizedBox(height: 8),
               _DateRow(

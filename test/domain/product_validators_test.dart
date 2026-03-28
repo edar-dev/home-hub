@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:housekeep/models/product.dart';
+import 'package:housekeep/domain/entities/product.dart';
 import 'package:housekeep/utils/product_validators.dart';
 
 void main() {

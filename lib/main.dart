@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'app.dart';
-import 'services/product_storage_service.dart';
+import 'core/di/app_providers.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final storage = await ProductStorageService.open();
-  runApp(HousekeepApp(storage: storage));
+  final dependencies = await AppFactory.create();
+  runApp(HousekeepApp(dependencies: dependencies));
 }

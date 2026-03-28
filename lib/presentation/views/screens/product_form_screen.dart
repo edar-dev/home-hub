@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../models/product.dart';
-import '../../utils/product_validators.dart';
+import '../../../domain/entities/product.dart';
+import '../../../utils/product_validators.dart';
 import '../../viewmodels/product_view_model.dart';
 import '../widgets/date_field.dart';
 
@@ -80,12 +80,12 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     final product = Product(
       id: id,
       nome: nome,
+      dataAcquisto: _dataAcquisto,
+      dataScadenza: _dataScadenza,
+      dataApertura: _dataApertura,
       quantitaTotale: totale,
       quantitaRimasta: rimasta,
-    )
-      ..dataAcquisto = _dataAcquisto
-      ..dataScadenza = _dataScadenza
-      ..dataApertura = _dataApertura;
+    );
 
     final validation = ProductValidators.validateProduct(product);
     if (validation != null) {
@@ -99,7 +99,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     final vm = context.read<ProductViewModel>();
     final err = _isEdit
         ? await vm.updateProduct(product)
-        : await vm.addProduct(product);
+        : await vm.createProduct(product);
     setState(() => _saving = false);
 
     if (!mounted) return;

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:housekeep/models/product.dart';
-import 'package:housekeep/services/product_storage_service.dart';
-import 'package:housekeep/viewmodels/product_view_model.dart';
-import 'package:housekeep/views/screens/product_form_screen.dart';
+import 'package:housekeep/domain/entities/product.dart';
+import 'package:housekeep/domain/repositories/product_repository.dart';
+import 'package:housekeep/presentation/viewmodels/product_view_model.dart';
+import 'package:housekeep/presentation/views/screens/product_form_screen.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:provider/provider.dart';
 
-class MockProductStorageService extends Mock implements ProductStorageService {}
+class MockFormRepository extends Mock implements ProductRepository {}
 
 void main() {
-  late MockProductStorageService mock;
+  late MockFormRepository mock;
 
   setUpAll(() {
     registerFallbackValue(
@@ -24,11 +24,11 @@ void main() {
   });
 
   setUp(() {
-    mock = MockProductStorageService();
-    when(() => mock.getAll()).thenReturn([]);
-    when(() => mock.upsert(any())).thenAnswer((_) async {});
+    mock = MockFormRepository();
+    when(() => mock.getAll()).thenAnswer((_) async => []);
+    when(() => mock.save(any())).thenAnswer((_) async {});
     when(() => mock.delete(any())).thenAnswer((_) async {});
-    when(() => mock.getById(any())).thenReturn(null);
+    when(() => mock.getById(any())).thenAnswer((_) async => null);
   });
 
   testWidgets('form nuovo prodotto mostra campi', (tester) async {
@@ -37,7 +37,7 @@ void main() {
       MaterialApp(
         home: MultiProvider(
           providers: [
-            Provider<ProductStorageService>.value(value: mock),
+            Provider<ProductRepository>.value(value: mock),
             ChangeNotifierProvider<ProductViewModel>.value(value: viewModel),
           ],
           child: const ProductFormScreen(),

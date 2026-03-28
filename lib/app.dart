@@ -2,23 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
-import 'services/product_storage_service.dart';
-import 'viewmodels/product_view_model.dart';
-import 'views/screens/product_list_screen.dart';
+import 'core/di/app_providers.dart';
+import 'data/local/hive_service.dart';
+import 'domain/repositories/product_repository.dart';
+import 'presentation/viewmodels/product_view_model.dart';
+import 'presentation/views/screens/product_list_screen.dart';
 
 class HousekeepApp extends StatelessWidget {
-  const HousekeepApp({super.key, required this.storage});
+  const HousekeepApp({super.key, required this.dependencies});
 
-  final ProductStorageService storage;
+  final AppDependencies dependencies;
 
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        Provider<ProductStorageService>.value(value: storage),
+        Provider<HiveService>.value(value: dependencies.hiveService),
+        Provider<ProductRepository>.value(
+          value: dependencies.productRepository,
+        ),
         ChangeNotifierProvider<ProductViewModel>(
           create: (context) =>
-              ProductViewModel(context.read<ProductStorageService>()),
+              ProductViewModel(context.read<ProductRepository>()),
         ),
       ],
       child: MaterialApp(
