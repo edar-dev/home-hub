@@ -22,11 +22,14 @@ class AppFactory {
     final hiveService = HiveService(storagePath: hiveStoragePath);
     await hiveService.init();
     final box = await hiveService.openProductsBox();
-    final productRepository = LocalProductRepository(box);
     final locationsBox = await hiveService.openLocationsBox();
     final positionsBox = await hiveService.openPositionsBox();
-    final locationRepository =
-        LocalLocationRepository(locationsBox, positionsBox);
+    final productRepository = LocalProductRepository(box, positionsBox);
+    final locationRepository = LocalLocationRepository(
+      locationsBox,
+      positionsBox,
+      productRepository,
+    );
     return AppDependencies(
       hiveService: hiveService,
       productRepository: productRepository,

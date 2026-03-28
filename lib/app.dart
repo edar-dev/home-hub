@@ -7,6 +7,7 @@ import 'core/theme/app_theme.dart';
 import 'data/local/hive_service.dart';
 import 'domain/repositories/location_repository.dart';
 import 'domain/repositories/product_repository.dart';
+import 'presentation/viewmodels/location_inventory_view_model.dart';
 import 'presentation/viewmodels/location_view_model.dart';
 import 'presentation/viewmodels/product_view_model.dart';
 import 'presentation/views/screens/home_shell_screen.dart';
@@ -24,12 +25,20 @@ class HousekeepApp extends StatelessWidget {
         Provider<ProductRepository>.value(
           value: dependencies.productRepository,
         ),
-        ChangeNotifierProvider<ProductViewModel>(
-          create: (context) =>
-              ProductViewModel(context.read<ProductRepository>()),
-        ),
         Provider<LocationRepository>.value(
           value: dependencies.locationRepository,
+        ),
+        ChangeNotifierProvider<ProductViewModel>(
+          create: (context) => ProductViewModel(
+            context.read<ProductRepository>(),
+            context.read<LocationRepository>(),
+          ),
+        ),
+        ChangeNotifierProvider<LocationInventoryViewModel>(
+          create: (context) => LocationInventoryViewModel(
+            context.read<ProductRepository>(),
+            context.read<LocationRepository>(),
+          ),
         ),
         ChangeNotifierProvider<LocationViewModel>(
           create: (context) =>

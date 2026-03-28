@@ -1,11 +1,15 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../domain/entities/product.dart';
 import '../../layout/breakpoints.dart';
+import '../../viewmodels/location_view_model.dart';
 import '../../viewmodels/product_view_model.dart';
 import '../widgets/product_card.dart';
 import '../widgets/product_detail_body.dart';
+import '../widgets/product_placement_helper.dart';
 import 'product_detail_screen.dart';
 import 'product_form_screen.dart';
 
@@ -24,6 +28,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProductViewModel>().loadProducts();
+      context.read<LocationViewModel>().loadHierarchy();
     });
   }
 
@@ -128,7 +133,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
     await _confirmDelete(p.nome, p.id);
   }
 
-  Widget _buildDetailPane(ProductViewModel vm) {
+  Widget _buildDetailPane(
+    ProductViewModel vm,
+    Map<String, (String, String)> placementIndex,
+  ) {
     final p = _selectedProduct(vm.products);
     if (p == null) {
       return Center(
@@ -147,19 +155,24 @@ class _ProductListScreenState extends State<ProductListScreen> {
     return ProductDetailBody(
       product: p,
       embedded: true,
+      placementLine: placementLineForProduct(p, placementIndex),
       onEdit: () => _embeddedEdit(p),
       onDelete: () => _embeddedDelete(p),
     );
   }
 
-  Widget _buildListView(ProductViewModel vm, bool wide) {
+  Widget _buildListView(
+    ProductViewModel vm,
+    bool wide,
+    Map<String, (String, String)> placementIndex,
+  ) {
     return RefreshIndicator(
       onRefresh: () => vm.loadProducts(),
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: vm.products.length,
+        itemCount: vm.displayedProducts.length,
         itemBuilder: (context, index) {
-          final p = vm.products[index];
+          final p = vm.displayedProducts[index];
           return Padding(
             padding: const EdgeInsets.only(bottom: 8),
             child: Dismissible(
@@ -192,6 +205,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
               child: ProductCard(
                 key: ValueKey('card-${p.id}'),
                 product: p,
+                placementLine: placementLineForProduct(p, placementIndex),
                 onTap: () => _onCardTap(p, wide),
                 onDelete: () => _confirmDelete(p.nome, p.id),
               ),
@@ -202,7 +216,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
   }
 
-  Widget _buildBody(BuildContext context, ProductViewModel vm, bool wide) {
+  Widget _buildBody(
+    BuildContext context,
+    ProductViewModel vm,
+    bool wide,
+    Map<String, (String, String)> placementIndex,
+  ) {
     if (vm.isLoading && vm.products.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -257,14 +276,36 @@ class _ProductListScreenState extends State<ProductListScreen> {
       );
     }
 
-    final list = _buildListView(vm, wide);
+    if (vm.displayedProducts.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.filter_alt_outlined,
+              size: 64,
+              color: Theme.of(context).colorScheme.outline,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Nessun prodotto in questo luogo',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            const Text('Modifica il filtro o assegna prodotti a una posizione.'),
+          ],
+        ),
+      );
+    }
+
+    final list = _buildListView(vm, wide, placementIndex);
     if (!wide) return list;
 
     return Row(
       children: [
         Expanded(flex: 2, child: list),
         const VerticalDivider(width: 1),
-        Expanded(flex: 3, child: _buildDetailPane(vm)),
+        Expanded(flex: 3, child: _buildDetailPane(vm, placementIndex)),
       ],
     );
   }
@@ -272,6 +313,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
   @override
   Widget build(BuildContext context) {
     final vm = context.watch<ProductViewModel>();
+    final locVm = context.watch<LocationViewModel>();
+    final placementIndex = buildPlacementIndex(locVm.items);
 
     if (_selectedId != null && _selectedProduct(vm.products) == null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -286,6 +329,25 @@ class _ProductListScreenState extends State<ProductListScreen> {
           appBar: AppBar(
             title: const Text('Inventario'),
             actions: [
+              PopupMenuButton<String?>(
+                icon: const Icon(Icons.filter_list_outlined),
+                tooltip: 'Filtra per luogo',
+                onSelected: (id) {
+                  unawaited(vm.setLocationFilter(id));
+                },
+                itemBuilder: (ctx) => [
+                  const PopupMenuItem<String?>(
+                    value: null,
+                    child: Text('Tutti i prodotti'),
+                  ),
+                  ...locVm.items.map(
+                    (e) => PopupMenuItem<String?>(
+                      value: e.location.id,
+                      child: Text(e.location.nome),
+                    ),
+                  ),
+                ],
+              ),
               IconButton(
                 icon: const Icon(Icons.search),
                 tooltip: 'Cerca (prossimamente)',
@@ -304,7 +366,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
               ),
             ],
           ),
-          body: _buildBody(context, vm, wide),
+          body: _buildBody(context, vm, wide, placementIndex),
           floatingActionButton: FloatingActionButton(
             key: const ValueKey<String>('fab-product'),
             heroTag: 'fab-product',

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../domain/entities/storage_position.dart';
 import '../../viewmodels/location_view_model.dart';
 import 'location_form_screen.dart';
+import 'location_inventory_screen.dart';
 import 'position_form_screen.dart';
 
 class LocationListScreen extends StatefulWidget {
@@ -180,6 +181,18 @@ class _LocationListScreenState extends State<LocationListScreen> {
               title: Row(
                 children: [
                   Expanded(child: Text(loc.nome)),
+                  IconButton(
+                    icon: const Icon(Icons.inventory_2_outlined),
+                    tooltip: 'Inventario in questo luogo',
+                    onPressed: () {
+                      Navigator.of(context).push<void>(
+                        MaterialPageRoute<void>(
+                          builder: (_) =>
+                              LocationInventoryScreen(locationId: loc.id),
+                        ),
+                      );
+                    },
+                  ),
                   IconButton(
                     icon: const Icon(Icons.edit_outlined),
                     tooltip: 'Modifica luogo',

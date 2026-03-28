@@ -6,16 +6,22 @@ import '../../../domain/entities/location_with_positions.dart';
 import '../../../domain/entities/storage_position.dart';
 import '../../../domain/exceptions/location_exception.dart';
 import '../../../domain/repositories/location_repository.dart';
+import '../../../domain/repositories/product_repository.dart';
 import '../mappers/location_mapper.dart';
 import '../mappers/position_mapper.dart';
 import '../models/location_hive_model.dart';
 import '../models/position_hive_model.dart';
 
 class LocalLocationRepository implements LocationRepository {
-  LocalLocationRepository(this._locationsBox, this._positionsBox);
+  LocalLocationRepository(
+    this._locationsBox,
+    this._positionsBox,
+    this._productRepository,
+  );
 
   final Box<LocationHiveModel> _locationsBox;
   final Box<PositionHiveModel> _positionsBox;
+  final ProductRepository _productRepository;
 
   List<LocationWithPositions> _buildHierarchy() {
     final allLocations =
@@ -97,11 +103,18 @@ class LocalLocationRepository implements LocationRepository {
   @override
   Future<void> deleteLocation(String id) async {
     try {
+      final positionIds = <String>[];
+      final keysToDelete = <dynamic>[];
       for (final key in _positionsBox.keys.toList()) {
         final p = _positionsBox.get(key);
         if (p != null && p.locationId == id) {
-          await _positionsBox.delete(key);
+          positionIds.add(p.id);
+          keysToDelete.add(key);
         }
+      }
+      await _productRepository.clearPositionIdsForPositions(positionIds);
+      for (final key in keysToDelete) {
+        await _positionsBox.delete(key);
       }
       await _locationsBox.delete(id);
     } catch (e, st) {
@@ -128,6 +141,7 @@ class LocalLocationRepository implements LocationRepository {
   @override
   Future<void> deletePosition(String id) async {
     try {
+      await _productRepository.clearPositionIdsForPositions([id]);
       await _positionsBox.delete(id);
     } catch (e, st) {
       debugPrint('LocalLocationRepository.deletePosition: $e\n$st');

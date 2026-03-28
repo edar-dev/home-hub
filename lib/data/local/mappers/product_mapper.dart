@@ -17,6 +17,7 @@ abstract final class ProductMapper {
           : DateTime.fromMillisecondsSinceEpoch(m.dataAperturaMs!),
       quantitaTotale: m.quantitaTotale,
       quantitaRimasta: m.quantitaRimasta,
+      positionId: m.positionId,
     );
   }
 
@@ -29,6 +30,7 @@ abstract final class ProductMapper {
       dataAperturaMs: p.dataApertura?.millisecondsSinceEpoch,
       quantitaTotale: p.quantitaTotale,
       quantitaRimasta: p.quantitaRimasta,
+      positionId: p.positionId,
     );
   }
 }

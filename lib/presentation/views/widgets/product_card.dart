@@ -13,11 +13,15 @@ class ProductCard extends StatelessWidget {
     required this.product,
     this.onTap,
     this.onDelete,
+    this.placementLine,
   });
 
   final Product product;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
+
+  /// Testo "Luogo: … · …" da [placementLineForProduct]; opzionale.
+  final String? placementLine;
 
   @override
   Widget build(BuildContext context) {
@@ -73,6 +77,19 @@ class ProductCard extends StatelessWidget {
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
+                                  if (placementLine != null) ...[
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      placementLine!,
+                                      style: theme.textTheme.bodySmall
+                                          ?.copyWith(
+                                        color: theme
+                                            .colorScheme.onSurfaceVariant,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),

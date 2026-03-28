@@ -3,7 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:housekeep/app.dart';
 import 'package:housekeep/core/di/app_providers.dart';
 import 'package:housekeep/data/local/hive_service.dart';
+import 'package:housekeep/domain/entities/location.dart';
 import 'package:housekeep/domain/entities/product.dart';
+import 'package:housekeep/domain/entities/storage_position.dart';
 import 'package:housekeep/domain/repositories/location_repository.dart';
 import 'package:housekeep/domain/repositories/product_repository.dart';
 import 'package:mocktail/mocktail.dart';
@@ -26,6 +28,12 @@ void main() {
         quantitaRimasta: 1,
       ),
     );
+    registerFallbackValue('');
+    registerFallbackValue(const Location(id: 'x', nome: 'x'));
+    registerFallbackValue(
+      const StoragePosition(id: 'x', nome: 'x', locationId: 'x'),
+    );
+    registerFallbackValue(<String>[]);
   });
 
   testWidgets('lista 1000 prodotti: pump e scroll entro soglia empirica', (tester) async {
@@ -46,7 +54,18 @@ void main() {
     when(() => mockRepo.save(any())).thenAnswer((_) async {});
     when(() => mockRepo.delete(any())).thenAnswer((_) async {});
     when(() => mockRepo.getById(any())).thenAnswer((_) async => null);
+    when(() => mockRepo.getByPositionId(any())).thenAnswer((_) async => []);
+    when(() => mockRepo.getByLocationId(any())).thenAnswer((_) async => []);
+    when(() => mockRepo.clearPositionIdsForPositions(any()))
+        .thenAnswer((_) async {});
     when(() => mockLoc.getAllWithPositions()).thenAnswer((_) async => []);
+    when(() => mockLoc.getLocationById(any())).thenAnswer((_) async => null);
+    when(() => mockLoc.getLocationWithPositions(any()))
+        .thenAnswer((_) async => null);
+    when(() => mockLoc.saveLocation(any())).thenAnswer((_) async {});
+    when(() => mockLoc.deleteLocation(any())).thenAnswer((_) async {});
+    when(() => mockLoc.savePosition(any())).thenAnswer((_) async {});
+    when(() => mockLoc.deletePosition(any())).thenAnswer((_) async {});
 
     final sw = Stopwatch()..start();
     await tester.pumpWidget(

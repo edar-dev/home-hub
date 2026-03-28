@@ -14,12 +14,16 @@ class ProductDetailBody extends StatelessWidget {
     this.embedded = false,
     this.onEdit,
     this.onDelete,
+    this.placementLine,
   });
 
   final Product product;
   final bool embedded;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+
+  /// Da [placementLineForProduct] (FASE 3).
+  final String? placementLine;
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +66,12 @@ class ProductDetailBody extends StatelessWidget {
                 label: 'Data apertura',
                 value: formatDate(product.dataApertura),
               ),
+              if (placementLine != null)
+                _InfoTile(
+                  icon: Icons.place_outlined,
+                  label: 'Posizione',
+                  value: placementLine!,
+                ),
               const Divider(height: 32),
               Text(
                 'Stato scadenza',

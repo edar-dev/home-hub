@@ -3,19 +3,28 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:housekeep/domain/entities/product.dart';
 import 'package:housekeep/domain/exceptions/product_exception.dart';
+import 'package:housekeep/domain/entities/location.dart';
+import 'package:housekeep/domain/entities/location_with_positions.dart';
+import 'package:housekeep/domain/entities/storage_position.dart';
+import 'package:housekeep/domain/repositories/location_repository.dart';
 import 'package:housekeep/domain/repositories/product_repository.dart';
 import 'package:housekeep/presentation/viewmodels/product_view_model.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockProductRepository extends Mock implements ProductRepository {}
 
+class MockLocationRepository extends Mock implements LocationRepository {}
+
 void main() {
   late MockProductRepository mock;
+  late MockLocationRepository mockLoc;
   late ProductViewModel vm;
 
   setUp(() {
     mock = MockProductRepository();
-    vm = ProductViewModel(mock);
+    mockLoc = MockLocationRepository();
+    when(() => mockLoc.getLocationWithPositions(any())).thenAnswer((_) async => null);
+    vm = ProductViewModel(mock, mockLoc);
   });
 
   setUpAll(() {
@@ -27,6 +36,41 @@ void main() {
         quantitaRimasta: 1,
       ),
     );
+    registerFallbackValue('');
+  });
+
+  test('setLocationFilter mostra solo prodotti nel luogo', () async {
+    when(() => mockLoc.getLocationWithPositions('l1')).thenAnswer(
+      (_) async => LocationWithPositions(
+        location: const Location(id: 'l1', nome: 'Cucina'),
+        positions: [
+          const StoragePosition(id: 'pos1', nome: 'Frigo', locationId: 'l1'),
+        ],
+      ),
+    );
+    when(() => mock.getAll()).thenAnswer(
+      (_) async => [
+        Product(
+          id: 'a',
+          nome: 'Latte',
+          quantitaTotale: 1,
+          quantitaRimasta: 1,
+          positionId: 'pos1',
+        ),
+        Product(
+          id: 'b',
+          nome: 'Pane',
+          quantitaTotale: 1,
+          quantitaRimasta: 1,
+        ),
+      ],
+    );
+    await vm.loadProducts();
+    await vm.setLocationFilter('l1');
+    expect(vm.displayedProducts, hasLength(1));
+    expect(vm.displayedProducts.first.nome, 'Latte');
+    await vm.setLocationFilter(null);
+    expect(vm.displayedProducts, hasLength(2));
   });
 
   test('loadProducts sorts by nome', () async {

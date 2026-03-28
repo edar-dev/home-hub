@@ -24,6 +24,19 @@ void main() {
       expect(back.dataApertura, isNull);
       expect(back.quantitaTotale, 3);
       expect(back.quantitaRimasta, 2);
+      expect(back.positionId, isNull);
+    });
+
+    test('round trip with positionId', () {
+      final domain = Product(
+        id: 'x',
+        nome: 'Y',
+        quantitaTotale: 1,
+        quantitaRimasta: 1,
+        positionId: 'pos-1',
+      );
+      final back = ProductMapper.toDomain(ProductMapper.toHive(domain));
+      expect(back.positionId, 'pos-1');
     });
 
     test('toDomain from raw hive model', () {

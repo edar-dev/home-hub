@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../domain/entities/product.dart';
+import '../../viewmodels/location_view_model.dart';
 import '../../viewmodels/product_view_model.dart';
 import '../widgets/product_detail_body.dart';
+import '../widgets/product_placement_helper.dart';
 import 'product_form_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
@@ -76,6 +78,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final locVm = context.watch<LocationViewModel>();
+    final placementLine = placementLineForProduct(
+      _product,
+      buildPlacementIndex(locVm.items),
+    );
     return Scaffold(
       appBar: AppBar(
         title: const Text('Dettaglio'),
@@ -92,7 +99,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
           ),
         ],
       ),
-      body: ProductDetailBody(product: _product),
+      body: ProductDetailBody(
+        product: _product,
+        placementLine: placementLine,
+      ),
     );
   }
 }

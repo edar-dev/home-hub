@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../layout/breakpoints.dart';
+import 'location_inventory_screen.dart';
 import 'location_list_screen.dart';
 import 'product_list_screen.dart';
 
@@ -15,9 +16,10 @@ class HomeShellScreen extends StatefulWidget {
 class _HomeShellScreenState extends State<HomeShellScreen> {
   int _index = 0;
 
-  static const _pages = <Widget>[
-    ProductListScreen(),
-    LocationListScreen(),
+  late final List<Widget> _pages = [
+    const ProductListScreen(),
+    const LocationListScreen(),
+    const LocationInventoryScreen(),
   ];
 
   @override
@@ -43,6 +45,11 @@ class _HomeShellScreenState extends State<HomeShellScreen> {
                       icon: Icon(Icons.place_outlined),
                       selectedIcon: Icon(Icons.place),
                       label: Text('Luoghi'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.home_work_outlined),
+                      selectedIcon: Icon(Icons.home_work),
+                      label: Text('Riepilogo'),
                     ),
                   ],
                 ),
@@ -75,6 +82,11 @@ class _HomeShellScreenState extends State<HomeShellScreen> {
                 icon: Icon(Icons.place_outlined),
                 selectedIcon: Icon(Icons.place),
                 label: 'Luoghi',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.home_work_outlined),
+                selectedIcon: Icon(Icons.home_work),
+                label: 'Riepilogo',
               ),
             ],
           ),

@@ -24,13 +24,14 @@ class ProductHiveModelAdapter extends TypeAdapter<ProductHiveModel> {
       dataAperturaMs: fields[4] as int?,
       quantitaTotale: fields[5] as int,
       quantitaRimasta: fields[6] as int,
+      positionId: fields[7] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProductHiveModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class ProductHiveModelAdapter extends TypeAdapter<ProductHiveModel> {
       ..writeByte(5)
       ..write(obj.quantitaTotale)
       ..writeByte(6)
-      ..write(obj.quantitaRimasta);
+      ..write(obj.quantitaRimasta)
+      ..writeByte(7)
+      ..write(obj.positionId);
   }
 
   @override

@@ -4,8 +4,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:housekeep/data/local/models/location_hive_model.dart';
 import 'package:housekeep/data/local/models/position_hive_model.dart';
+import 'package:housekeep/data/local/models/product_hive_model.dart';
 import 'package:housekeep/data/local/repositories/local_location_repository.dart';
+import 'package:housekeep/data/local/repositories/local_product_repository.dart';
 import 'package:housekeep/domain/entities/location.dart';
+import 'package:housekeep/domain/entities/product.dart';
 import 'package:housekeep/domain/entities/storage_position.dart';
 import 'package:housekeep/domain/exceptions/location_exception.dart';
 
@@ -15,11 +18,16 @@ void main() {
   late Directory tempDir;
   late Box<LocationHiveModel> locBox;
   late Box<PositionHiveModel> posBox;
+  late Box<ProductHiveModel> prodBox;
+  late LocalProductRepository productRepo;
   late LocalLocationRepository repository;
 
   setUpAll(() async {
     tempDir = await Directory.systemTemp.createTemp('housekeep_loc_repo_');
     Hive.init(tempDir.path);
+    if (!Hive.isAdapterRegistered(0)) {
+      Hive.registerAdapter(ProductHiveModelAdapter());
+    }
     if (!Hive.isAdapterRegistered(1)) {
       Hive.registerAdapter(LocationHiveModelAdapter());
     }
@@ -39,14 +47,18 @@ void main() {
     final ts = DateTime.now().microsecondsSinceEpoch;
     locBox = await Hive.openBox<LocationHiveModel>('loc_$ts');
     posBox = await Hive.openBox<PositionHiveModel>('pos_$ts');
-    repository = LocalLocationRepository(locBox, posBox);
+    prodBox = await Hive.openBox<ProductHiveModel>('prod_$ts');
+    productRepo = LocalProductRepository(prodBox, posBox);
+    repository = LocalLocationRepository(locBox, posBox, productRepo);
   });
 
   tearDown(() async {
     await locBox.close();
     await posBox.close();
+    await prodBox.close();
     await Hive.deleteBoxFromDisk(locBox.name);
     await Hive.deleteBoxFromDisk(posBox.name);
+    await Hive.deleteBoxFromDisk(prodBox.name);
   });
 
   test('getAllWithPositions empty', () async {
@@ -98,6 +110,38 @@ void main() {
     await repository.deleteLocation('l1');
     expect(await repository.getAllWithPositions(), isEmpty);
     expect(posBox.isEmpty, isTrue);
+  });
+
+  test('deletePosition clears product positionId', () async {
+    await repository.saveLocation(const Location(id: 'l1', nome: 'X'));
+    await repository.savePosition(
+      const StoragePosition(id: 'p1', nome: 'P', locationId: 'l1'),
+    );
+    await productRepo.save(Product(
+      id: 'pr1',
+      nome: 'Miele',
+      quantitaTotale: 1,
+      quantitaRimasta: 1,
+      positionId: 'p1',
+    ));
+    await repository.deletePosition('p1');
+    expect((await productRepo.getById('pr1'))?.positionId, isNull);
+  });
+
+  test('deleteLocation clears products linked to child positions', () async {
+    await repository.saveLocation(const Location(id: 'l1', nome: 'X'));
+    await repository.savePosition(
+      const StoragePosition(id: 'p1', nome: 'P', locationId: 'l1'),
+    );
+    await productRepo.save(Product(
+      id: 'pr1',
+      nome: 'Miele',
+      quantitaTotale: 1,
+      quantitaRimasta: 1,
+      positionId: 'p1',
+    ));
+    await repository.deleteLocation('l1');
+    expect((await productRepo.getById('pr1'))?.positionId, isNull);
   });
 
   test('deletePosition', () async {

@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../domain/entities/location_with_positions.dart';
 import '../../../domain/entities/product.dart';
 import '../../../utils/product_validators.dart';
+import '../../viewmodels/location_view_model.dart';
 import '../../viewmodels/product_view_model.dart';
 import '../widgets/date_picker_field.dart';
 import '../widgets/quantity_field.dart';
@@ -28,6 +30,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   DateTime? _dataAcquisto;
   DateTime? _dataScadenza;
   DateTime? _dataApertura;
+  String? _positionId;
   bool _saving = false;
   List<String> _summaryErrors = [];
 
@@ -50,10 +53,18 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       _dataAcquisto = p.dataAcquisto;
       _dataScadenza = p.dataScadenza;
       _dataApertura = p.dataApertura;
+      _positionId = p.positionId;
     } else {
       _totaleController.text = '1';
       _rimastaController.text = '1';
     }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final loc = context.read<LocationViewModel>();
+      if (loc.items.isEmpty) {
+        loc.loadHierarchy();
+      }
+    });
   }
 
   @override
@@ -123,6 +134,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       dataApertura: _dataApertura,
       quantitaTotale: totaleClamped,
       quantitaRimasta: rimasta,
+      positionId: _positionId,
     );
 
     final validation = ProductValidators.validateProduct(product);
@@ -146,8 +158,37 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     }
   }
 
+  bool _positionStillValid(List<LocationWithPositions> items) {
+    final pid = _positionId;
+    if (pid == null) return true;
+    for (final row in items) {
+      for (final pos in row.positions) {
+        if (pos.id == pid) return true;
+      }
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final locVm = context.watch<LocationViewModel>();
+    final positionItems = <DropdownMenuItem<String?>>[
+      const DropdownMenuItem<String?>(
+        value: null,
+        child: Text('Nessuna posizione'),
+      ),
+      ...locVm.items.expand(
+        (row) => row.positions.map(
+          (pos) => DropdownMenuItem<String?>(
+            value: pos.id,
+            child: Text('${row.location.nome} — ${pos.nome}'),
+          ),
+        ),
+      ),
+    ];
+    final effectivePositionId =
+        _positionStillValid(locVm.items) ? _positionId : null;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(_isEdit ? 'Modifica prodotto' : 'Nuovo prodotto'),
@@ -178,6 +219,17 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   ),
                   textCapitalization: TextCapitalization.sentences,
                   validator: (v) => ProductValidators.validateNome(v),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String?>(
+                  value: effectivePositionId, // ignore: deprecated_member_use
+                  decoration: const InputDecoration(
+                    labelText: 'Posizione (opzionale)',
+                  ),
+                  items: positionItems,
+                  onChanged: _saving
+                      ? null
+                      : (v) => setState(() => _positionId = v),
                 ),
                 const SizedBox(height: 16),
                 DatePickerField(

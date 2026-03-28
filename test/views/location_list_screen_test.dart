@@ -30,7 +30,18 @@ void main() {
     when(() => mockProd.save(any())).thenAnswer((_) async {});
     when(() => mockProd.delete(any())).thenAnswer((_) async {});
     when(() => mockProd.getById(any())).thenAnswer((_) async => null);
+    when(() => mockProd.getByPositionId(any())).thenAnswer((_) async => []);
+    when(() => mockProd.getByLocationId(any())).thenAnswer((_) async => []);
+    when(() => mockProd.clearPositionIdsForPositions(any()))
+        .thenAnswer((_) async {});
     when(() => mockLoc.getAllWithPositions()).thenAnswer((_) async => []);
+    when(() => mockLoc.getLocationById(any())).thenAnswer((_) async => null);
+    when(() => mockLoc.getLocationWithPositions(any()))
+        .thenAnswer((_) async => null);
+    when(() => mockLoc.saveLocation(any())).thenAnswer((_) async {});
+    when(() => mockLoc.deleteLocation(any())).thenAnswer((_) async {});
+    when(() => mockLoc.savePosition(any())).thenAnswer((_) async {});
+    when(() => mockLoc.deletePosition(any())).thenAnswer((_) async {});
   });
 
   setUpAll(() {
@@ -48,6 +59,11 @@ void main() {
     registerFallbackValue(
       const StoragePosition(id: 'fb-p', nome: 'fb', locationId: 'fb-l'),
     );
+    registerFallbackValue(const Location(id: 'x', nome: 'x'));
+    registerFallbackValue(
+      const StoragePosition(id: 'x', nome: 'x', locationId: 'x'),
+    );
+    registerFallbackValue(<String>[]);
   });
 
   Future<void> pumpShellNarrow(WidgetTester tester) async {

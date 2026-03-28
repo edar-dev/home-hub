@@ -26,6 +26,9 @@ class ProductHiveModel extends HiveObject {
   @HiveField(6)
   int quantitaRimasta;
 
+  @HiveField(7)
+  String? positionId;
+
   ProductHiveModel({
     required this.id,
     required this.nome,
@@ -34,5 +37,6 @@ class ProductHiveModel extends HiveObject {
     this.dataAperturaMs,
     required this.quantitaTotale,
     required this.quantitaRimasta,
+    this.positionId,
   });
 }

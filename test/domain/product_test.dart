@@ -19,6 +19,20 @@ void main() {
       expect(q.quantitaRimasta, 2);
     });
 
+    test('copyWith positionId e clearPositionId', () {
+      final p = Product(
+        id: '1',
+        nome: 'X',
+        quantitaTotale: 1,
+        quantitaRimasta: 1,
+        positionId: 'pos',
+      );
+      final q = p.copyWith(positionId: 'other');
+      expect(q.positionId, 'other');
+      final r = q.copyWith(clearPositionId: true);
+      expect(r.positionId, isNull);
+    });
+
     test('copyWith clear flags clear optional dates', () {
       final p = Product(
         id: '1',

@@ -8,6 +8,7 @@ class Product {
     this.dataApertura,
     required this.quantitaTotale,
     required this.quantitaRimasta,
+    this.positionId,
   });
 
   final String id;
@@ -17,6 +18,9 @@ class Product {
   final DateTime? dataApertura;
   final int quantitaTotale;
   final int quantitaRimasta;
+
+  /// Opzionale: [StoragePosition.id] (FASE 3). La location si deriva dalla posizione.
+  final String? positionId;
 
   /// Confronto solo sulla data locale; senza scadenza non è considerato scaduto.
   bool get isExpired {
@@ -51,9 +55,11 @@ class Product {
     DateTime? dataApertura,
     int? quantitaTotale,
     int? quantitaRimasta,
+    String? positionId,
     bool clearDataAcquisto = false,
     bool clearDataScadenza = false,
     bool clearDataApertura = false,
+    bool clearPositionId = false,
   }) {
     return Product(
       id: id ?? this.id,
@@ -63,6 +69,7 @@ class Product {
       dataApertura: clearDataApertura ? null : (dataApertura ?? this.dataApertura),
       quantitaTotale: quantitaTotale ?? this.quantitaTotale,
       quantitaRimasta: quantitaRimasta ?? this.quantitaRimasta,
+      positionId: clearPositionId ? null : (positionId ?? this.positionId),
     );
   }
 }

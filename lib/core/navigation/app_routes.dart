@@ -4,4 +4,5 @@ abstract final class AppRoutes {
   static const String detail = '/detail';
   static const String form = '/form';
   static const String locations = '/locations';
+  static const String locationInventory = '/location-inventory';
 }
