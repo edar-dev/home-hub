@@ -1,0 +1,114 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:housekeep/app.dart';
+import 'package:housekeep/core/di/app_providers.dart';
+import 'package:housekeep/data/local/hive_service.dart';
+import 'package:housekeep/domain/entities/location.dart';
+import 'package:housekeep/domain/entities/location_with_positions.dart';
+import 'package:housekeep/domain/entities/product.dart';
+import 'package:housekeep/domain/entities/storage_position.dart';
+import 'package:housekeep/domain/repositories/location_repository.dart';
+import 'package:housekeep/domain/repositories/product_repository.dart';
+import 'package:mocktail/mocktail.dart';
+
+class _MockProductRepo extends Mock implements ProductRepository {}
+
+class _MockHive extends Mock implements HiveService {}
+
+class _MockLocationRepo extends Mock implements LocationRepository {}
+
+void main() {
+  late _MockProductRepo mockProd;
+  late _MockHive mockHive;
+  late _MockLocationRepo mockLoc;
+
+  setUp(() {
+    mockProd = _MockProductRepo();
+    mockHive = _MockHive();
+    mockLoc = _MockLocationRepo();
+    when(() => mockProd.getAll()).thenAnswer((_) async => []);
+    when(() => mockProd.save(any())).thenAnswer((_) async {});
+    when(() => mockProd.delete(any())).thenAnswer((_) async {});
+    when(() => mockProd.getById(any())).thenAnswer((_) async => null);
+    when(() => mockLoc.getAllWithPositions()).thenAnswer((_) async => []);
+  });
+
+  setUpAll(() {
+    registerFallbackValue(
+      Product(
+        id: 'fallback',
+        nome: 'x',
+        quantitaTotale: 1,
+        quantitaRimasta: 1,
+      ),
+    );
+    registerFallbackValue(
+      const Location(id: 'fb-l', nome: 'fb'),
+    );
+    registerFallbackValue(
+      const StoragePosition(id: 'fb-p', nome: 'fb', locationId: 'fb-l'),
+    );
+  });
+
+  Future<void> pumpShellNarrow(WidgetTester tester) async {
+    await tester.binding.setSurfaceSize(const Size(420, 800));
+    addTearDown(() async {
+      await tester.binding.setSurfaceSize(null);
+    });
+    await tester.pumpWidget(
+      HousekeepApp(
+        dependencies: AppDependencies(
+          hiveService: mockHive,
+          productRepository: mockProd,
+          locationRepository: mockLoc,
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+  }
+
+  testWidgets('tab Luoghi mostra stato vuoto', (tester) async {
+    await pumpShellNarrow(tester);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Luoghi'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Nessun luogo'), findsOneWidget);
+  });
+
+  testWidgets('ExpansionTile espande e mostra posizione', (tester) async {
+    final loc = const Location(id: 'l1', nome: 'Cucina');
+    final pos = const StoragePosition(
+      id: 'p1',
+      nome: 'Dispensa',
+      locationId: 'l1',
+    );
+    when(() => mockLoc.getAllWithPositions()).thenAnswer(
+      (_) async => [
+        LocationWithPositions(location: loc, positions: [pos]),
+      ],
+    );
+
+    await pumpShellNarrow(tester);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Luoghi'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Cucina'), findsWidgets);
+
+    await tester.tap(find.text('Cucina').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Dispensa'), findsOneWidget);
+    expect(find.text('Aggiungi posizione'), findsOneWidget);
+  });
+}

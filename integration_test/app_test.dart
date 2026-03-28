@@ -35,7 +35,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
 
-    await tester.tap(find.byType(FloatingActionButton));
+    await tester.tap(find.byKey(const ValueKey<String>('fab-product')));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
 
@@ -55,5 +55,52 @@ void main() {
     await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('ProdottoE2E'), findsOneWidget);
+  });
+
+  testWidgets('Luoghi: salvataggio e persistenza dopo Hive.close', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(420, 900));
+    addTearDown(() async {
+      await tester.binding.setSurfaceSize(null);
+    });
+
+    final deps = await AppFactory.create(hiveStoragePath: hiveDir!.path);
+    await tester.pumpWidget(HousekeepApp(dependencies: deps));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Luoghi'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey<String>('fab-location')));
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextFormField).first, 'CucinaE2E');
+    await tester.tap(find.text('Aggiungi'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.text('CucinaE2E'), findsWidgets);
+
+    await Hive.close();
+
+    final deps2 = await AppFactory.create(hiveStoragePath: hiveDir!.path);
+    await tester.pumpWidget(HousekeepApp(dependencies: deps2));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(NavigationBar),
+        matching: find.text('Luoghi'),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('CucinaE2E'), findsOneWidget);
   });
 }

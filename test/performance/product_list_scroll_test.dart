@@ -4,12 +4,15 @@ import 'package:housekeep/app.dart';
 import 'package:housekeep/core/di/app_providers.dart';
 import 'package:housekeep/data/local/hive_service.dart';
 import 'package:housekeep/domain/entities/product.dart';
+import 'package:housekeep/domain/repositories/location_repository.dart';
 import 'package:housekeep/domain/repositories/product_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockHive extends Mock implements HiveService {}
 
 class _LargeListRepo extends Mock implements ProductRepository {}
+
+class _MockLocationRepo extends Mock implements LocationRepository {}
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -38,10 +41,12 @@ void main() {
 
     final mockRepo = _LargeListRepo();
     final mockHive = _MockHive();
+    final mockLoc = _MockLocationRepo();
     when(() => mockRepo.getAll()).thenAnswer((_) async => products);
     when(() => mockRepo.save(any())).thenAnswer((_) async {});
     when(() => mockRepo.delete(any())).thenAnswer((_) async {});
     when(() => mockRepo.getById(any())).thenAnswer((_) async => null);
+    when(() => mockLoc.getAllWithPositions()).thenAnswer((_) async => []);
 
     final sw = Stopwatch()..start();
     await tester.pumpWidget(
@@ -49,6 +54,7 @@ void main() {
         dependencies: AppDependencies(
           hiveService: mockHive,
           productRepository: mockRepo,
+          locationRepository: mockLoc,
         ),
       ),
     );

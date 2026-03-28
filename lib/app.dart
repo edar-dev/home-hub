@@ -5,9 +5,11 @@ import 'package:provider/provider.dart';
 import 'core/di/app_providers.dart';
 import 'core/theme/app_theme.dart';
 import 'data/local/hive_service.dart';
+import 'domain/repositories/location_repository.dart';
 import 'domain/repositories/product_repository.dart';
+import 'presentation/viewmodels/location_view_model.dart';
 import 'presentation/viewmodels/product_view_model.dart';
-import 'presentation/views/screens/product_list_screen.dart';
+import 'presentation/views/screens/home_shell_screen.dart';
 
 class HousekeepApp extends StatelessWidget {
   const HousekeepApp({super.key, required this.dependencies});
@@ -26,6 +28,13 @@ class HousekeepApp extends StatelessWidget {
           create: (context) =>
               ProductViewModel(context.read<ProductRepository>()),
         ),
+        Provider<LocationRepository>.value(
+          value: dependencies.locationRepository,
+        ),
+        ChangeNotifierProvider<LocationViewModel>(
+          create: (context) =>
+              LocationViewModel(context.read<LocationRepository>()),
+        ),
       ],
       child: MaterialApp(
         title: 'Housekeep',
@@ -42,7 +51,7 @@ class HousekeepApp extends StatelessWidget {
         theme: buildLightTheme(),
         darkTheme: buildDarkTheme(),
         themeMode: ThemeMode.system,
-        home: const ProductListScreen(),
+        home: const HomeShellScreen(),
       ),
     );
   }

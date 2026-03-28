@@ -94,18 +94,23 @@ class ProductCard extends StatelessWidget {
                               color: theme.colorScheme.primary,
                             ),
                             const SizedBox(width: 6),
-                            Text(
-                              'Quantità: ${product.quantitaRimasta} / ${product.quantitaTotale}',
-                              style: theme.textTheme.labelLarge,
+                            Expanded(
+                              child: Text(
+                                'Quantità: ${product.quantitaRimasta} / ${product.quantitaTotale}',
+                                style: theme.textTheme.labelLarge,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                             if (product.isLowStock &&
                                 product.quantitaRimasta > 0) ...[
                               const SizedBox(width: 8),
-                              Chip(
-                                label: const Text('Poca scorta'),
-                                visualDensity: VisualDensity.compact,
-                                padding: EdgeInsets.zero,
-                                labelStyle: theme.textTheme.labelSmall,
+                              Flexible(
+                                child: Chip(
+                                  label: const Text('Poca scorta'),
+                                  visualDensity: VisualDensity.compact,
+                                  padding: EdgeInsets.zero,
+                                  labelStyle: theme.textTheme.labelSmall,
+                                ),
                               ),
                             ],
                           ],

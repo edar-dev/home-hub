@@ -3,12 +3,15 @@ import 'package:housekeep/app.dart';
 import 'package:housekeep/core/di/app_providers.dart';
 import 'package:housekeep/data/local/hive_service.dart';
 import 'package:housekeep/domain/entities/product.dart';
+import 'package:housekeep/domain/repositories/location_repository.dart';
 import 'package:housekeep/domain/repositories/product_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockHive extends Mock implements HiveService {}
 
 class _MockRepo extends Mock implements ProductRepository {}
+
+class _MockLocationRepo extends Mock implements LocationRepository {}
 
 void main() {
   setUpAll(() {
@@ -25,17 +28,20 @@ void main() {
   testWidgets('HousekeepApp si costruisce', (tester) async {
     final mockHive = _MockHive();
     final mockRepo = _MockRepo();
+    final mockLoc = _MockLocationRepo();
     when(() => mockRepo.getAll()).thenAnswer((_) async => []);
+    when(() => mockLoc.getAllWithPositions()).thenAnswer((_) async => []);
     await tester.pumpWidget(
       HousekeepApp(
         dependencies: AppDependencies(
           hiveService: mockHive,
           productRepository: mockRepo,
+          locationRepository: mockLoc,
         ),
       ),
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.text('Inventario'), findsOneWidget);
+    expect(find.text('Inventario'), findsWidgets);
   });
 }

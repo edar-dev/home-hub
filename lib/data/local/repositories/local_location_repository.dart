@@ -1,0 +1,137 @@
+import 'package:flutter/foundation.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+
+import '../../../domain/entities/location.dart';
+import '../../../domain/entities/location_with_positions.dart';
+import '../../../domain/entities/storage_position.dart';
+import '../../../domain/exceptions/location_exception.dart';
+import '../../../domain/repositories/location_repository.dart';
+import '../mappers/location_mapper.dart';
+import '../mappers/position_mapper.dart';
+import '../models/location_hive_model.dart';
+import '../models/position_hive_model.dart';
+
+class LocalLocationRepository implements LocationRepository {
+  LocalLocationRepository(this._locationsBox, this._positionsBox);
+
+  final Box<LocationHiveModel> _locationsBox;
+  final Box<PositionHiveModel> _positionsBox;
+
+  List<LocationWithPositions> _buildHierarchy() {
+    final allLocations =
+        _locationsBox.values.map(LocationMapper.toDomain).toList();
+    final allPositions =
+        _positionsBox.values.map(PositionMapper.toDomain).toList();
+
+    final byLocation = <String, List<StoragePosition>>{};
+    for (final p in allPositions) {
+      (byLocation[p.locationId] ??= []).add(p);
+    }
+
+    return allLocations.map((loc) {
+      final children = List<StoragePosition>.from(byLocation[loc.id] ?? const [])
+        ..sort(
+          (a, b) => a.nome.toLowerCase().compareTo(b.nome.toLowerCase()),
+        );
+      return LocationWithPositions(location: loc, positions: children);
+    }).toList()
+      ..sort(
+        (a, b) => a.location.nome
+            .toLowerCase()
+            .compareTo(b.location.nome.toLowerCase()),
+      );
+  }
+
+  @override
+  Future<List<LocationWithPositions>> getAllWithPositions() async {
+    try {
+      return _buildHierarchy();
+    } catch (e, st) {
+      debugPrint('LocalLocationRepository.getAllWithPositions: $e\n$st');
+      throw LocationException('Errore lettura luoghi', e);
+    }
+  }
+
+  @override
+  Future<Location?> getLocationById(String id) async {
+    try {
+      final m = _locationsBox.get(id);
+      return m == null ? null : LocationMapper.toDomain(m);
+    } catch (e, st) {
+      debugPrint('LocalLocationRepository.getLocationById: $e\n$st');
+      throw LocationException('Errore lettura luogo', e);
+    }
+  }
+
+  @override
+  Future<LocationWithPositions?> getLocationWithPositions(
+    String locationId,
+  ) async {
+    try {
+      final loc = await getLocationById(locationId);
+      if (loc == null) return null;
+      final positions = _positionsBox.values
+          .map(PositionMapper.toDomain)
+          .where((p) => p.locationId == locationId)
+          .toList()
+        ..sort(
+          (a, b) => a.nome.toLowerCase().compareTo(b.nome.toLowerCase()),
+        );
+      return LocationWithPositions(location: loc, positions: positions);
+    } catch (e, st) {
+      debugPrint('LocalLocationRepository.getLocationWithPositions: $e\n$st');
+      throw LocationException('Errore lettura luogo', e);
+    }
+  }
+
+  @override
+  Future<void> saveLocation(Location location) async {
+    try {
+      await _locationsBox.put(location.id, LocationMapper.toHive(location));
+    } catch (e, st) {
+      debugPrint('LocalLocationRepository.saveLocation: $e\n$st');
+      throw LocationException('Impossibile salvare il luogo', e);
+    }
+  }
+
+  @override
+  Future<void> deleteLocation(String id) async {
+    try {
+      for (final key in _positionsBox.keys.toList()) {
+        final p = _positionsBox.get(key);
+        if (p != null && p.locationId == id) {
+          await _positionsBox.delete(key);
+        }
+      }
+      await _locationsBox.delete(id);
+    } catch (e, st) {
+      debugPrint('LocalLocationRepository.deleteLocation: $e\n$st');
+      throw LocationException('Impossibile eliminare il luogo', e);
+    }
+  }
+
+  @override
+  Future<void> savePosition(StoragePosition position) async {
+    try {
+      if (!_locationsBox.containsKey(position.locationId)) {
+        throw LocationException('Il luogo selezionato non esiste');
+      }
+      await _positionsBox.put(position.id, PositionMapper.toHive(position));
+    } on LocationException {
+      rethrow;
+    } catch (e, st) {
+      debugPrint('LocalLocationRepository.savePosition: $e\n$st');
+      throw LocationException('Impossibile salvare la posizione', e);
+    }
+  }
+
+  @override
+  Future<void> deletePosition(String id) async {
+    try {
+      await _positionsBox.delete(id);
+    } catch (e, st) {
+      debugPrint('LocalLocationRepository.deletePosition: $e\n$st');
+      throw LocationException('Impossibile eliminare la posizione', e);
+    }
+  }
+}

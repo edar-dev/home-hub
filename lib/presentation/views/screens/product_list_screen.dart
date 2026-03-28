@@ -306,6 +306,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
           ),
           body: _buildBody(context, vm, wide),
           floatingActionButton: FloatingActionButton(
+            key: const ValueKey<String>('fab-product'),
+            heroTag: 'fab-product',
             onPressed: () async {
               final vmFab = context.read<ProductViewModel>();
               await Navigator.of(context).push<void>(
