@@ -77,6 +77,8 @@ class HousekeepApp extends StatelessWidget {
             repository: dependencies.onboardingRepository,
             service: OnboardingService(
               repository: dependencies.onboardingRepository,
+              productRepository: dependencies.productRepository,
+              locationRepository: dependencies.locationRepository,
             ),
             initialShowOnboarding: initialShowOnboarding,
           ),

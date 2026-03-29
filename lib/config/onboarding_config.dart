@@ -6,7 +6,8 @@ abstract final class OnboardingConfig {
   /// Giorni di inattività per proporre di nuovo l’onboarding.
   static const int inactivityDaysThreshold = 30;
 
-  /// Soglia “pochi prodotti” per setup incompleto.
+  /// Soglia “pochi prodotti” per setup incompleto (con almeno un luogo).
+  /// Setup incompleto = nessun luogo **oppure** `prodotti <` questo valore.
   static const int minProductsForCompleteSetup = 2;
 }
 

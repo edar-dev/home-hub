@@ -31,6 +31,8 @@ Future<void> main() async {
 
   final onboardingService = OnboardingService(
     repository: dependencies.onboardingRepository,
+    productRepository: dependencies.productRepository,
+    locationRepository: dependencies.locationRepository,
   );
   final showOnboarding = await onboardingService.shouldShowOnboarding();
   await dependencies.onboardingRepository.touchLastAppOpen();

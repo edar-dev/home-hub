@@ -5,7 +5,7 @@ import 'package:hive/hive.dart';
 import 'package:housekeep/app.dart';
 import 'package:housekeep/core/di/app_providers.dart';
 
-/// Smoke: app con Hive temporaneo e onboarding disattivato esplicitamente.
+/// Smoke bootstrap: [HousekeepApp] con Hive su directory temporanea e onboarding disattivato.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
