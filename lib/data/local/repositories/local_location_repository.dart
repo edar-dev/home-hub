@@ -93,7 +93,8 @@ class LocalLocationRepository implements LocationRepository {
   @override
   Future<void> saveLocation(Location location) async {
     try {
-      await _locationsBox.put(location.id, LocationMapper.toHive(location));
+      final stamped = location.copyWith(updatedAt: DateTime.now().toUtc());
+      await _locationsBox.put(stamped.id, LocationMapper.toHive(stamped));
     } catch (e, st) {
       debugPrint('LocalLocationRepository.saveLocation: $e\n$st');
       throw LocationException('Impossibile salvare il luogo', e);
@@ -129,7 +130,8 @@ class LocalLocationRepository implements LocationRepository {
       if (!_locationsBox.containsKey(position.locationId)) {
         throw LocationException('Il luogo selezionato non esiste');
       }
-      await _positionsBox.put(position.id, PositionMapper.toHive(position));
+      final stamped = position.copyWith(updatedAt: DateTime.now().toUtc());
+      await _positionsBox.put(stamped.id, PositionMapper.toHive(stamped));
     } on LocationException {
       rethrow;
     } catch (e, st) {

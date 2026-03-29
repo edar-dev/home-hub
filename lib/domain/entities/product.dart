@@ -9,6 +9,8 @@ class Product {
     required this.quantitaTotale,
     required this.quantitaRimasta,
     this.positionId,
+    this.updatedAt,
+    this.syncVersion = 0,
   });
 
   final String id;
@@ -21,6 +23,12 @@ class Product {
 
   /// Opzionale: [StoragePosition.id] (FASE 3). La location si deriva dalla posizione.
   final String? positionId;
+
+  /// Ultima modifica locale (UTC); base per sync/export futuri.
+  final DateTime? updatedAt;
+
+  /// Versione lato client per conciliazione con backend (incremento remoto).
+  final int syncVersion;
 
   /// Confronto solo sulla data locale; senza scadenza non è considerato scaduto.
   bool get isExpired {
@@ -56,10 +64,13 @@ class Product {
     int? quantitaTotale,
     int? quantitaRimasta,
     String? positionId,
+    DateTime? updatedAt,
+    int? syncVersion,
     bool clearDataAcquisto = false,
     bool clearDataScadenza = false,
     bool clearDataApertura = false,
     bool clearPositionId = false,
+    bool clearUpdatedAt = false,
   }) {
     return Product(
       id: id ?? this.id,
@@ -70,6 +81,8 @@ class Product {
       quantitaTotale: quantitaTotale ?? this.quantitaTotale,
       quantitaRimasta: quantitaRimasta ?? this.quantitaRimasta,
       positionId: clearPositionId ? null : (positionId ?? this.positionId),
+      updatedAt: clearUpdatedAt ? null : (updatedAt ?? this.updatedAt),
+      syncVersion: syncVersion ?? this.syncVersion,
     );
   }
 }

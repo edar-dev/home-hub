@@ -25,6 +25,8 @@ void main() {
       expect(back.quantitaTotale, 3);
       expect(back.quantitaRimasta, 2);
       expect(back.positionId, isNull);
+      expect(back.syncVersion, 0);
+      expect(back.updatedAt, isNull);
     });
 
     test('round trip with positionId', () {
@@ -37,6 +39,21 @@ void main() {
       );
       final back = ProductMapper.toDomain(ProductMapper.toHive(domain));
       expect(back.positionId, 'pos-1');
+    });
+
+    test('round trip updatedAt e syncVersion', () {
+      final t = DateTime.utc(2026, 2, 15, 10, 30);
+      final domain = Product(
+        id: 'x',
+        nome: 'Y',
+        quantitaTotale: 1,
+        quantitaRimasta: 1,
+        updatedAt: t,
+        syncVersion: 7,
+      );
+      final back = ProductMapper.toDomain(ProductMapper.toHive(domain));
+      expect(back.updatedAt, t);
+      expect(back.syncVersion, 7);
     });
 
     test('toDomain from raw hive model', () {

@@ -54,7 +54,8 @@ class LocalProductRepository implements ProductRepository {
         }
         return true;
       }());
-      await _box.put(product.id, ProductMapper.toHive(product));
+      final stamped = product.copyWith(updatedAt: DateTime.now().toUtc());
+      await _box.put(stamped.id, ProductMapper.toHive(stamped));
     } on ProductException {
       rethrow;
     } catch (e, st) {

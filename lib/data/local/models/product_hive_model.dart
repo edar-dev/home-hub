@@ -29,6 +29,12 @@ class ProductHiveModel extends HiveObject {
   @HiveField(7)
   String? positionId;
 
+  @HiveField(8)
+  int? updatedAtMs;
+
+  @HiveField(9)
+  int syncVersion;
+
   ProductHiveModel({
     required this.id,
     required this.nome,
@@ -38,5 +44,7 @@ class ProductHiveModel extends HiveObject {
     required this.quantitaTotale,
     required this.quantitaRimasta,
     this.positionId,
+    this.updatedAtMs,
+    this.syncVersion = 0,
   });
 }

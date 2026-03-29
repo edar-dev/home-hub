@@ -47,7 +47,7 @@ void main() {
 
     expect(find.text('ProdottoE2E'), findsWidgets);
 
-    await Hive.close();
+    await deps.hiveService.dispose();
 
     final deps2 = await AppFactory.create(hiveStoragePath: hiveDir!.path);
     await tester.pumpWidget(HousekeepApp(dependencies: deps2));
@@ -86,7 +86,7 @@ void main() {
 
     expect(find.text('CucinaE2E'), findsWidgets);
 
-    await Hive.close();
+    await deps.hiveService.dispose();
 
     final deps2 = await AppFactory.create(hiveStoragePath: hiveDir!.path);
     await tester.pumpWidget(HousekeepApp(dependencies: deps2));

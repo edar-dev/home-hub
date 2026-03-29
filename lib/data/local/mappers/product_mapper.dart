@@ -18,6 +18,10 @@ abstract final class ProductMapper {
       quantitaTotale: m.quantitaTotale,
       quantitaRimasta: m.quantitaRimasta,
       positionId: m.positionId,
+      updatedAt: m.updatedAtMs == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(m.updatedAtMs!, isUtc: true),
+      syncVersion: m.syncVersion,
     );
   }
 
@@ -31,6 +35,8 @@ abstract final class ProductMapper {
       quantitaTotale: p.quantitaTotale,
       quantitaRimasta: p.quantitaRimasta,
       positionId: p.positionId,
+      updatedAtMs: p.updatedAt?.toUtc().millisecondsSinceEpoch,
+      syncVersion: p.syncVersion,
     );
   }
 }

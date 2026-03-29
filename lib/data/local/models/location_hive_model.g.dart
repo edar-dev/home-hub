@@ -20,19 +20,25 @@ class LocationHiveModelAdapter extends TypeAdapter<LocationHiveModel> {
       id: fields[0] as String,
       nome: fields[1] as String,
       descrizione: fields[2] as String?,
+      updatedAtMs: fields[3] as int?,
+      syncVersion: fields[4] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, LocationHiveModel obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
       ..write(obj.nome)
       ..writeByte(2)
-      ..write(obj.descrizione);
+      ..write(obj.descrizione)
+      ..writeByte(3)
+      ..write(obj.updatedAtMs)
+      ..writeByte(4)
+      ..write(obj.syncVersion);
   }
 
   @override

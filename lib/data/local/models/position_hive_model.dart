@@ -16,10 +16,18 @@ class PositionHiveModel extends HiveObject {
   @HiveField(3)
   String locationId;
 
+  @HiveField(4)
+  int? updatedAtMs;
+
+  @HiveField(5)
+  int syncVersion;
+
   PositionHiveModel({
     required this.id,
     required this.nome,
     this.descrizione,
     required this.locationId,
+    this.updatedAtMs,
+    this.syncVersion = 0,
   });
 }

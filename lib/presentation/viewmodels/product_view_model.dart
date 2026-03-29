@@ -8,12 +8,17 @@ import '../../domain/repositories/product_repository.dart';
 import '../../utils/product_validators.dart';
 
 class ProductViewModel extends ChangeNotifier {
-  ProductViewModel(this._repository, this._locationRepository);
+  ProductViewModel(this._repository, this._locationRepository) {
+    _syncDisplayedAndBump();
+  }
 
   final ProductRepository _repository;
   final LocationRepository _locationRepository;
 
   List<Product> _products = [];
+  List<Product> _displayedProducts = [];
+  int _displayUiGeneration = 0;
+
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -22,17 +27,11 @@ class ProductViewModel extends ChangeNotifier {
 
   List<Product> get products => List.unmodifiable(_products);
 
-  /// Lista mostrata in UI (rispetta filtro luogo se attivo).
-  List<Product> get displayedProducts {
-    if (_filterLocationId == null) return products;
-    return _products
-        .where(
-          (p) =>
-              p.positionId != null &&
-              _positionIdsInFilter.contains(p.positionId),
-        )
-        .toList();
-  }
+  /// Snapshot aggiornato con `_products` e filtro luogo (no nuova lista a ogni getter).
+  List<Product> get displayedProducts => _displayedProducts;
+
+  /// Incrementato quando lista o filtro cambiano — utile a `Selector` nella UI.
+  int get displayUiGeneration => _displayUiGeneration;
 
   String? get filterLocationId => _filterLocationId;
 
@@ -50,6 +49,23 @@ class ProductViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _syncDisplayedAndBump() {
+    if (_filterLocationId == null) {
+      _displayedProducts = List.unmodifiable(_products);
+    } else {
+      _displayedProducts = List.unmodifiable(
+        _products
+            .where(
+              (p) =>
+                  p.positionId != null &&
+                  _positionIdsInFilter.contains(p.positionId),
+            )
+            .toList(),
+      );
+    }
+    _displayUiGeneration++;
+  }
+
   Future<void> _refreshFilterPositions() async {
     if (_filterLocationId == null) {
       _positionIdsInFilter = {};
@@ -65,6 +81,7 @@ class ProductViewModel extends ChangeNotifier {
   Future<void> setLocationFilter(String? locationId) async {
     _filterLocationId = locationId;
     await _refreshFilterPositions();
+    _syncDisplayedAndBump();
     notifyListeners();
   }
 
@@ -91,6 +108,7 @@ class ProductViewModel extends ChangeNotifier {
     } finally {
       _setLoading(false);
     }
+    _syncDisplayedAndBump();
     notifyListeners();
   }
 
@@ -157,6 +175,7 @@ class ProductViewModel extends ChangeNotifier {
     notifyListeners();
     final snapshot = List<Product>.from(_products);
     _products = _products.where((p) => p.id != id).toList();
+    _syncDisplayedAndBump();
     notifyListeners();
     try {
       await _repository.delete(id);
@@ -164,12 +183,14 @@ class ProductViewModel extends ChangeNotifier {
       return null;
     } on ProductException catch (e) {
       _products = snapshot;
+      _syncDisplayedAndBump();
       _errorMessage = e.message;
       notifyListeners();
       return e.message;
     } catch (e, st) {
       debugPrint('deleteProduct: $e\n$st');
       _products = snapshot;
+      _syncDisplayedAndBump();
       _errorMessage = 'Impossibile eliminare il prodotto';
       notifyListeners();
       return _errorMessage;

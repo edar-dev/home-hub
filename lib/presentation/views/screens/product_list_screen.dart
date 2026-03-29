@@ -312,76 +312,90 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final vm = context.watch<ProductViewModel>();
-    final locVm = context.watch<LocationViewModel>();
-    final placementIndex = buildPlacementIndex(locVm.items);
+    return Selector<ProductViewModel, (bool, String?, int, int, int, String?)>(
+      selector: (_, vm) => (
+        vm.isLoading,
+        vm.errorMessage,
+        vm.products.length,
+        vm.displayedProducts.length,
+        vm.displayUiGeneration,
+        vm.filterLocationId,
+      ),
+      builder: (context, _, __) {
+        final vm = context.read<ProductViewModel>();
+        final locVm = context.watch<LocationViewModel>();
+        final placementIndex = buildPlacementIndex(locVm.items);
 
-    if (_selectedId != null && _selectedProduct(vm.products) == null) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() => _selectedId = null);
-      });
-    }
+        if (_selectedId != null && _selectedProduct(vm.products) == null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) setState(() => _selectedId = null);
+          });
+        }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final wide = isWideWidth(constraints.maxWidth);
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Inventario'),
-            actions: [
-              PopupMenuButton<String?>(
-                icon: const Icon(Icons.filter_list_outlined),
-                tooltip: 'Filtra per luogo',
-                onSelected: (id) {
-                  unawaited(vm.setLocationFilter(id));
-                },
-                itemBuilder: (ctx) => [
-                  const PopupMenuItem<String?>(
-                    value: null,
-                    child: Text('Tutti i prodotti'),
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final wide = isWideWidth(constraints.maxWidth);
+            return Scaffold(
+              appBar: AppBar(
+                title: const Text('Inventario'),
+                actions: [
+                  PopupMenuButton<String?>(
+                    icon: const Icon(Icons.filter_list_outlined),
+                    tooltip: 'Filtra per luogo',
+                    onSelected: (id) {
+                      unawaited(vm.setLocationFilter(id));
+                    },
+                    itemBuilder: (ctx) => [
+                      const PopupMenuItem<String?>(
+                        value: null,
+                        child: Text('Tutti i prodotti'),
+                      ),
+                      ...locVm.items.map(
+                        (e) => PopupMenuItem<String?>(
+                          value: e.location.id,
+                          child: Text(e.location.nome),
+                        ),
+                      ),
+                    ],
                   ),
-                  ...locVm.items.map(
-                    (e) => PopupMenuItem<String?>(
-                      value: e.location.id,
-                      child: Text(e.location.nome),
-                    ),
+                  IconButton(
+                    icon: const Icon(Icons.search),
+                    tooltip: 'Cerca (prossimamente)',
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Ricerca in arrivo in una prossima versione',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.refresh),
+                    onPressed: vm.isLoading ? null : () => vm.loadProducts(),
+                    tooltip: 'Aggiorna',
                   ),
                 ],
               ),
-              IconButton(
-                icon: const Icon(Icons.search),
-                tooltip: 'Cerca (prossimamente)',
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Ricerca in arrivo in una prossima versione'),
+              body: _buildBody(context, vm, wide, placementIndex),
+              floatingActionButton: FloatingActionButton(
+                key: const ValueKey<String>('fab-product'),
+                heroTag: 'fab-product',
+                onPressed: () async {
+                  final vmFab = context.read<ProductViewModel>();
+                  await Navigator.of(context).push<void>(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const ProductFormScreen(),
                     ),
                   );
+                  if (!context.mounted) return;
+                  await vmFab.loadProducts();
                 },
+                child: const Icon(Icons.add),
               ),
-              IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: vm.isLoading ? null : () => vm.loadProducts(),
-                tooltip: 'Aggiorna',
-              ),
-            ],
-          ),
-          body: _buildBody(context, vm, wide, placementIndex),
-          floatingActionButton: FloatingActionButton(
-            key: const ValueKey<String>('fab-product'),
-            heroTag: 'fab-product',
-            onPressed: () async {
-              final vmFab = context.read<ProductViewModel>();
-              await Navigator.of(context).push<void>(
-                MaterialPageRoute<void>(
-                  builder: (_) => const ProductFormScreen(),
-                ),
-              );
-              if (!context.mounted) return;
-              await vmFab.loadProducts();
-            },
-            child: const Icon(Icons.add),
-          ),
+            );
+          },
         );
       },
     );

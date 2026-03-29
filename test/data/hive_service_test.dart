@@ -23,4 +23,22 @@ void main() {
     await box.close();
     await Hive.deleteBoxFromDisk(kProductsBoxName);
   });
+
+  test('HiveService.dispose chiude tutti i box', () async {
+    final dir = await Directory.systemTemp.createTemp('hive_disp_');
+    addTearDown(() async {
+      if (Hive.isBoxOpen(kProductsBoxName)) {
+        await Hive.close();
+      }
+      if (await dir.exists()) {
+        await dir.delete(recursive: true);
+      }
+    });
+
+    final svc = HiveService(storagePath: dir.path);
+    await svc.init();
+    await svc.openProductsBox();
+    await svc.dispose();
+    expect(Hive.isBoxOpen(kProductsBoxName), isFalse);
+  });
 }

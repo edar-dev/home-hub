@@ -69,4 +69,11 @@ class HiveService {
       throw LocationException('Impossibile aprire il database posizioni', e);
     }
   }
+
+  /// Chiude tutti i box Hive. Dopo la chiamata i repository che tengono
+  /// riferimenti ai box non sono più validi — usare in test/integration o
+  /// teardown controllato, non durante la navigazione normale dell’app.
+  Future<void> dispose() async {
+    await Hive.close();
+  }
 }

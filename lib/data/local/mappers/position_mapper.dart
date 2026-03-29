@@ -8,6 +8,10 @@ abstract final class PositionMapper {
       nome: m.nome,
       descrizione: m.descrizione,
       locationId: m.locationId,
+      updatedAt: m.updatedAtMs == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(m.updatedAtMs!, isUtc: true),
+      syncVersion: m.syncVersion,
     );
   }
 
@@ -17,6 +21,8 @@ abstract final class PositionMapper {
       nome: p.nome,
       descrizione: p.descrizione,
       locationId: p.locationId,
+      updatedAtMs: p.updatedAt?.toUtc().millisecondsSinceEpoch,
+      syncVersion: p.syncVersion,
     );
   }
 }

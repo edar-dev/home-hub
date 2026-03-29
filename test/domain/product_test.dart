@@ -19,6 +19,24 @@ void main() {
       expect(q.quantitaRimasta, 2);
     });
 
+    test('copyWith updatedAt syncVersion e clearUpdatedAt', () {
+      final t = DateTime.utc(2026, 1, 1);
+      final p = Product(
+        id: '1',
+        nome: 'X',
+        quantitaTotale: 1,
+        quantitaRimasta: 1,
+        updatedAt: t,
+        syncVersion: 3,
+      );
+      final q = p.copyWith(syncVersion: 4);
+      expect(q.updatedAt, t);
+      expect(q.syncVersion, 4);
+      final r = q.copyWith(clearUpdatedAt: true);
+      expect(r.updatedAt, isNull);
+      expect(r.syncVersion, 4);
+    });
+
     test('copyWith positionId e clearPositionId', () {
       final p = Product(
         id: '1',
@@ -98,7 +116,9 @@ void main() {
         quantitaRimasta: 1,
       );
       expect(expiresTomorrow.isExpired, isFalse);
-      expect(expiresTomorrow.daysUntilExpiry, 1);
+      // Può essere 0 se il getter legge `DateTime.now()` dopo mezzanotte
+      // rispetto al momento in cui è stato calcolato `tomorrow`.
+      expect(expiresTomorrow.daysUntilExpiry, inInclusiveRange(0, 1));
 
       final expiredYesterday = Product(
         id: 'y',

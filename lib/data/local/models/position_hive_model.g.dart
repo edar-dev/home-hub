@@ -21,13 +21,15 @@ class PositionHiveModelAdapter extends TypeAdapter<PositionHiveModel> {
       nome: fields[1] as String,
       descrizione: fields[2] as String?,
       locationId: fields[3] as String,
+      updatedAtMs: fields[4] as int?,
+      syncVersion: fields[5] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, PositionHiveModel obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -35,7 +37,11 @@ class PositionHiveModelAdapter extends TypeAdapter<PositionHiveModel> {
       ..writeByte(2)
       ..write(obj.descrizione)
       ..writeByte(3)
-      ..write(obj.locationId);
+      ..write(obj.locationId)
+      ..writeByte(4)
+      ..write(obj.updatedAtMs)
+      ..writeByte(5)
+      ..write(obj.syncVersion);
   }
 
   @override
