@@ -7,11 +7,16 @@ import 'models/location_hive_model.dart';
 import 'models/position_hive_model.dart';
 import 'models/product_hive_model.dart';
 
+/// Nome Hive box prodotti ([ProductHiveModel]).
 const String kProductsBoxName = 'products';
+
+/// Nome Hive box luoghi ([LocationHiveModel]).
 const String kLocationsBoxName = 'locations';
+
+/// Nome Hive box posizioni di stoccaggio ([PositionHiveModel]).
 const String kPositionsBoxName = 'positions';
 
-/// Inizializzazione Hive e apertura box prodotti.
+/// Accesso a Hive: init, registrazione adapter, apertura box, [dispose].
 ///
 /// [storagePath] (es. directory temporanea) usa [Hive.init] invece di
 /// [Hive.initFlutter] — utile per test/integration senza path_provider.

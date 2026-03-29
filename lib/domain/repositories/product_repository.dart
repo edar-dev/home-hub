@@ -1,10 +1,15 @@
 import '../entities/product.dart';
 
+/// Persistenza e lettura [Product] (inventario).
+///
+/// Implementazione attesa: repository locale Hive senza dipendenze UI.
 abstract class ProductRepository {
+  /// Tutti i prodotti, senza ordinamento garantito (la UI può ordinare).
   Future<List<Product>> getAll();
 
   Future<Product?> getById(String id);
 
+  /// Inserimento o aggiornamento per `product.id`.
   Future<void> save(Product product);
 
   Future<void> delete(String id);

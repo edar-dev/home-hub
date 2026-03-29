@@ -33,6 +33,9 @@ class LocationInventorySection {
       blocks.fold<int>(0, (s, b) => s + b.products.length);
 }
 
+/// Riepilogo inventario per stanza: per ogni [Location], blocchi posizione → prodotti.
+///
+/// Costruisce le [sections] incrociando gerarchia luoghi e [Product.positionId].
 class LocationInventoryViewModel extends ChangeNotifier {
   LocationInventoryViewModel(
     this._productRepository,

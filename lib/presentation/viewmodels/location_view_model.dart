@@ -8,6 +8,7 @@ import '../../domain/exceptions/location_exception.dart';
 import '../../domain/repositories/location_repository.dart';
 import '../../utils/location_validators.dart';
 
+/// Stato schermata Luoghi: gerarchia [LocationWithPositions], CRUD luoghi e posizioni.
 class LocationViewModel extends ChangeNotifier {
   LocationViewModel(this._repository);
 

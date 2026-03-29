@@ -7,6 +7,9 @@ import '../../domain/repositories/location_repository.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../../utils/product_validators.dart';
 
+/// Stato inventario: lista prodotti, filtro per luogo, caricamento ed errori.
+///
+/// Espone [displayedProducts] e [displayUiGeneration] per `Selector` efficienti.
 class ProductViewModel extends ChangeNotifier {
   ProductViewModel(this._repository, this._locationRepository) {
     _syncDisplayedAndBump();
