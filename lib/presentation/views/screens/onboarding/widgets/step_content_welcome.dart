@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:simple_animations/simple_animations.dart';
 
 import '../../../../../config/onboarding_config.dart';
 import '../../../../../domain/entities/language_code.dart';
@@ -19,7 +20,7 @@ class StepContentWelcome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Column(
+    final titleBody = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text(
@@ -33,6 +34,31 @@ class StepContentWelcome extends StatelessWidget {
           style: theme.textTheme.bodyLarge,
           textAlign: TextAlign.center,
         ),
+      ],
+    );
+
+    final intro = showAnimation
+        ? PlayAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: 1),
+            duration: const Duration(milliseconds: 480),
+            curve: Curves.easeOutCubic,
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(0, 12 * (1 - value)),
+                  child: child,
+                ),
+              );
+            },
+            child: titleBody,
+          )
+        : titleBody;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        intro,
         if (showAnimation) ...[
           const SizedBox(height: 16),
           const LottieAnimationWidget(assetPath: OnboardingAssets.welcome),

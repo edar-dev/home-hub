@@ -191,6 +191,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         return StepContentCompletion(
           lang: lang,
           showConfetti: showAnim,
+          showAnimation: showAnim,
         );
     }
   }
