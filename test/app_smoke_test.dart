@@ -4,6 +4,7 @@ import 'package:housekeep/core/di/app_providers.dart';
 import 'package:housekeep/data/local/repositories/no_op_notification_repository.dart';
 import 'support/register_mock_fallbacks.dart';
 import 'support/stub_category_repository.dart';
+import 'support/stub_onboarding_repository.dart';
 import 'support/stub_shopping_list_repository.dart';
 import 'package:housekeep/data/local/hive_service.dart';
 import 'package:housekeep/domain/entities/location.dart';
@@ -69,6 +70,7 @@ void main() {
           notificationRepository: NoOpNotificationRepository(),
           categoryRepository: buildStubCategoryRepository(),
           shoppingListRepository: buildStubShoppingListRepository(),
+          onboardingRepository: buildStubOnboardingRepository(),
         ),
       ),
     );

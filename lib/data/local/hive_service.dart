@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import '../../domain/exceptions/location_exception.dart';
 import '../../domain/exceptions/product_exception.dart';
+import '../../utils/onboarding_constants.dart';
 import 'models/location_hive_model.dart';
 import 'models/position_hive_model.dart';
 import 'models/barcode_cache_hive_model.dart';
@@ -10,6 +11,8 @@ import 'models/notification_settings_hive_model.dart';
 import 'models/product_category_hive_model.dart';
 import 'models/product_hive_model.dart';
 import 'models/shopping_list_hive_model.dart';
+import 'models/onboarding_state_hive_model.dart';
+import 'models/onboarding_settings_hive_model.dart';
 import 'models/shopping_list_item_hive_model.dart';
 
 /// Nome Hive box prodotti ([ProductHiveModel]).
@@ -76,6 +79,12 @@ class HiveService {
       }
       if (!Hive.isAdapterRegistered(7)) {
         Hive.registerAdapter(ShoppingListHiveModelAdapter());
+      }
+      if (!Hive.isAdapterRegistered(8)) {
+        Hive.registerAdapter(OnboardingStateHiveModelAdapter());
+      }
+      if (!Hive.isAdapterRegistered(9)) {
+        Hive.registerAdapter(OnboardingSettingsHiveModelAdapter());
       }
     } catch (e, st) {
       debugPrint('HiveService.init failed: $e\n$st');
@@ -154,6 +163,26 @@ class HiveService {
     } catch (e, st) {
       debugPrint('HiveService.openShoppingHistoryBox failed: $e\n$st');
       throw ProductException('Impossibile aprire lo storico liste', e);
+    }
+  }
+
+  Future<Box<OnboardingStateHiveModel>> openOnboardingStateBox() async {
+    try {
+      return await Hive.openBox<OnboardingStateHiveModel>(kOnboardingStateBoxName);
+    } catch (e, st) {
+      debugPrint('HiveService.openOnboardingStateBox failed: $e\n$st');
+      throw ProductException('Impossibile aprire lo stato onboarding', e);
+    }
+  }
+
+  Future<Box<OnboardingSettingsHiveModel>> openOnboardingSettingsBox() async {
+    try {
+      return await Hive.openBox<OnboardingSettingsHiveModel>(
+        kOnboardingSettingsBoxName,
+      );
+    } catch (e, st) {
+      debugPrint('HiveService.openOnboardingSettingsBox failed: $e\n$st');
+      throw ProductException('Impossibile aprire le impostazioni onboarding', e);
     }
   }
 

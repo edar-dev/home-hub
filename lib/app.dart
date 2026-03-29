@@ -11,20 +11,34 @@ import 'domain/repositories/barcode_repository.dart';
 import 'domain/repositories/category_repository.dart';
 import 'domain/repositories/location_repository.dart';
 import 'domain/repositories/notification_repository.dart';
+import 'domain/repositories/onboarding_repository.dart';
 import 'domain/repositories/product_repository.dart';
 import 'domain/repositories/shopping_list_repository.dart';
 import 'presentation/viewmodels/analytics_view_model.dart';
 import 'presentation/viewmodels/location_inventory_view_model.dart';
+import 'presentation/viewmodels/home_shell_tab_controller.dart';
 import 'presentation/viewmodels/location_view_model.dart';
 import 'presentation/viewmodels/notification_settings_view_model.dart';
+import 'presentation/viewmodels/onboarding_view_model.dart';
 import 'presentation/viewmodels/product_view_model.dart';
 import 'presentation/viewmodels/shopping_list_view_model.dart';
 import 'presentation/views/screens/home_shell_screen.dart';
+import 'presentation/views/screens/onboarding/onboarding_screen.dart';
+import 'presentation/views/widgets/quick_help/quick_help_fab.dart';
+import 'presentation/views/widgets/tour/tour_overlay.dart';
+import 'services/onboarding_service.dart';
 
 class HousekeepApp extends StatelessWidget {
-  const HousekeepApp({super.key, required this.dependencies});
+  const HousekeepApp({
+    super.key,
+    required this.dependencies,
+    this.initialShowOnboarding = false,
+  });
 
   final AppDependencies dependencies;
+
+  /// Se true, mostra overlay onboarding al primo frame (valutato in [main]).
+  final bool initialShowOnboarding;
 
   @override
   Widget build(BuildContext context) {
@@ -54,6 +68,21 @@ class HousekeepApp extends StatelessWidget {
         ),
         Provider<ShoppingListRepository>.value(
           value: dependencies.shoppingListRepository,
+        ),
+        Provider<OnboardingRepository>.value(
+          value: dependencies.onboardingRepository,
+        ),
+        ChangeNotifierProvider<OnboardingViewModel>(
+          create: (context) => OnboardingViewModel(
+            repository: dependencies.onboardingRepository,
+            service: OnboardingService(
+              repository: dependencies.onboardingRepository,
+            ),
+            initialShowOnboarding: initialShowOnboarding,
+          ),
+        ),
+        ChangeNotifierProvider<HomeShellTabController>(
+          create: (_) => HomeShellTabController(),
         ),
         ChangeNotifierProvider<ProductViewModel>(
           create: (context) => ProductViewModel(
@@ -104,8 +133,38 @@ class HousekeepApp extends StatelessWidget {
         theme: buildLightTheme(),
         darkTheme: buildDarkTheme(),
         themeMode: ThemeMode.system,
-        home: const HomeShellScreen(),
+        home: const _OnboardingGate(),
       ),
+    );
+  }
+}
+
+class _OnboardingGate extends StatelessWidget {
+  const _OnboardingGate();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<OnboardingViewModel>(
+      builder: (context, vm, _) {
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            const HomeShellScreen(),
+            if (vm.showOnboardingOverlay) const OnboardingScreen(),
+            const QuickHelpFab(),
+            if (vm.showTourOverlay && vm.tourStepCount > 0)
+              TourOverlay(
+                step: vm.currentTourStep,
+                stepIndex: vm.tourStepIndex,
+                totalSteps: vm.tourStepCount,
+                language: vm.settings.preferredLanguage,
+                onNext: () => vm.tourNext(),
+                onBack: () => vm.tourBack(),
+                onSkip: () => vm.dismissTour(),
+              ),
+          ],
+        );
+      },
     );
   }
 }

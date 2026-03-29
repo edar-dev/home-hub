@@ -16,6 +16,7 @@ import 'package:housekeep/data/local/repositories/no_op_notification_repository.
 
 import '../support/stub_barcode_repository.dart';
 import '../support/stub_category_repository.dart';
+import '../support/stub_onboarding_repository.dart';
 import '../support/stub_shopping_list_repository.dart';
 import '../support/register_mock_fallbacks.dart';
 
@@ -93,6 +94,7 @@ void main() {
           notificationRepository: NoOpNotificationRepository(),
           categoryRepository: buildStubCategoryRepository(),
           shoppingListRepository: buildStubShoppingListRepository(),
+          onboardingRepository: buildStubOnboardingRepository(),
         ),
       ),
     );

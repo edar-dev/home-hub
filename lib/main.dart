@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'app.dart';
 import 'core/di/app_providers.dart';
+import 'services/onboarding_service.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,5 +28,17 @@ Future<void> main() async {
   } catch (e, st) {
     debugPrint('Notification bootstrap: $e\n$st');
   }
-  runApp(HousekeepApp(dependencies: dependencies));
+
+  final onboardingService = OnboardingService(
+    repository: dependencies.onboardingRepository,
+  );
+  final showOnboarding = await onboardingService.shouldShowOnboarding();
+  await dependencies.onboardingRepository.touchLastAppOpen();
+
+  runApp(
+    HousekeepApp(
+      dependencies: dependencies,
+      initialShowOnboarding: showOnboarding,
+    ),
+  );
 }

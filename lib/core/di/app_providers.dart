@@ -12,6 +12,7 @@ import '../../data/local/repositories/local_category_repository.dart';
 import '../../data/local/repositories/local_location_repository.dart';
 import '../../data/local/repositories/local_notification_repository.dart';
 import '../../data/local/repositories/local_product_repository.dart';
+import '../../data/local/repositories/local_onboarding_repository.dart';
 import '../../data/local/repositories/local_shopping_list_repository.dart';
 import '../../data/local/repositories/no_op_notification_repository.dart';
 import '../../data/local/models/product_category_hive_model.dart';
@@ -23,6 +24,7 @@ import '../../domain/repositories/category_repository.dart';
 import '../../domain/repositories/location_repository.dart';
 import '../../domain/repositories/notification_repository.dart';
 import '../../domain/repositories/product_repository.dart';
+import '../../domain/repositories/onboarding_repository.dart';
 import '../../domain/repositories/shopping_list_repository.dart';
 
 /// Dipendenze condivise dall’app dopo bootstrap (Hive + repository locali).
@@ -39,6 +41,7 @@ class AppDependencies {
     required this.notificationRepository,
     required this.categoryRepository,
     required this.shoppingListRepository,
+    required this.onboardingRepository,
   });
 
   /// Servizio Hive (init, box); utile per test o shutdown.
@@ -67,6 +70,9 @@ class AppDependencies {
 
   /// Lista spesa e storico.
   final ShoppingListRepository shoppingListRepository;
+
+  /// Onboarding e tour (FASE 5).
+  final OnboardingRepository onboardingRepository;
 }
 
 /// Fabbrica di [AppDependencies] per `main` e test.
@@ -129,6 +135,13 @@ class AppFactory {
       productRepository,
     );
 
+    final onboardingStateBox = await hiveService.openOnboardingStateBox();
+    final onboardingSettingsBox = await hiveService.openOnboardingSettingsBox();
+    final onboardingRepository = LocalOnboardingRepository(
+      stateBox: onboardingStateBox,
+      settingsBox: onboardingSettingsBox,
+    );
+
     return AppDependencies(
       hiveService: hiveService,
       productRepository: productRepository,
@@ -139,6 +152,7 @@ class AppFactory {
       notificationRepository: notificationRepository,
       categoryRepository: categoryRepository,
       shoppingListRepository: shoppingListRepository,
+      onboardingRepository: onboardingRepository,
     );
   }
 

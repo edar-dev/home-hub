@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../viewmodels/notification_settings_view_model.dart';
+import 'onboarding_settings_screen.dart';
 
 class NotificationSettingsScreen extends StatelessWidget {
   const NotificationSettingsScreen({super.key});
@@ -23,6 +24,20 @@ class NotificationSettingsScreen extends StatelessWidget {
           body: ListView(
             padding: const EdgeInsets.all(16),
             children: [
+              ListTile(
+                leading: const Icon(Icons.school_outlined),
+                title: const Text('Onboarding e aiuto'),
+                subtitle: const Text('Tour, lingua e accessibilità'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.of(context).push<void>(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const OnboardingSettingsScreen(),
+                    ),
+                  );
+                },
+              ),
+              const Divider(),
               if (kIsWeb)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
