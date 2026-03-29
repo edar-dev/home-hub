@@ -30,9 +30,12 @@ Supportate le piattaforme abilitate nel progetto (Android, iOS, Web, desktop sec
 ```bash
 flutter analyze
 flutter test test/
+flutter test test/performance/
 ```
 
 Opzionale: `flutter test integration_test/app_test.dart` (vedi [docs/developer/testing.md](docs/developer/testing.md)).
+
+**Pre-release / E2E:** checklist e procedure in [docs/validation/](docs/validation/README.md).
 
 ## Build release
 
@@ -54,6 +57,7 @@ Comandi e firma: [docs/developer/build.md](docs/developer/build.md). Script in `
 - **Sviluppatore**: [docs/developer/setup.md](docs/developer/setup.md)
 - **ADR**: [docs/adr/README.md](docs/adr/README.md)
 - **Utente**: [docs/user/overview.md](docs/user/overview.md)
+- **Validazione pre-release**: [docs/validation/pre-release-checklist.md](docs/validation/pre-release-checklist.md)
 
 ## Licenza / pubblicazione
 

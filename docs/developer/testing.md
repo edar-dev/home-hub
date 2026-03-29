@@ -5,7 +5,10 @@
 ```bash
 flutter analyze
 flutter test test/
+flutter test test/performance/
 ```
+
+Validazione manuale e checklist pre-rilascio: [docs/validation/README.md](../validation/README.md).
 
 Integration (con device/emulator o VM secondo configurazione):
 
