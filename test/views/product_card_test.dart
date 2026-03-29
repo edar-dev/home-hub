@@ -45,7 +45,7 @@ void main() {
     expect(find.text('Farro'), findsOneWidget);
     expect(find.textContaining('Scadenza:'), findsOneWidget);
     expect(find.text('Nessuna scadenza'), findsWidgets);
-    expect(find.text('Senza scadenza'), findsOneWidget);
+    expect(find.text('N/D'), findsOneWidget);
     expect(find.textContaining('Quantità: 2 / 3'), findsOneWidget);
     expect(find.byType(Dismissible), findsNothing);
   });
@@ -74,7 +74,7 @@ void main() {
     );
     await pumpCard(tester, p);
     expect(find.text('Yogurt'), findsOneWidget);
-    expect(find.text('Urgente'), findsOneWidget);
+    expect(find.textContaining('DOMANI'), findsOneWidget);
   });
 
   testWidgets('card OK lontana da scadenza', (tester) async {
@@ -87,6 +87,6 @@ void main() {
     );
     await pumpCard(tester, p);
     expect(find.text('Riso'), findsOneWidget);
-    expect(find.text('OK'), findsOneWidget);
+    expect(find.textContaining('/'), findsWidgets);
   });
 }

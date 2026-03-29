@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+
+<html class="light" lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Il Tuo Inventario - Home</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts: Manrope & Inter -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary-fixed": "#1e192b",
+              "inverse-surface": "#313032",
+              "surface-container-highest": "#e5e1e4",
+              "tertiary-fixed": "#4ffbe6",
+              "secondary": "#625b71",
+              "error-container": "#ffdad6",
+              "primary-container": "#1976d2",
+              "on-primary": "#ffffff",
+              "on-surface": "#1c1b1d",
+              "surface-container": "#f0edf0",
+              "on-secondary": "#ffffff",
+              "inverse-primary": "#a5c8ff",
+              "tertiary-container": "#008477",
+              "primary-fixed-dim": "#a5c8ff",
+              "on-surface-variant": "#414752",
+              "outline-variant": "#c1c6d4",
+              "on-secondary-fixed-variant": "#4a4358",
+              "on-primary-fixed-variant": "#004786",
+              "primary": "#005dac",
+              "secondary-container": "#e8def9",
+              "primary-fixed": "#d4e3ff",
+              "surface": "#fcf8fb",
+              "tertiary-fixed-dim": "#17deca",
+              "surface-bright": "#fcf8fb",
+              "on-tertiary-container": "#f9fffc",
+              "on-primary-fixed": "#001c3a",
+              "on-tertiary-fixed-variant": "#005048",
+              "secondary-fixed-dim": "#ccc2dc",
+              "on-primary-container": "#fffdff",
+              "inverse-on-surface": "#f3f0f3",
+              "outline": "#717783",
+              "background": "#fcf8fb",
+              "surface-tint": "#005faf",
+              "surface-variant": "#e5e1e4",
+              "tertiary": "#00695e",
+              "on-secondary-container": "#686177",
+              "surface-container-high": "#ebe7ea",
+              "surface-container-low": "#f6f2f5",
+              "on-tertiary-fixed": "#00201c",
+              "on-background": "#1c1b1d",
+              "surface-dim": "#dcd9dc",
+              "error": "#ba1a1a",
+              "on-error-container": "#93000a",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "secondary-fixed": "#e8def9",
+              "on-error": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "1rem", "xl": "1.25rem", "2xl": "1.5rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+        display: none;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf8fb]/80 dark:bg-slate-950/80 backdrop-blur-xl flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center overflow-hidden">
+<img alt="Profilo Utente" class="w-full h-full object-cover" data-alt="Close-up portrait of a professional man with a kind expression, soft studio lighting, high-end photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCQOJvZQxDtCOB3uDCjpMvt0vZJ6JxkRG70gG16KD09FheY0k4oov8Uc4Y7S2_teCyAeqHZfOozCzR1S5KjNr2Aj9CMz-PUh8XZfkrJrM2eB3NNYP8SdmtK1v1ou3EjJci2h_52a-_Qysk70QeAPBu0W0lt98CbdpCAdQIHzr7fcZXiO_tA5xFewrGO2sm_LJJapXK_bZ3Z8qcn7EQ1vPAmpF-zzSIair--ntE7B1nUuQbvUu33k1yDGU18L4BUY7yuu5peE0js9r0"/>
+</div>
+<h1 class="font-headline font-bold text-2xl tracking-tight text-primary">Il Tuo Inventario</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-slate-500">search</span>
+</button>
+<button class="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-slate-500">filter_list</span>
+</button>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-5xl mx-auto">
+<!-- Filter Chips Section -->
+<section class="mb-8 overflow-x-auto scrollbar-hide flex gap-3 pb-2">
+<button class="px-5 py-2.5 rounded-full bg-primary text-white font-label text-sm font-semibold whitespace-nowrap active:scale-95 transition-transform">
+                Tutti
+            </button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container text-on-surface-variant font-label text-sm font-medium whitespace-nowrap hover:bg-surface-container-high active:scale-95 transition-transform">
+                Scadenza
+            </button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container text-on-surface-variant font-label text-sm font-medium whitespace-nowrap hover:bg-surface-container-high active:scale-95 transition-transform">
+                Basso stock
+            </button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container text-on-surface-variant font-label text-sm font-medium whitespace-nowrap hover:bg-surface-container-high active:scale-95 transition-transform">
+                Cucina
+            </button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container text-on-surface-variant font-label text-sm font-medium whitespace-nowrap hover:bg-surface-container-high active:scale-95 transition-transform">
+                Bagno
+            </button>
+</section>
+<!-- Bento-style Inventory Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Item: Latte Intero (High Priority Alert) -->
+<div class="group relative bg-surface-container-lowest rounded-2xl overflow-hidden shadow-none hover:shadow-xl transition-all duration-300 flex flex-col">
+<div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
+<div class="p-5 flex gap-4">
+<div class="w-20 h-20 rounded-xl bg-surface-container overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Minimalist shot of a glass milk bottle on a clean white surface with soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCsNhjb02Fb69MA6d_gPjxlZ9FdWBRfcta_6QikX_pKpw-LAq7HwWajMt3vfyhGzWoxcEeRub9hnTVrVQrFEqnBtX7gGPFxICGeeW_4gbKGv87leZpFk666EJsiGhWmeukln4cvNYImcYth8cPtgWy9qiT8hRfyypN6XYEkIDQbCnJCn0ibr-FKYkxl30zntgdl0i1GLD_nN2RcnFIBL7bBo7ELAc3l_AWY-WhM6EnAKEh0B4r_ihYj5vypueBmmZkYvg3JSsvkyXA"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<span class="text-[10px] uppercase tracking-wider font-bold text-error bg-error-container px-2 py-0.5 rounded-md mb-2 inline-block">Domani</span>
+</div>
+<h3 class="font-headline text-lg font-bold text-on-surface truncate">Latte intero</h3>
+<div class="flex items-center gap-1 text-on-surface-variant text-xs mt-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+<span>Cucina &gt; Frigo</span>
+</div>
+</div>
+</div>
+<div class="px-5 pb-5 mt-auto">
+<div class="flex justify-between items-center text-xs font-semibold mb-2">
+<span class="text-on-surface-variant">Quantità: 2/4 L</span>
+<span class="text-primary">50%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-1/2"></div>
+</div>
+</div>
+</div>
+<!-- Item: Pasta Integrale (Safe) -->
+<div class="group relative bg-surface-container-lowest rounded-2xl overflow-hidden shadow-none hover:shadow-xl transition-all duration-300 flex flex-col">
+<div class="absolute top-0 left-0 w-1 h-full bg-tertiary"></div>
+<div class="p-5 flex gap-4">
+<div class="w-20 h-20 rounded-xl bg-surface-container overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Macro photography of whole wheat pasta texture in a glass jar, warm natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDWpPRHdd__cYzyEyaLnXL_vXc0Xzdh0dXgwwWsbTtFdTWzsA816wBo-j7EJLbnLU-z_txpmN_q03mhymRCIgCJLqCcHUnKVJTMA0IO095oqCh-PKakN3w5E6gd6SGsfTJT8fbDyBpfDdarg5n9xRL-4x9k2XVjXH8W0yxqt4INQj4GBuxZnrHM2tXkehsrsaH3c2TXMeG_9820U36nqhenqkofFsUnkruh2hvU4UN_wDNxV-aYWpvxh28NZjxPDMCufmdgEdVzUY4"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<span class="text-[10px] uppercase tracking-wider font-bold text-tertiary bg-tertiary-container/10 px-2 py-0.5 rounded-md mb-2 inline-block">12/2026</span>
+</div>
+<h3 class="font-headline text-lg font-bold text-on-surface truncate">Pasta integrale</h3>
+<div class="flex items-center gap-1 text-on-surface-variant text-xs mt-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+<span>Cucina &gt; Dispensa</span>
+</div>
+</div>
+</div>
+<div class="px-5 pb-5 mt-auto">
+<div class="flex justify-between items-center text-xs font-semibold mb-2">
+<span class="text-on-surface-variant">Quantità: 1/2 kg</span>
+<span class="text-primary">50%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full w-1/2"></div>
+</div>
+</div>
+</div>
+<!-- Item: Tonno in scatola (Expired) -->
+<div class="group relative bg-surface-container-lowest rounded-2xl overflow-hidden shadow-none hover:shadow-xl transition-all duration-300 flex flex-col">
+<div class="absolute top-0 left-0 w-1 h-full bg-error"></div>
+<div class="p-5 flex gap-4">
+<div class="w-20 h-20 rounded-xl bg-surface-container overflow-hidden flex-shrink-0 grayscale">
+<img class="w-full h-full object-cover" data-alt="Stacked tin cans in a dark pantry, moody dramatic shadows, industrial style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBF03_UftcOPQKQ7qE6FvbPkpnnZpjeGbMWKKq3xVOd6UBOl1RPi7AMCZVumeWrPAAOFdNKPRC3OD_j1h3y2aeCfrYy8qxhkL2Phw4Il0b1wpGqdrs1W4gC3tB0KQrB7dVh4mEIR_Av9aCDdXEaLgIVjrNaF9E2u1ejph1RwUhfLaRUfozDJI9v9rbFXKl3gmQy2dJ4HS-8cuSC9hxIHjaSDFgz_-cSIpk9_IsQvhf4uFoU6RAggJ7d5ZmG7SbDrSuMPTCPEtS02eo"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<span class="text-[10px] uppercase tracking-wider font-bold text-white bg-error px-2 py-0.5 rounded-md mb-2 inline-block">Scaduto</span>
+</div>
+<h3 class="font-headline text-lg font-bold text-on-surface truncate">Tonno in scatola</h3>
+<div class="flex items-center gap-1 text-on-surface-variant text-xs mt-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+<span>Cucina &gt; Dispensa</span>
+</div>
+</div>
+</div>
+<div class="px-5 pb-5 mt-auto">
+<div class="flex justify-between items-center text-xs font-semibold mb-2">
+<span class="text-on-surface-variant">Quantità: 3/3</span>
+<span class="text-error">Getta via</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-error rounded-full w-full"></div>
+</div>
+</div>
+</div>
+<!-- Item: Detersivo (Low Stock) -->
+<div class="group relative bg-surface-container-lowest rounded-2xl overflow-hidden shadow-none hover:shadow-xl transition-all duration-300 flex flex-col">
+<div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+<div class="p-5 flex gap-4">
+<div class="w-20 h-20 rounded-xl bg-surface-container overflow-hidden flex-shrink-0">
+<img class="w-full h-full object-cover" data-alt="Clean laundry detergent bottle on a white shelf, bright airy laundry room aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3ucNK-6qPCQnD9ItFuHyZxrP4rSQb89-nvUgFh_ONoJE6NhZJBMFaDAxVug0YvTCXRWej1kcIr8TAnTpv9EBwiZvDsDC3LMKRmcLqCnQR87g2TxvOoprHh4An-L2gkYxqWq9KIAs9fHp0acBMoXr2M09zWbCf3zPfL1XNsLh0nNnfnvMXQgO8XKMa4D72WylzcJyoKUst4Uj6Qsg9_H0kWx19OnJKbdSJEFc4bz3G78r8GvtCSQgv5QlJuGhpfHSsGSlK_wBafKY"/>
+</div>
+<div class="flex-1 min-w-0">
+<div class="flex justify-between items-start">
+<span class="text-[10px] uppercase tracking-wider font-bold text-amber-700 bg-amber-100 px-2 py-0.5 rounded-md mb-2 inline-block">Basso stock</span>
+</div>
+<h3 class="font-headline text-lg font-bold text-on-surface truncate">Detersivo lavatrice</h3>
+<div class="flex items-center gap-1 text-on-surface-variant text-xs mt-1">
+<span class="material-symbols-outlined text-[14px]">location_on</span>
+<span>Lavanderia &gt; Scaffale</span>
+</div>
+</div>
+</div>
+<div class="px-5 pb-5 mt-auto">
+<div class="flex justify-between items-center text-xs font-semibold mb-2">
+<span class="text-on-surface-variant">Scadenza: N/A</span>
+<span class="text-amber-600">Acquista</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-amber-500 rounded-full w-[15%]"></div>
+</div>
+</div>
+</div>
+<!-- Suggestion Card (Bento Style Variation) -->
+<div class="lg:col-span-2 bg-primary-container text-on-primary-container rounded-2xl p-6 flex items-center justify-between overflow-hidden relative">
+<div class="relative z-10">
+<h2 class="font-headline text-xl font-bold mb-2">Ottimizza la tua spesa</h2>
+<p class="text-sm opacity-90 max-w-md">Hai 3 articoli in scadenza questa settimana. Vuoi creare una lista della spesa intelligente?</p>
+<button class="mt-4 px-6 py-2.5 bg-white text-primary font-bold rounded-full text-sm active:scale-95 transition-transform">
+                        Analisi Consumi
+                    </button>
+</div>
+<span class="material-symbols-outlined text-white/20 text-9xl absolute -right-4 -bottom-4 rotate-12 select-none">shopping_cart_checkout</span>
+</div>
+</div>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-28 right-6 w-14 h-14 rounded-2xl bg-tertiary text-white shadow-lg flex items-center justify-center active:scale-90 transition-all duration-200 z-50">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white dark:bg-slate-900 shadow-[0_-4px_24px_rgba(0,0,0,0.04)] rounded-t-[2rem] border-t border-slate-100 dark:border-slate-800">
+<a class="flex flex-col items-center justify-center bg-[#005dac]/10 text-[#005dac] dark:bg-blue-900/30 dark:text-blue-200 rounded-2xl px-5 py-2 active:scale-90 duration-200 transition-all" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-inter text-[11px] font-medium tracking-wide mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-[#1976D2] active:scale-90 duration-200 transition-all" href="#">
+<span class="material-symbols-outlined">analytics</span>
+<span class="font-inter text-[11px] font-medium tracking-wide mt-1">Analisi</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-[#1976D2] active:scale-90 duration-200 transition-all" href="#">
+<span class="material-symbols-outlined">shopping_cart</span>
+<span class="font-inter text-[11px] font-medium tracking-wide mt-1">Spesa</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-[#1976D2] active:scale-90 duration-200 transition-all" href="#">
+<span class="material-symbols-outlined">location_on</span>
+<span class="font-inter text-[11px] font-medium tracking-wide mt-1">Luoghi</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-[#1976D2] active:scale-90 duration-200 transition-all" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-inter text-[11px] font-medium tracking-wide mt-1">Impostazioni</span>
+</a>
+</nav>
+</body></html>

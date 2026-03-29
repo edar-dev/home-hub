@@ -10,6 +10,7 @@ import '../../viewmodels/product_view_model.dart';
 import '../widgets/product_card.dart';
 import '../widgets/product_detail_body.dart';
 import '../widgets/product_placement_helper.dart';
+import '../widgets/stitch_top_app_bar.dart';
 import 'barcode_scanner_screen.dart';
 import 'product_detail_screen.dart';
 import 'product_form_screen.dart';
@@ -192,6 +193,85 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
   }
 
+  Widget _inventoryQuickChips(
+    BuildContext context,
+    ProductViewModel vm,
+    LocationViewModel locVm,
+  ) {
+    final scheme = Theme.of(context).colorScheme;
+    Widget capsule(String label, bool selected, VoidCallback onTap) {
+      return Padding(
+        padding: const EdgeInsets.only(right: 10),
+        child: Material(
+          color: selected ? scheme.primary : scheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(999),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(999),
+            onTap: onTap,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Text(
+                label,
+                style: TextStyle(
+                  color:
+                      selected ? scheme.onPrimary : scheme.onSurfaceVariant,
+                  fontSize: 13,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
+    final rows = locVm.items.take(3).toList();
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+      child: Row(
+        children: [
+          capsule(
+            'Tutti',
+            vm.quickInventoryChip == InventoryQuickChip.tutti,
+            () => unawaited(
+              vm.setQuickInventoryChip(InventoryQuickChip.tutti),
+            ),
+          ),
+          capsule(
+            'Scadenza',
+            vm.quickInventoryChip == InventoryQuickChip.scadenza,
+            () => unawaited(
+              vm.setQuickInventoryChip(InventoryQuickChip.scadenza),
+            ),
+          ),
+          capsule(
+            'Basso stock',
+            vm.quickInventoryChip == InventoryQuickChip.bassoStock,
+            () => unawaited(
+              vm.setQuickInventoryChip(InventoryQuickChip.bassoStock),
+            ),
+          ),
+          ...rows.map((row) {
+            final id = row.location.id;
+            final sel = vm.quickInventoryChip == InventoryQuickChip.luogo &&
+                vm.filterLocationId == id;
+            return capsule(
+              row.location.nome,
+              sel,
+              () => unawaited(
+                vm.setQuickInventoryChip(
+                  InventoryQuickChip.luogo,
+                  locationId: id,
+                ),
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+
   Widget _buildListView(
     ProductViewModel vm,
     bool wide,
@@ -200,12 +280,12 @@ class _ProductListScreenState extends State<ProductListScreen> {
     return RefreshIndicator(
       onRefresh: () => vm.loadProducts(),
       child: ListView.builder(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
         itemCount: vm.displayedProducts.length,
         itemBuilder: (context, index) {
           final p = vm.displayedProducts[index];
           return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.only(bottom: 16),
             child: Dismissible(
               key: ValueKey(p.id),
               direction: DismissDirection.endToStart,
@@ -225,7 +305,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 padding: const EdgeInsets.only(right: 20),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.errorContainer,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(24),
                 ),
                 child: Icon(
                   Icons.delete_outline,
@@ -343,7 +423,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<ProductViewModel, (bool, String?, int, int, int, String?)>(
+    return Selector<
+        ProductViewModel,
+        (bool, String?, int, int, int, String?, InventoryQuickChip)>(
       selector: (_, vm) => (
         vm.isLoading,
         vm.errorMessage,
@@ -351,6 +433,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
         vm.displayedProducts.length,
         vm.displayUiGeneration,
         vm.filterLocationId,
+        vm.quickInventoryChip,
       ),
       builder: (context, _, __) {
         final vm = context.read<ProductViewModel>();
@@ -366,50 +449,60 @@ class _ProductListScreenState extends State<ProductListScreen> {
         return LayoutBuilder(
           builder: (context, constraints) {
             final wide = isWideWidth(constraints.maxWidth);
+            final scheme = Theme.of(context).colorScheme;
             return Scaffold(
-              appBar: AppBar(
-                title: const Text('Inventario'),
-                actions: [
-                  PopupMenuButton<String?>(
-                    icon: const Icon(Icons.filter_list_outlined),
-                    tooltip: 'Filtra per luogo',
-                    onSelected: (id) {
-                      unawaited(vm.setLocationFilter(id));
-                    },
-                    itemBuilder: (ctx) => [
-                      const PopupMenuItem<String?>(
-                        value: null,
-                        child: Text('Tutti i prodotti'),
+              body: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  StitchTopAppBar(
+                    title: 'Il Tuo Inventario',
+                    actions: [
+                      IconButton(
+                        icon: const Icon(Icons.search),
+                        tooltip: 'Cerca (prossimamente)',
+                        onPressed: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Ricerca in arrivo in una prossima versione',
+                              ),
+                            ),
+                          );
+                        },
                       ),
-                      ...locVm.items.map(
-                        (e) => PopupMenuItem<String?>(
-                          value: e.location.id,
-                          child: Text(e.location.nome),
-                        ),
+                      PopupMenuButton<String?>(
+                        icon: const Icon(Icons.filter_list_outlined),
+                        tooltip: 'Filtra per luogo',
+                        onSelected: (id) {
+                          unawaited(vm.setLocationFilter(id));
+                        },
+                        itemBuilder: (ctx) => [
+                          const PopupMenuItem<String?>(
+                            value: null,
+                            child: Text('Tutti i prodotti'),
+                          ),
+                          ...locVm.items.map(
+                            (e) => PopupMenuItem<String?>(
+                              value: e.location.id,
+                              child: Text(e.location.nome),
+                            ),
+                          ),
+                        ],
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.refresh),
+                        onPressed:
+                            vm.isLoading ? null : () => vm.loadProducts(),
+                        tooltip: 'Aggiorna',
                       ),
                     ],
                   ),
-                  IconButton(
-                    icon: const Icon(Icons.search),
-                    tooltip: 'Cerca (prossimamente)',
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text(
-                            'Ricerca in arrivo in una prossima versione',
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh),
-                    onPressed: vm.isLoading ? null : () => vm.loadProducts(),
-                    tooltip: 'Aggiorna',
+                  _inventoryQuickChips(context, vm, locVm),
+                  Expanded(
+                    child: _buildBody(context, vm, wide, placementIndex),
                   ),
                 ],
               ),
-              body: _buildBody(context, vm, wide, placementIndex),
               floatingActionButton: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -417,6 +510,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
                   FloatingActionButton.small(
                     key: const ValueKey<String>('fab-scan'),
                     heroTag: 'fab-scan',
+                    backgroundColor: scheme.surfaceContainerHigh,
+                    foregroundColor: scheme.primary,
                     onPressed: _openBarcodeScanner,
                     child: const Icon(Icons.qr_code_scanner_outlined),
                   ),

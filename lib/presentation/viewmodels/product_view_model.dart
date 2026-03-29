@@ -10,6 +10,9 @@ import '../../domain/repositories/notification_repository.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../../utils/product_validators.dart';
 
+/// Chip orizzontali inventario (prototipo Stitch).
+enum InventoryQuickChip { tutti, scadenza, bassoStock, luogo }
+
 /// Stato inventario: lista prodotti, filtro per luogo, caricamento ed errori.
 ///
 /// Espone [displayedProducts] e [displayUiGeneration] per `Selector` efficienti.
@@ -35,6 +38,7 @@ class ProductViewModel extends ChangeNotifier {
 
   String? _filterLocationId;
   Set<String> _positionIdsInFilter = {};
+  InventoryQuickChip _quickChip = InventoryQuickChip.tutti;
 
   List<Product> get products => List.unmodifiable(_products);
 
@@ -45,6 +49,8 @@ class ProductViewModel extends ChangeNotifier {
   int get displayUiGeneration => _displayUiGeneration;
 
   String? get filterLocationId => _filterLocationId;
+
+  InventoryQuickChip get quickInventoryChip => _quickChip;
 
   bool get isLoading => _isLoading;
 
@@ -61,19 +67,23 @@ class ProductViewModel extends ChangeNotifier {
   }
 
   void _syncDisplayedAndBump() {
-    if (_filterLocationId == null) {
-      _displayedProducts = List.unmodifiable(_products);
-    } else {
-      _displayedProducts = List.unmodifiable(
-        _products
-            .where(
-              (p) =>
-                  p.positionId != null &&
-                  _positionIdsInFilter.contains(p.positionId),
-            )
-            .toList(),
+    Iterable<Product> cand = _products;
+    if (_quickChip == InventoryQuickChip.scadenza) {
+      cand = cand.where((p) {
+        final d = p.daysUntilExpiry;
+        return d != null && d >= 0 && d <= 7;
+      });
+    } else if (_quickChip == InventoryQuickChip.bassoStock) {
+      cand = cand.where((p) => p.isLowStock);
+    } else if (_quickChip == InventoryQuickChip.luogo &&
+        _filterLocationId != null) {
+      cand = cand.where(
+        (p) =>
+            p.positionId != null &&
+            _positionIdsInFilter.contains(p.positionId),
       );
     }
+    _displayedProducts = List.unmodifiable(cand.toList());
     _displayUiGeneration++;
   }
 
@@ -91,7 +101,33 @@ class ProductViewModel extends ChangeNotifier {
   /// Filtro inventario per luogo (`null` = tutti i prodotti).
   Future<void> setLocationFilter(String? locationId) async {
     _filterLocationId = locationId;
+    if (locationId != null) {
+      _quickChip = InventoryQuickChip.luogo;
+    } else {
+      _quickChip = InventoryQuickChip.tutti;
+    }
     await _refreshFilterPositions();
+    _syncDisplayedAndBump();
+    notifyListeners();
+  }
+
+  /// Chip rapidi (Stitch): [luogo] richiede [locationId].
+  Future<void> setQuickInventoryChip(
+    InventoryQuickChip chip, {
+    String? locationId,
+  }) async {
+    if (chip == InventoryQuickChip.luogo) {
+      if (locationId == null) return;
+      _quickChip = chip;
+      _filterLocationId = locationId;
+      await _refreshFilterPositions();
+      _syncDisplayedAndBump();
+      notifyListeners();
+      return;
+    }
+    _quickChip = chip;
+    _filterLocationId = null;
+    _positionIdsInFilter = {};
     _syncDisplayedAndBump();
     notifyListeners();
   }

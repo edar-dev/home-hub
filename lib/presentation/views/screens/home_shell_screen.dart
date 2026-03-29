@@ -78,10 +78,14 @@ class HomeShellScreen extends StatelessWidget {
                 index: tab.index,
                 children: _pages,
               ),
-              bottomNavigationBar: NavigationBar(
-                selectedIndex: tab.index,
-                onDestinationSelected: tab.setIndex,
-                destinations: const [
+              bottomNavigationBar: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(32),
+                ),
+                child: NavigationBar(
+                  selectedIndex: tab.index,
+                  onDestinationSelected: tab.setIndex,
+                  destinations: const [
                   NavigationDestination(
                     icon: Icon(Icons.inventory_2_outlined),
                     selectedIcon: Icon(Icons.inventory_2),
@@ -113,6 +117,7 @@ class HomeShellScreen extends StatelessWidget {
                     label: 'Notifiche',
                   ),
                 ],
+                ),
               ),
             );
           },

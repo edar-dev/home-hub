@@ -44,28 +44,45 @@ class _AnalyticsFilterControlsState extends State<AnalyticsFilterControls> {
     final analytics = context.watch<AnalyticsViewModel>();
     final locVm = context.watch<LocationViewModel>();
 
+    final scheme = Theme.of(context).colorScheme;
+    Widget periodChip(String label, String code) {
+      final selected = _preset == code;
+      return Padding(
+        padding: const EdgeInsets.only(right: 10),
+        child: Material(
+          color: selected ? scheme.primary : scheme.surfaceContainer,
+          borderRadius: BorderRadius.circular(999),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(999),
+            onTap: () => _applyPreset(code, analytics),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 10),
+              child: Text(
+                label,
+                style: TextStyle(
+                  color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        DropdownButtonFormField<String>(
-          decoration: const InputDecoration(
-            labelText: 'Periodo',
-            border: OutlineInputBorder(),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              periodChip('7 giorni', 'week'),
+              periodChip('30 giorni', 'month'),
+              periodChip('1 anno', 'year'),
+            ],
           ),
-          // ignore: deprecated_member_use
-          value: _preset,
-          items: const [
-            DropdownMenuItem(value: 'week', child: Text('Ultima settimana')),
-            DropdownMenuItem(value: 'month', child: Text('Ultimo mese')),
-            DropdownMenuItem(
-              value: 'quarter',
-              child: Text('Ultimo trimestre'),
-            ),
-            DropdownMenuItem(value: 'year', child: Text('Ultimo anno')),
-          ],
-          onChanged: (v) {
-            if (v != null) _applyPreset(v, analytics);
-          },
         ),
         const SizedBox(height: 12),
         DropdownButtonFormField<String?>(

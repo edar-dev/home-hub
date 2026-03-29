@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+
+<html class="light" lang="it"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-secondary-fixed": "#1e192b",
+              "inverse-surface": "#313032",
+              "surface-container-highest": "#e5e1e4",
+              "tertiary-fixed": "#4ffbe6",
+              "secondary": "#625b71",
+              "error-container": "#ffdad6",
+              "primary-container": "#1976d2",
+              "on-primary": "#ffffff",
+              "on-surface": "#1c1b1d",
+              "surface-container": "#f0edf0",
+              "on-secondary": "#ffffff",
+              "inverse-primary": "#a5c8ff",
+              "tertiary-container": "#008477",
+              "primary-fixed-dim": "#a5c8ff",
+              "on-surface-variant": "#414752",
+              "outline-variant": "#c1c6d4",
+              "on-secondary-fixed-variant": "#4a4358",
+              "on-primary-fixed-variant": "#004786",
+              "primary": "#005dac",
+              "secondary-container": "#e8def9",
+              "primary-fixed": "#d4e3ff",
+              "surface": "#fcf8fb",
+              "tertiary-fixed-dim": "#17deca",
+              "surface-bright": "#fcf8fb",
+              "on-tertiary-container": "#f9fffc",
+              "on-primary-fixed": "#001c3a",
+              "on-tertiary-fixed-variant": "#005048",
+              "secondary-fixed-dim": "#ccc2dc",
+              "on-primary-container": "#fffdff",
+              "inverse-on-surface": "#f3f0f3",
+              "outline": "#717783",
+              "background": "#fcf8fb",
+              "surface-tint": "#005faf",
+              "surface-variant": "#e5e1e4",
+              "tertiary": "#00695e",
+              "on-secondary-container": "#686177",
+              "surface-container-high": "#ebe7ea",
+              "surface-container-low": "#f6f2f5",
+              "on-tertiary-fixed": "#00201c",
+              "on-background": "#1c1b1d",
+              "surface-dim": "#dcd9dc",
+              "error": "#ba1a1a",
+              "on-error-container": "#93000a",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "secondary-fixed": "#e8def9",
+              "on-error": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fcf8fb]/80 backdrop-blur-xl flex items-center justify-between px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up portrait of a professional man with a friendly expression in soft studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDABxIVPZAvhjAOoUV3GWgITo7bH5SF9vzO8l-_L2oegObNJKGEEbUHHIGi_PMANWIJZT4oQqNTKynMilhpC-1LrUxSF7gVBEmLjs8nxc65selj6fOEXmXwDFeTlcl97fLzfO11q1UBvyOLldpUDMQIjLl2TY3Kc0At5fKJIO-0m1AMDsh0Fn8dzx-6YEVFoow4EZIgK0TcG6YFJYsEh5bZJXxqElKFUf41zixV8-6rbh1ZTb-xYdEfXZ5I8kGfq4VCsFuvpvhfbnA"/>
+</div>
+<h1 class="font-headline font-bold text-2xl tracking-tight text-primary">Lista della Spesa</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded-full hover:bg-slate-100 transition-colors active:scale-95 duration-200">
+<span class="material-symbols-outlined text-slate-500">search</span>
+</button>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-2xl mx-auto">
+<!-- Action Header -->
+<section class="mb-8 flex flex-col gap-4">
+<div class="flex gap-3 overflow-x-auto no-scrollbar pb-2">
+<button class="flex items-center gap-2 bg-gradient-to-br from-primary to-primary-container text-white px-5 py-3 rounded-full font-label font-semibold text-sm whitespace-nowrap shadow-sm active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]">auto_awesome</span>
+                    Genera automatica
+                </button>
+<button class="flex items-center gap-2 bg-surface-container text-primary px-5 py-3 rounded-full font-label font-semibold text-sm whitespace-nowrap active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[18px]">share</span>
+                    Condividi
+                </button>
+</div>
+</section>
+<!-- Bento Layout for Shopping Categories -->
+<div class="grid grid-cols-1 gap-6">
+<!-- Shopping Item 1: High Priority -->
+<div class="relative overflow-hidden bg-surface-container-lowest rounded-xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border-l-4 border-error">
+<div class="flex justify-between items-start">
+<div class="flex gap-4">
+<div class="flex items-start pt-1">
+<input class="w-6 h-6 rounded-md border-outline-variant text-primary focus:ring-primary-container cursor-pointer" type="checkbox"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg text-on-surface">Latte intero</h3>
+<p class="text-on-surface-variant text-sm mt-1">2 unità • <span class="font-semibold text-error">Finito</span></p>
+<div class="mt-3 flex items-center gap-2 bg-error-container/30 w-fit px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-error" style="font-variation-settings: 'FILL' 1;">priority_high</span>
+<span class="text-[12px] font-bold text-error uppercase tracking-wider">Alta Priorità</span>
+</div>
+</div>
+</div>
+<div class="w-16 h-16 rounded-lg bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Minimalist photograph of a fresh glass milk bottle on a clean white surface with soft morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzX9eugiImg4M8TjrT2ewd4uePnMcds1_hbvYQanPzKeAa9R3wrweBG5XEUTHokn39N88ns0Z7HeMbyXG8i9njYlCApuzG48miwwg1CQSva3kzHI2rSfWT5iUAf7jhHf8XeLsydqTAEZLWjnGjz7b4wWw5HT1Mk0xHUPJdlfEYGzosu9yMEPRh1wn5u8_J9WBfrEamp6gAxhs5k-9AQ5NdXhhK3YD2MvSpYaz2kV5WXUf8AuvJgWGoQxPCsxFdi93ETIzQw-39AkM"/>
+</div>
+</div>
+</div>
+<!-- Shopping Item 2: Medium Priority -->
+<div class="relative overflow-hidden bg-surface-container-lowest rounded-xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border-l-4 border-[#FFB300]">
+<div class="flex justify-between items-start">
+<div class="flex gap-4">
+<div class="flex items-start pt-1">
+<input class="w-6 h-6 rounded-md border-outline-variant text-primary focus:ring-primary-container cursor-pointer" type="checkbox"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg text-on-surface">Carta igienica</h3>
+<p class="text-on-surface-variant text-sm mt-1">1 pacco • <span class="font-semibold text-[#FFB300]">Basso stock</span></p>
+<div class="mt-3 flex items-center gap-2 bg-[#FFB300]/10 w-fit px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-[#FFB300]" style="font-variation-settings: 'FILL' 1;">warning</span>
+<span class="text-[12px] font-bold text-[#FFB300] uppercase tracking-wider">Priorità Media</span>
+</div>
+</div>
+</div>
+<div class="w-16 h-16 rounded-lg bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Soft white toilet paper rolls stacked neatly in an aesthetically pleasing bathroom setting with warm lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAO9XNcCrBGKIRBQ-ghWaVCPt0AGJcBYX42GTVy9arlYOhSIccwaNJYM7Rb0I1qMbzLnOHQT1agn26D3A01vG5v65Gxi6Y9ybZwE81HGGq5yegY12D800sym2DewEiWlXy8Ld9bR6yOI_44PCKWlSRIQjFQZkNLzCnVVq0C7bwZUaqhUbCRgGKLl2hzVAbUYl67sAzG61Ug9joz7NScFiMd6DU7uouwGoIX_l0PSH4r8850TY5LxG2xa3GeXSF_zO9C3UYLrcIXu9o"/>
+</div>
+</div>
+</div>
+<!-- Shopping Item 3: Low Priority -->
+<div class="relative overflow-hidden bg-surface-container-lowest rounded-xl p-5 shadow-[0_4px_20px_rgba(0,0,0,0.02)] border-l-4 border-outline">
+<div class="flex justify-between items-start">
+<div class="flex gap-4">
+<div class="flex items-start pt-1">
+<input class="w-6 h-6 rounded-md border-outline-variant text-primary focus:ring-primary-container cursor-pointer" type="checkbox"/>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg text-on-surface">Shampoo</h3>
+<p class="text-on-surface-variant text-sm mt-1">1 flacone • <span class="font-semibold text-outline">Suggerimento</span></p>
+<div class="mt-3 flex items-center gap-2 bg-surface-container w-fit px-3 py-1 rounded-full">
+<span class="material-symbols-outlined text-[14px] text-outline">lightbulb</span>
+<span class="text-[12px] font-bold text-outline uppercase tracking-wider">Priorità Bassa</span>
+</div>
+</div>
+</div>
+<div class="w-16 h-16 rounded-lg bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Elegant shampoo bottle on a wet marble surface with droplets of water and soft natural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXJSv_KvGc1Xm_biLYCMM2ItbwtRMM_A5phW3TgvGnoaPNIiKh_qJ-2JWh6mBjFlfT9OvGZg1taKCkhZK_Z52Hf-gFwx0SWQcgYkq_UpE60vOgXm9XDwpW88-9QhStLip5SAbYuMosonKuZMITvfaZT9yWq4Dj2SYM_KN6vp0QXSTqVWkboXieT0SAWG23ZApK7x6_hlw-rsH8vBY8UUuqRlnAsMD4P3eS2pYKTf69mtCZW_3q00cLjEW1E7w1iENQoiy-S_s8clk"/>
+</div>
+</div>
+</div>
+<!-- Suggested Addition (Empty State/Next Action Style) -->
+<div class="mt-4 p-8 rounded-[2rem] border-2 border-dashed border-outline-variant/30 flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-4xl text-outline-variant mb-4">add_shopping_cart</span>
+<p class="font-headline font-semibold text-on-surface-variant">Hai altro da aggiungere?</p>
+<p class="text-sm text-outline mb-6">Tocca per inserire un nuovo oggetto</p>
+<button class="bg-surface-container-high text-primary font-bold px-8 py-3 rounded-full active:scale-95 transition-all">
+                    Aggiungi manualmente
+                </button>
+</div>
+</div>
+</main>
+<!-- FAB for quick add -->
+<button class="fixed bottom-28 right-6 w-14 h-14 bg-tertiary text-on-tertiary rounded-2xl shadow-lg flex items-center justify-center z-40 active:scale-90 duration-200">
+<span class="material-symbols-outlined text-2xl">add</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-white dark:bg-slate-900 shadow-[0_-4px_24px_rgba(0,0,0,0.04)] rounded-t-[2rem]">
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-[#1976D2] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-inter text-[11px] font-medium tracking-wide">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-[#1976D2] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1">analytics</span>
+<span class="font-inter text-[11px] font-medium tracking-wide">Analisi</span>
+</a>
+<!-- Active Tab: Spesa -->
+<a class="flex flex-col items-center justify-center bg-[#005dac]/10 text-[#005dac] dark:bg-blue-900/30 dark:text-blue-200 rounded-2xl px-5 py-2 active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1" style="font-variation-settings: 'FILL' 1;">shopping_cart</span>
+<span class="font-inter text-[11px] font-medium tracking-wide">Spesa</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-[#1976D2] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1">location_on</span>
+<span class="font-inter text-[11px] font-medium tracking-wide">Luoghi</span>
+</a>
+<a class="flex flex-col items-center justify-center text-slate-500 dark:text-slate-400 px-5 py-2 hover:text-[#1976D2] transition-all active:scale-90 duration-200" href="#">
+<span class="material-symbols-outlined mb-1">settings</span>
+<span class="font-inter text-[11px] font-medium tracking-wide">Impostazioni</span>
+</a>
+</nav>
+</body></html>
