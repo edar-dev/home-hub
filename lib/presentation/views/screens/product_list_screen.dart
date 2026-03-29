@@ -10,6 +10,7 @@ import '../../viewmodels/product_view_model.dart';
 import '../widgets/product_card.dart';
 import '../widgets/product_detail_body.dart';
 import '../widgets/product_placement_helper.dart';
+import 'barcode_scanner_screen.dart';
 import 'product_detail_screen.dart';
 import 'product_form_screen.dart';
 
@@ -131,6 +132,36 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   Future<void> _embeddedDelete(Product p) async {
     await _confirmDelete(p.nome, p.id);
+  }
+
+  Future<void> _openBarcodeScanner() async {
+    final result = await Navigator.of(context).push<BarcodeScanResult>(
+      MaterialPageRoute(
+        fullscreenDialog: true,
+        builder: (_) => const BarcodeScannerScreen(),
+      ),
+    );
+    if (!mounted || result == null) return;
+    final vm = context.read<ProductViewModel>();
+    Product? match;
+    for (final p in vm.products) {
+      if (p.barcode != null && p.barcode == result.barcode) {
+        match = p;
+        break;
+      }
+    }
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => match != null
+            ? ProductFormScreen(product: match)
+            : ProductFormScreen(
+                initialBarcode: result.barcode,
+                initialSuggestedName: result.suggestedName,
+              ),
+      ),
+    );
+    if (!mounted) return;
+    await vm.loadProducts();
   }
 
   Widget _buildDetailPane(
@@ -379,20 +410,33 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 ],
               ),
               body: _buildBody(context, vm, wide, placementIndex),
-              floatingActionButton: FloatingActionButton(
-                key: const ValueKey<String>('fab-product'),
-                heroTag: 'fab-product',
-                onPressed: () async {
-                  final vmFab = context.read<ProductViewModel>();
-                  await Navigator.of(context).push<void>(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const ProductFormScreen(),
-                    ),
-                  );
-                  if (!context.mounted) return;
-                  await vmFab.loadProducts();
-                },
-                child: const Icon(Icons.add),
+              floatingActionButton: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  FloatingActionButton.small(
+                    key: const ValueKey<String>('fab-scan'),
+                    heroTag: 'fab-scan',
+                    onPressed: _openBarcodeScanner,
+                    child: const Icon(Icons.qr_code_scanner_outlined),
+                  ),
+                  const SizedBox(height: 12),
+                  FloatingActionButton(
+                    key: const ValueKey<String>('fab-product'),
+                    heroTag: 'fab-product',
+                    onPressed: () async {
+                      final vmFab = context.read<ProductViewModel>();
+                      await Navigator.of(context).push<void>(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const ProductFormScreen(),
+                        ),
+                      );
+                      if (!context.mounted) return;
+                      await vmFab.loadProducts();
+                    },
+                    child: const Icon(Icons.add),
+                  ),
+                ],
               ),
             );
           },

@@ -10,6 +10,7 @@ Gli ADR documentano **decisioni strutturali** difficili da dedurre dal solo codi
 | 0002 | [Persistenza locale con Hive](0002-local-storage-hive.md) |
 | 0003 | [State management con Provider](0003-state-management-provider.md) |
 | 0004 | [Prodotto collegato solo tramite positionId](0004-product-position-fk.md) |
+| 0005 | [Trend consumo analytics senza storico](0005-analytics-consumption-trend.md) |
 
 ## Come proporre un nuovo ADR
 

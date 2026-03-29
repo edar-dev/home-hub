@@ -1,12 +1,18 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:housekeep/app.dart';
 import 'package:housekeep/core/di/app_providers.dart';
+import 'package:housekeep/data/local/repositories/no_op_notification_repository.dart';
+import 'support/register_mock_fallbacks.dart';
+import 'support/stub_category_repository.dart';
+import 'support/stub_shopping_list_repository.dart';
 import 'package:housekeep/data/local/hive_service.dart';
 import 'package:housekeep/domain/entities/location.dart';
 import 'package:housekeep/domain/entities/product.dart';
 import 'package:housekeep/domain/entities/storage_position.dart';
 import 'package:housekeep/domain/repositories/location_repository.dart';
 import 'package:housekeep/domain/repositories/product_repository.dart';
+import 'support/stub_analytics_repository.dart';
+import 'support/stub_barcode_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
 class _MockHive extends Mock implements HiveService {}
@@ -17,6 +23,7 @@ class _MockLocationRepo extends Mock implements LocationRepository {}
 
 void main() {
   setUpAll(() {
+    registerHousekeepMockFallbacks();
     registerFallbackValue(
       Product(
         id: 'fb',
@@ -56,6 +63,12 @@ void main() {
           hiveService: mockHive,
           productRepository: mockRepo,
           locationRepository: mockLoc,
+          analyticsRepository: buildStubAnalyticsRepository(),
+          barcodeRepository: buildStubBarcodeRepository(),
+          photoStorage: buildTempPhotoStorage(),
+          notificationRepository: NoOpNotificationRepository(),
+          categoryRepository: buildStubCategoryRepository(),
+          shoppingListRepository: buildStubShoppingListRepository(),
         ),
       ),
     );

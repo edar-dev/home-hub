@@ -5,7 +5,12 @@ import '../../domain/exceptions/location_exception.dart';
 import '../../domain/exceptions/product_exception.dart';
 import 'models/location_hive_model.dart';
 import 'models/position_hive_model.dart';
+import 'models/barcode_cache_hive_model.dart';
+import 'models/notification_settings_hive_model.dart';
+import 'models/product_category_hive_model.dart';
 import 'models/product_hive_model.dart';
+import 'models/shopping_list_hive_model.dart';
+import 'models/shopping_list_item_hive_model.dart';
 
 /// Nome Hive box prodotti ([ProductHiveModel]).
 const String kProductsBoxName = 'products';
@@ -15,6 +20,21 @@ const String kLocationsBoxName = 'locations';
 
 /// Nome Hive box posizioni di stoccaggio ([PositionHiveModel]).
 const String kPositionsBoxName = 'positions';
+
+/// Nome Hive box cache codici a barre ([BarcodeCacheHiveModel]).
+const String kBarcodesBoxName = 'barcodes';
+
+/// Nome Hive box impostazioni notifiche ([NotificationSettingsHiveModel]).
+const String kNotificationSettingsBoxName = 'notification_settings';
+
+/// Box categorie prodotto ([ProductCategoryHiveModel]).
+const String kCategoriesBoxName = 'categories';
+
+/// Lista spesa attiva ([ShoppingListHiveModel]).
+const String kShoppingActiveBoxName = 'shopping_active';
+
+/// Storico liste completate.
+const String kShoppingHistoryBoxName = 'shopping_history';
 
 /// Accesso a Hive: init, registrazione adapter, apertura box, [dispose].
 ///
@@ -41,6 +61,21 @@ class HiveService {
       }
       if (!Hive.isAdapterRegistered(2)) {
         Hive.registerAdapter(PositionHiveModelAdapter());
+      }
+      if (!Hive.isAdapterRegistered(3)) {
+        Hive.registerAdapter(BarcodeCacheHiveModelAdapter());
+      }
+      if (!Hive.isAdapterRegistered(4)) {
+        Hive.registerAdapter(NotificationSettingsHiveModelAdapter());
+      }
+      if (!Hive.isAdapterRegistered(5)) {
+        Hive.registerAdapter(ProductCategoryHiveModelAdapter());
+      }
+      if (!Hive.isAdapterRegistered(6)) {
+        Hive.registerAdapter(ShoppingListItemHiveModelAdapter());
+      }
+      if (!Hive.isAdapterRegistered(7)) {
+        Hive.registerAdapter(ShoppingListHiveModelAdapter());
       }
     } catch (e, st) {
       debugPrint('HiveService.init failed: $e\n$st');
@@ -72,6 +107,53 @@ class HiveService {
     } catch (e, st) {
       debugPrint('HiveService.openPositionsBox failed: $e\n$st');
       throw LocationException('Impossibile aprire il database posizioni', e);
+    }
+  }
+
+  Future<Box<BarcodeCacheHiveModel>> openBarcodesBox() async {
+    try {
+      return await Hive.openBox<BarcodeCacheHiveModel>(kBarcodesBoxName);
+    } catch (e, st) {
+      debugPrint('HiveService.openBarcodesBox failed: $e\n$st');
+      throw ProductException('Impossibile aprire la cache codici', e);
+    }
+  }
+
+  Future<Box<NotificationSettingsHiveModel>> openNotificationSettingsBox() async {
+    try {
+      return await Hive.openBox<NotificationSettingsHiveModel>(
+        kNotificationSettingsBoxName,
+      );
+    } catch (e, st) {
+      debugPrint('HiveService.openNotificationSettingsBox failed: $e\n$st');
+      throw ProductException('Impossibile aprire le impostazioni notifiche', e);
+    }
+  }
+
+  Future<Box<ProductCategoryHiveModel>> openCategoriesBox() async {
+    try {
+      return await Hive.openBox<ProductCategoryHiveModel>(kCategoriesBoxName);
+    } catch (e, st) {
+      debugPrint('HiveService.openCategoriesBox failed: $e\n$st');
+      throw ProductException('Impossibile aprire le categorie', e);
+    }
+  }
+
+  Future<Box<ShoppingListHiveModel>> openShoppingActiveBox() async {
+    try {
+      return await Hive.openBox<ShoppingListHiveModel>(kShoppingActiveBoxName);
+    } catch (e, st) {
+      debugPrint('HiveService.openShoppingActiveBox failed: $e\n$st');
+      throw ProductException('Impossibile aprire la lista spesa', e);
+    }
+  }
+
+  Future<Box<ShoppingListHiveModel>> openShoppingHistoryBox() async {
+    try {
+      return await Hive.openBox<ShoppingListHiveModel>(kShoppingHistoryBoxName);
+    } catch (e, st) {
+      debugPrint('HiveService.openShoppingHistoryBox failed: $e\n$st');
+      throw ProductException('Impossibile aprire lo storico liste', e);
     }
   }
 

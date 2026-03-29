@@ -41,6 +41,18 @@ void main() {
       expect(back.positionId, 'pos-1');
     });
 
+    test('round trip with categoryId', () {
+      final domain = Product(
+        id: 'x',
+        nome: 'Y',
+        quantitaTotale: 1,
+        quantitaRimasta: 1,
+        categoryId: 'cat_pantry',
+      );
+      final back = ProductMapper.toDomain(ProductMapper.toHive(domain));
+      expect(back.categoryId, 'cat_pantry');
+    });
+
     test('round trip updatedAt e syncVersion', () {
       final t = DateTime.utc(2026, 2, 15, 10, 30);
       final domain = Product(

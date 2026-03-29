@@ -45,5 +45,9 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Per scansionare i codici a barre dei prodotti.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Per allegare una foto al prodotto.</string>
 </dict>
 </plist>

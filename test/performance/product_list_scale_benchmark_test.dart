@@ -23,6 +23,14 @@ import 'package:housekeep/domain/repositories/location_repository.dart';
 import 'package:housekeep/domain/repositories/product_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../support/stub_analytics_repository.dart';
+import 'package:housekeep/data/local/repositories/no_op_notification_repository.dart';
+
+import '../support/stub_barcode_repository.dart';
+import '../support/stub_category_repository.dart';
+import '../support/stub_shopping_list_repository.dart';
+import '../support/register_mock_fallbacks.dart';
+
 class _MockHive extends Mock implements HiveService {}
 
 class _LargeListRepo extends Mock implements ProductRepository {}
@@ -72,6 +80,12 @@ Future<void> _runScale(
         hiveService: mockHive,
         productRepository: mockRepo,
         locationRepository: mockLoc,
+        analyticsRepository: buildStubAnalyticsRepository(),
+        barcodeRepository: buildStubBarcodeRepository(),
+        photoStorage: buildTempPhotoStorage(),
+        notificationRepository: NoOpNotificationRepository(),
+        categoryRepository: buildStubCategoryRepository(),
+        shoppingListRepository: buildStubShoppingListRepository(),
       ),
     ),
   );
@@ -95,6 +109,7 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   setUpAll(() {
+    registerHousekeepMockFallbacks();
     registerFallbackValue(
       Product(
         id: 'fb',

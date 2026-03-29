@@ -18,5 +18,14 @@ Future<void> main() async {
     };
   }
   final dependencies = await AppFactory.create();
+  try {
+    await dependencies.notificationRepository.initialize();
+    final products = await dependencies.productRepository.getAll();
+    await dependencies.notificationRepository.rescheduleAllForProducts(
+      products,
+    );
+  } catch (e, st) {
+    debugPrint('Notification bootstrap: $e\n$st');
+  }
   runApp(HousekeepApp(dependencies: dependencies));
 }

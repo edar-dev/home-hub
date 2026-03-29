@@ -11,6 +11,9 @@ class Product {
     this.positionId,
     this.updatedAt,
     this.syncVersion = 0,
+    this.barcode,
+    this.imageRelativePath,
+    this.categoryId,
   });
 
   final String id;
@@ -29,6 +32,15 @@ class Product {
 
   /// Versione lato client per conciliazione con backend (incremento remoto).
   final int syncVersion;
+
+  /// Codice a barre / EAN opzionale (FASE 4).
+  final String? barcode;
+
+  /// Path relativo alla directory documenti app per immagine prodotto (una sola).
+  final String? imageRelativePath;
+
+  /// [ProductCategory.id] opzionale (FASE 4).
+  final String? categoryId;
 
   /// Confronto solo sulla data locale; senza scadenza non è considerato scaduto.
   bool get isExpired {
@@ -66,11 +78,17 @@ class Product {
     String? positionId,
     DateTime? updatedAt,
     int? syncVersion,
+    String? barcode,
+    String? imageRelativePath,
+    String? categoryId,
     bool clearDataAcquisto = false,
     bool clearDataScadenza = false,
     bool clearDataApertura = false,
     bool clearPositionId = false,
     bool clearUpdatedAt = false,
+    bool clearBarcode = false,
+    bool clearImageRelativePath = false,
+    bool clearCategoryId = false,
   }) {
     return Product(
       id: id ?? this.id,
@@ -83,6 +101,11 @@ class Product {
       positionId: clearPositionId ? null : (positionId ?? this.positionId),
       updatedAt: clearUpdatedAt ? null : (updatedAt ?? this.updatedAt),
       syncVersion: syncVersion ?? this.syncVersion,
+      barcode: clearBarcode ? null : (barcode ?? this.barcode),
+      imageRelativePath: clearImageRelativePath
+          ? null
+          : (imageRelativePath ?? this.imageRelativePath),
+      categoryId: clearCategoryId ? null : (categoryId ?? this.categoryId),
     );
   }
 }

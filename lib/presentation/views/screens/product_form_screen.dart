@@ -1,9 +1,15 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../core/services/photo_storage_service.dart';
 import '../../../domain/entities/location_with_positions.dart';
 import '../../../domain/entities/product.dart';
+import '../../../domain/entities/product_category.dart';
+import '../../../domain/repositories/barcode_repository.dart';
+import '../../../domain/repositories/category_repository.dart';
 import '../../../utils/product_validators.dart';
 import '../../viewmodels/location_view_model.dart';
 import '../../viewmodels/product_view_model.dart';
@@ -12,10 +18,25 @@ import '../widgets/quantity_field.dart';
 import '../widgets/validation_error_widget.dart';
 
 class ProductFormScreen extends StatefulWidget {
-  const ProductFormScreen({super.key, this.product});
+  const ProductFormScreen({
+    super.key,
+    this.product,
+    this.initialBarcode,
+    this.initialSuggestedName,
+  }) : assert(
+          product == null ||
+              (initialBarcode == null && initialSuggestedName == null),
+          'initialBarcode/initialSuggestedName solo per nuovo prodotto',
+        );
 
   /// Se null, creazione; altrimenti modifica.
   final Product? product;
+
+  /// Da scanner: codice precompilato (senza [product]).
+  final String? initialBarcode;
+
+  /// Da cache barcode: nome suggerito (senza [product]).
+  final String? initialSuggestedName;
 
   @override
   State<ProductFormScreen> createState() => _ProductFormScreenState();
@@ -24,6 +45,7 @@ class ProductFormScreen extends StatefulWidget {
 class _ProductFormScreenState extends State<ProductFormScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nomeController = TextEditingController();
+  final _barcodeController = TextEditingController();
   final _totaleController = TextEditingController();
   final _rimastaController = TextEditingController();
 
@@ -34,7 +56,22 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   bool _saving = false;
   List<String> _summaryErrors = [];
 
+  XFile? _pickedImage;
+  bool _removeImage = false;
+
+  String? _categoryId;
+  List<ProductCategory> _categories = [];
+
   bool get _isEdit => widget.product != null;
+
+  String? get _effectiveCategoryId {
+    final id = _categoryId;
+    if (id == null) return null;
+    for (final c in _categories) {
+      if (c.id == id) return id;
+    }
+    return null;
+  }
 
   int _effectiveTotale() {
     final t = int.tryParse(_totaleController.text.trim());
@@ -48,31 +85,78 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     final p = widget.product;
     if (p != null) {
       _nomeController.text = p.nome;
+      if (p.barcode != null) {
+        _barcodeController.text = p.barcode!;
+      }
       _totaleController.text = p.quantitaTotale.toString();
       _rimastaController.text = p.quantitaRimasta.toString();
       _dataAcquisto = p.dataAcquisto;
       _dataScadenza = p.dataScadenza;
       _dataApertura = p.dataApertura;
       _positionId = p.positionId;
+      _categoryId = p.categoryId;
     } else {
       _totaleController.text = '1';
       _rimastaController.text = '1';
+      final ib = widget.initialBarcode;
+      if (ib != null && ib.isNotEmpty) {
+        _barcodeController.text = ib;
+      }
+      final sn = widget.initialSuggestedName;
+      if (sn != null && sn.isNotEmpty) {
+        _nomeController.text = sn;
+      }
     }
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       final loc = context.read<LocationViewModel>();
       if (loc.items.isEmpty) {
         loc.loadHierarchy();
       }
+      final cats = await context.read<CategoryRepository>().getAll();
+      if (!mounted) return;
+      setState(() => _categories = cats);
     });
   }
 
   @override
   void dispose() {
     _nomeController.dispose();
+    _barcodeController.dispose();
     _totaleController.dispose();
     _rimastaController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final src = await showModalBottomSheet<ImageSource>(
+      context: context,
+      builder: (ctx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              leading: const Icon(Icons.photo_library_outlined),
+              title: const Text('Galleria'),
+              onTap: () => Navigator.pop(ctx, ImageSource.gallery),
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_camera_outlined),
+              title: const Text('Fotocamera'),
+              onTap: () => Navigator.pop(ctx, ImageSource.camera),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (src == null) return;
+    final picker = ImagePicker();
+    final x = await picker.pickImage(source: src);
+    if (x == null) return;
+    setState(() {
+      _pickedImage = x;
+      _removeImage = false;
+    });
   }
 
   Future<void> _confirmDelete() async {
@@ -96,8 +180,11 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       ),
     );
     if (ok == true && mounted) {
-      final err =
-          await context.read<ProductViewModel>().deleteProduct(p.id);
+      final photo = context.read<PhotoStorageService>();
+      final vm = context.read<ProductViewModel>();
+      await photo.deleteIfExists(p.imageRelativePath);
+      if (!mounted) return;
+      final err = await vm.deleteProduct(p.id);
       if (!mounted) return;
       if (err == null) {
         Navigator.of(context).pop();
@@ -126,6 +213,49 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         : (int.tryParse(rimStr) ?? 0);
 
     final id = widget.product?.id ?? const Uuid().v4();
+
+    final barcodeRaw = _barcodeController.text.trim();
+    final barcode = barcodeRaw.isEmpty ? null : barcodeRaw;
+
+    final productDraft = Product(
+      id: id,
+      nome: nome,
+      dataAcquisto: _dataAcquisto,
+      dataScadenza: _dataScadenza,
+      dataApertura: _dataApertura,
+      quantitaTotale: totaleClamped,
+      quantitaRimasta: rimasta,
+      positionId: _positionId,
+      barcode: barcode,
+      imageRelativePath: _removeImage
+          ? null
+          : (widget.product?.imageRelativePath),
+      categoryId: _categoryId,
+    );
+
+    final validation = ProductValidators.validateProduct(productDraft);
+    if (validation != null) {
+      setState(() => _summaryErrors = [validation]);
+      return;
+    }
+
+    final photo = context.read<PhotoStorageService>();
+    String? imageRel = widget.product?.imageRelativePath;
+    if (!kIsWeb) {
+      if (_removeImage) {
+        await photo.deleteIfExists(widget.product?.imageRelativePath);
+        imageRel = null;
+      } else if (_pickedImage != null) {
+        final bytes = await _pickedImage!.readAsBytes();
+        imageRel = await photo.saveProductPhotoFromBytes(bytes, id);
+        if (_isEdit) {
+          await photo.deleteIfExists(widget.product?.imageRelativePath);
+        }
+      }
+    }
+
+    if (!mounted) return;
+
     final product = Product(
       id: id,
       nome: nome,
@@ -135,27 +265,62 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       quantitaTotale: totaleClamped,
       quantitaRimasta: rimasta,
       positionId: _positionId,
+      barcode: barcode,
+      imageRelativePath: imageRel,
+      categoryId: _categoryId,
     );
 
-    final validation = ProductValidators.validateProduct(product);
-    if (validation != null) {
-      setState(() => _summaryErrors = [validation]);
-      return;
-    }
-
-    setState(() => _saving = true);
     final vm = context.read<ProductViewModel>();
+    final barcodeRepo = context.read<BarcodeRepository>();
+    setState(() => _saving = true);
     final err = _isEdit
         ? await vm.updateProduct(product)
         : await vm.createProduct(product);
+    if (!mounted) return;
     setState(() => _saving = false);
 
-    if (!mounted) return;
     if (err == null) {
+      if (product.barcode != null && product.barcode!.isNotEmpty) {
+        await barcodeRepo.cacheBarcodeProduct(
+          barcode: product.barcode!,
+          suggestedName: product.nome,
+        );
+      }
+      if (!mounted) return;
       Navigator.of(context).pop();
     } else {
       setState(() => _summaryErrors = [err]);
     }
+  }
+
+  Widget _buildImagePreview() {
+    final photo = context.read<PhotoStorageService>();
+    if (_pickedImage != null) {
+      return FutureBuilder(
+        future: _pickedImage!.readAsBytes(),
+        builder: (context, snap) {
+          if (!snap.hasData) {
+            return const SizedBox(
+              height: 120,
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
+          return Image.memory(
+            snap.data!,
+            height: 120,
+            fit: BoxFit.contain,
+          );
+        },
+      );
+    }
+    final p = widget.product;
+    if (!_removeImage && p?.imageRelativePath != null) {
+      final f = photo.resolveFile(p!.imageRelativePath!);
+      if (f.existsSync()) {
+        return Image.file(f, height: 120, fit: BoxFit.contain);
+      }
+    }
+    return const SizedBox.shrink();
   }
 
   bool _positionStillValid(List<LocationWithPositions> items) {
@@ -220,6 +385,76 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   textCapitalization: TextCapitalization.sentences,
                   validator: (v) => ProductValidators.validateNome(v),
                 ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _barcodeController,
+                  decoration: const InputDecoration(
+                    labelText: 'Codice a barre (opzionale)',
+                  ),
+                  maxLength: 64,
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String?>(
+                  value: _effectiveCategoryId, // ignore: deprecated_member_use
+                  decoration: const InputDecoration(
+                    labelText: 'Categoria (opzionale)',
+                  ),
+                  items: [
+                    const DropdownMenuItem<String?>(
+                      value: null,
+                      child: Text('Nessuna categoria'),
+                    ),
+                    ..._categories.map(
+                      (c) => DropdownMenuItem<String?>(
+                        value: c.id,
+                        child: Text(c.nome),
+                      ),
+                    ),
+                  ],
+                  onChanged: _saving
+                      ? null
+                      : (v) => setState(() => _categoryId = v),
+                ),
+                const SizedBox(height: 8),
+                if (!kIsWeb) ...[
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text(
+                      'Foto',
+                      style: Theme.of(context).textTheme.titleSmall,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      OutlinedButton.icon(
+                        onPressed: _saving ? null : _pickImage,
+                        icon: const Icon(Icons.add_photo_alternate_outlined),
+                        label: const Text('Scegli foto'),
+                      ),
+                      const SizedBox(width: 12),
+                      if (widget.product?.imageRelativePath != null ||
+                          _pickedImage != null)
+                        TextButton(
+                          onPressed: _saving
+                              ? null
+                              : () => setState(() {
+                                    _pickedImage = null;
+                                    _removeImage = true;
+                                  }),
+                          child: const Text('Rimuovi'),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  _buildImagePreview(),
+                ] else
+                  Text(
+                    'Foto prodotto: disponibile su mobile/desktop.',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
+                  ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<String?>(
                   value: effectivePositionId, // ignore: deprecated_member_use
@@ -320,6 +555,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                     Expanded(
                       flex: 2,
                       child: FilledButton(
+                        key: const ValueKey<String>('product-form-submit'),
                         onPressed: _saving ? null : _submit,
                         child: _saving
                             ? const SizedBox(

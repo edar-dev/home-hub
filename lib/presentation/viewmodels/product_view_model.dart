@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 
 import '../../domain/entities/product.dart';
 import '../../domain/exceptions/product_exception.dart';
 import '../../domain/exceptions/validation_exception.dart';
 import '../../domain/repositories/location_repository.dart';
+import '../../domain/repositories/notification_repository.dart';
 import '../../domain/repositories/product_repository.dart';
 import '../../utils/product_validators.dart';
 
@@ -11,12 +14,17 @@ import '../../utils/product_validators.dart';
 ///
 /// Espone [displayedProducts] e [displayUiGeneration] per `Selector` efficienti.
 class ProductViewModel extends ChangeNotifier {
-  ProductViewModel(this._repository, this._locationRepository) {
+  ProductViewModel(
+    this._repository,
+    this._locationRepository, {
+    NotificationRepository? notificationRepository,
+  })  : _notificationRepository = notificationRepository {
     _syncDisplayedAndBump();
   }
 
   final ProductRepository _repository;
   final LocationRepository _locationRepository;
+  final NotificationRepository? _notificationRepository;
 
   List<Product> _products = [];
   List<Product> _displayedProducts = [];
@@ -113,6 +121,19 @@ class ProductViewModel extends ChangeNotifier {
     }
     _syncDisplayedAndBump();
     notifyListeners();
+    if (_errorMessage == null) {
+      unawaited(_rescheduleNotifications());
+    }
+  }
+
+  Future<void> _rescheduleNotifications() async {
+    final n = _notificationRepository;
+    if (n == null) return;
+    try {
+      await n.rescheduleAllForProducts(List<Product>.from(_products));
+    } catch (e, st) {
+      debugPrint('ProductViewModel._rescheduleNotifications: $e\n$st');
+    }
   }
 
   Future<String?> createProduct(Product product) async {

@@ -10,6 +10,14 @@ import 'package:housekeep/domain/repositories/location_repository.dart';
 import 'package:housekeep/domain/repositories/product_repository.dart';
 import 'package:mocktail/mocktail.dart';
 
+import '../support/stub_analytics_repository.dart';
+import 'package:housekeep/data/local/repositories/no_op_notification_repository.dart';
+
+import '../support/stub_barcode_repository.dart';
+import '../support/stub_category_repository.dart';
+import '../support/stub_shopping_list_repository.dart';
+import '../support/register_mock_fallbacks.dart';
+
 class MockListRepository extends Mock implements ProductRepository {}
 
 class MockListHiveService extends Mock implements HiveService {}
@@ -17,6 +25,8 @@ class MockListHiveService extends Mock implements HiveService {}
 class MockListLocationRepository extends Mock implements LocationRepository {}
 
 void main() {
+  setUpAll(registerHousekeepMockFallbacks);
+
   late MockListRepository mockRepo;
   late MockListHiveService mockHive;
   late MockListLocationRepository mockLoc;
@@ -74,6 +84,12 @@ void main() {
           hiveService: mockHive,
           productRepository: mockRepo,
           locationRepository: mockLoc,
+          analyticsRepository: buildStubAnalyticsRepository(),
+          barcodeRepository: buildStubBarcodeRepository(),
+          photoStorage: buildTempPhotoStorage(),
+          notificationRepository: NoOpNotificationRepository(),
+          categoryRepository: buildStubCategoryRepository(),
+          shoppingListRepository: buildStubShoppingListRepository(),
         ),
       ),
     );

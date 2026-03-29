@@ -35,6 +35,15 @@ class ProductHiveModel extends HiveObject {
   @HiveField(9)
   int syncVersion;
 
+  @HiveField(10)
+  String? barcode;
+
+  @HiveField(11)
+  String? imageRelativePath;
+
+  @HiveField(12)
+  String? categoryId;
+
   ProductHiveModel({
     required this.id,
     required this.nome,
@@ -46,5 +55,8 @@ class ProductHiveModel extends HiveObject {
     this.positionId,
     this.updatedAtMs,
     this.syncVersion = 0,
+    this.barcode,
+    this.imageRelativePath,
+    this.categoryId,
   });
 }

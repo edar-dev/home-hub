@@ -22,6 +22,9 @@ abstract final class ProductMapper {
           ? null
           : DateTime.fromMillisecondsSinceEpoch(m.updatedAtMs!, isUtc: true),
       syncVersion: m.syncVersion,
+      barcode: m.barcode,
+      imageRelativePath: m.imageRelativePath,
+      categoryId: m.categoryId,
     );
   }
 
@@ -37,6 +40,9 @@ abstract final class ProductMapper {
       positionId: p.positionId,
       updatedAtMs: p.updatedAt?.toUtc().millisecondsSinceEpoch,
       syncVersion: p.syncVersion,
+      barcode: p.barcode,
+      imageRelativePath: p.imageRelativePath,
+      categoryId: p.categoryId,
     );
   }
 }
