@@ -1,4 +1,4 @@
-package com.example.housekeep
+package com.housekeep.app
 
 import io.flutter.embedding.android.FlutterActivity
 
