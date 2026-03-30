@@ -9,6 +9,7 @@ import '../../data/local/hive_service.dart';
 import '../../data/local/repositories/local_analytics_repository.dart';
 import '../../data/local/repositories/local_barcode_repository.dart';
 import '../../data/local/repositories/local_category_repository.dart';
+import '../../data/local/repositories/local_consumption_repository.dart';
 import '../../data/local/repositories/local_location_repository.dart';
 import '../../data/local/repositories/local_notification_repository.dart';
 import '../../data/local/repositories/local_product_repository.dart';
@@ -18,9 +19,11 @@ import '../../data/local/repositories/no_op_notification_repository.dart';
 import '../../data/local/models/product_category_hive_model.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../domain/entities/consumption_entry.dart';
 import '../../domain/repositories/analytics_repository.dart';
 import '../../domain/repositories/barcode_repository.dart';
 import '../../domain/repositories/category_repository.dart';
+import '../../domain/repositories/consumption_repository.dart';
 import '../../domain/repositories/location_repository.dart';
 import '../../domain/repositories/notification_repository.dart';
 import '../../domain/repositories/product_repository.dart';
@@ -40,9 +43,11 @@ class AppDependencies {
     required this.photoStorage,
     required this.notificationRepository,
     required this.categoryRepository,
+    ConsumptionRepository? consumptionRepository,
     required this.shoppingListRepository,
     required this.onboardingRepository,
-  });
+  }) : consumptionRepository =
+            consumptionRepository ?? _NoOpConsumptionRepository();
 
   /// Servizio Hive (init, box); utile per test o shutdown.
   final HiveService hiveService;
@@ -68,11 +73,32 @@ class AppDependencies {
   /// Categorie prodotto.
   final CategoryRepository categoryRepository;
 
+  /// Eventi storici di consumo.
+  final ConsumptionRepository consumptionRepository;
+
   /// Lista spesa e storico.
   final ShoppingListRepository shoppingListRepository;
 
   /// Onboarding e tour (FASE 5).
   final OnboardingRepository onboardingRepository;
+}
+
+class _NoOpConsumptionRepository implements ConsumptionRepository {
+  @override
+  Future<void> deleteByProductId(String productId) async {}
+
+  @override
+  Future<List<ConsumptionEntry>> getByDateRange(DateTime start, DateTime end) async {
+    return const [];
+  }
+
+  @override
+  Future<List<ConsumptionEntry>> getByProductId(String productId) async {
+    return const [];
+  }
+
+  @override
+  Future<void> saveEntry(ConsumptionEntry entry) async {}
 }
 
 /// Fabbrica di [AppDependencies] per `main` e test.
@@ -90,6 +116,8 @@ class AppFactory {
     final locationsBox = await hiveService.openLocationsBox();
     final positionsBox = await hiveService.openPositionsBox();
     final productRepository = LocalProductRepository(box, positionsBox);
+    final consumptionBox = await hiveService.openConsumptionEntriesBox();
+    final consumptionRepository = LocalConsumptionRepository(consumptionBox);
     final locationRepository = LocalLocationRepository(
       locationsBox,
       positionsBox,
@@ -98,6 +126,7 @@ class AppFactory {
     final analyticsRepository = LocalAnalyticsRepository(
       productRepository,
       locationRepository,
+      consumptionRepository,
     );
     final barcodesBox = await hiveService.openBarcodesBox();
     final barcodeRepository = LocalBarcodeRepository(barcodesBox);
@@ -117,7 +146,10 @@ class AppFactory {
       notificationRepository = NoOpNotificationRepository();
     } else {
       final notifBox = await hiveService.openNotificationSettingsBox();
-      notificationRepository = LocalNotificationRepository(notifBox);
+      notificationRepository = LocalNotificationRepository(
+        notifBox,
+        consumptionRepository: consumptionRepository,
+      );
     }
 
     final categoriesBox = await hiveService.openCategoriesBox();
@@ -151,6 +183,7 @@ class AppFactory {
       photoStorage: photoStorage,
       notificationRepository: notificationRepository,
       categoryRepository: categoryRepository,
+      consumptionRepository: consumptionRepository,
       shoppingListRepository: shoppingListRepository,
       onboardingRepository: onboardingRepository,
     );

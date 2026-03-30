@@ -25,6 +25,9 @@ abstract final class ProductMapper {
       barcode: m.barcode,
       imageRelativePath: m.imageRelativePath,
       categoryId: m.categoryId,
+      unit: m.unit,
+      typicalPortion: m.typicalPortion,
+      price: m.price,
     );
   }
 
@@ -43,6 +46,9 @@ abstract final class ProductMapper {
       barcode: p.barcode,
       imageRelativePath: p.imageRelativePath,
       categoryId: p.categoryId,
+      unit: p.unit,
+      typicalPortion: p.typicalPortion,
+      price: p.price,
     );
   }
 }

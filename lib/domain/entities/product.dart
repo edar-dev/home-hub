@@ -14,6 +14,9 @@ class Product {
     this.barcode,
     this.imageRelativePath,
     this.categoryId,
+    this.unit = 'unita',
+    this.typicalPortion,
+    this.price,
   });
 
   final String id;
@@ -42,6 +45,15 @@ class Product {
   /// [ProductCategory.id] opzionale (FASE 4).
   final String? categoryId;
 
+  /// Unità di misura principale (g, kg, ml, lt, unita, porzioni).
+  final String unit;
+
+  /// Porzione tipica opzionale (stessa unità di [unit]).
+  final double? typicalPortion;
+
+  /// Prezzo acquisto opzionale (EUR).
+  final double? price;
+
   /// Confronto solo sulla data locale; senza scadenza non è considerato scaduto.
   bool get isExpired {
     final d = dataScadenza;
@@ -67,6 +79,8 @@ class Product {
   /// Soglia semplice per “poca quantità” in inventario domestico.
   bool get isLowStock => quantitaRimasta <= 1;
 
+  double get quantityUsed => (quantitaTotale - quantitaRimasta).toDouble();
+
   Product copyWith({
     String? id,
     String? nome,
@@ -81,6 +95,9 @@ class Product {
     String? barcode,
     String? imageRelativePath,
     String? categoryId,
+    String? unit,
+    double? typicalPortion,
+    double? price,
     bool clearDataAcquisto = false,
     bool clearDataScadenza = false,
     bool clearDataApertura = false,
@@ -89,6 +106,8 @@ class Product {
     bool clearBarcode = false,
     bool clearImageRelativePath = false,
     bool clearCategoryId = false,
+    bool clearTypicalPortion = false,
+    bool clearPrice = false,
   }) {
     return Product(
       id: id ?? this.id,
@@ -106,6 +125,11 @@ class Product {
           ? null
           : (imageRelativePath ?? this.imageRelativePath),
       categoryId: clearCategoryId ? null : (categoryId ?? this.categoryId),
+      unit: unit ?? this.unit,
+      typicalPortion: clearTypicalPortion
+          ? null
+          : (typicalPortion ?? this.typicalPortion),
+      price: clearPrice ? null : (price ?? this.price),
     );
   }
 }

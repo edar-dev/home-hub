@@ -18,6 +18,9 @@ class AnalyticsViewModel extends ChangeNotifier {
   AnalyticsMetrics? _metrics;
   List<ChartDataPoint> _byLocation = [];
   List<ChartDataPoint> _topQuantity = [];
+  List<ChartDataPoint> _topConsumed = [];
+  List<ChartDataPoint> _recentSummary = [];
+  List<ChartDataPoint> _monthlyByCategory = [];
   List<ChartDataPoint> _trend = [];
 
   bool _isLoading = false;
@@ -30,6 +33,10 @@ class AnalyticsViewModel extends ChangeNotifier {
   AnalyticsMetrics? get metrics => _metrics;
   List<ChartDataPoint> get locationDistribution => List.unmodifiable(_byLocation);
   List<ChartDataPoint> get topByQuantity => List.unmodifiable(_topQuantity);
+  List<ChartDataPoint> get topConsumed => List.unmodifiable(_topConsumed);
+  List<ChartDataPoint> get recentConsumptionSummary =>
+      List.unmodifiable(_recentSummary);
+  List<ChartDataPoint> get monthlyByCategory => List.unmodifiable(_monthlyByCategory);
   List<ChartDataPoint> get consumptionTrend => List.unmodifiable(_trend);
 
   bool get isLoading => _isLoading;
@@ -56,6 +63,11 @@ class AnalyticsViewModel extends ChangeNotifier {
       );
       _byLocation = await _repository.getProductDistributionByLocation();
       _topQuantity = await _repository.getTopByQuantity(limit: 5);
+      _topConsumed = await _repository.getTopConsumedProducts(days: 30, limit: 10);
+      _recentSummary = await _repository.getRecentConsumptionSummary(days: 7);
+      _monthlyByCategory = await _repository.getMonthlyConsumptionByCategory(
+        month: _endDate,
+      );
       _trend = await _repository.getConsumptionTrendMonths(
         months: 3,
         locationId: _selectedLocationId,

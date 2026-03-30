@@ -84,10 +84,9 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                             builder: (context, c) {
                               final w = c.maxWidth;
                               final cross = w > 600 ? 4 : 2;
-                              // Nel prototipo Stitch le metriche su mobile sono quasi "square".
-                              // Aumentiamo leggermente l'altezza delle card per dare respiro
-                              // (e mantenere proporzioni simili a `aspect-square`).
-                              final ratio = cross == 2 ? 1.0 : 1.25;
+                              // Mobile: leggermente più alto del quadrato per evitare overflow
+                              // su titoli lunghi + sottotitolo (Stitch resta vicino a square).
+                              final ratio = cross == 2 ? 0.94 : 1.25;
                               return GridView.count(
                                 crossAxisCount: cross,
                                 shrinkWrap: true,
@@ -136,6 +135,46 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                           ),
                           const SizedBox(height: 24),
                           Text(
+                            'Prodotti quasi finiti',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          MetricCard(
+                            title: 'Quasi esauriti',
+                            value: '${m.almostEmptyProducts}',
+                            subtitle: 'Stima <= 3 giorni',
+                            leadingIcon: Icons.warning_amber_rounded,
+                            accentColor: Theme.of(context).colorScheme.tertiary,
+                          ),
+                          const SizedBox(height: 24),
+                          Text(
+                            'Top consumi (30 giorni)',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          QuantityBarChart(points: analytics.topConsumed.take(5).toList()),
+                          const SizedBox(height: 24),
+                          Text(
+                            'Sintesi consumi recenti (7 giorni)',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          if (analytics.recentConsumptionSummary.isEmpty)
+                            const Text('Nessun consumo registrato')
+                          else
+                            ...analytics.recentConsumptionSummary.map(
+                              (e) => ListTile(
+                                dense: true,
+                                contentPadding: EdgeInsets.zero,
+                                title: Text(e.label),
+                                trailing: Text(
+                                  e.value.toStringAsFixed(1),
+                                  style: Theme.of(context).textTheme.labelLarge,
+                                ),
+                              ),
+                            ),
+                          const SizedBox(height: 24),
+                          Text(
                             'Distribuzione per luogo',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
@@ -151,18 +190,25 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                           QuantityBarChart(points: analytics.topByQuantity),
                           const SizedBox(height: 24),
                           Text(
-                            'Trend consumo (stima, ultimi 3 mesi)',
+                            'Trend consumo (ultimi 3 mesi)',
                             style: Theme.of(context).textTheme.titleMedium,
                           ),
                           const Padding(
                             padding: EdgeInsets.only(bottom: 8),
                             child: Text(
-                              'Senza storico reale: valore ripartito in modo uniforme.',
+                              'Basato sugli eventi reali di consumo registrati.',
                               style: TextStyle(fontSize: 12),
                             ),
                           ),
                           ConsumptionLineChart(
                               points: analytics.consumptionTrend),
+                          const SizedBox(height: 24),
+                          Text(
+                            'Consumi per categoria (mese corrente)',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          QuantityBarChart(points: analytics.monthlyByCategory),
                         ],
                       ],
                     ),

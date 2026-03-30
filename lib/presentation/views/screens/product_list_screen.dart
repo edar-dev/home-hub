@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../domain/entities/product.dart';
+import '../../../domain/entities/consumption_entry.dart';
 import '../../layout/breakpoints.dart';
 import '../../viewmodels/location_view_model.dart';
 import '../../viewmodels/product_view_model.dart';
@@ -14,6 +15,7 @@ import '../widgets/stitch_top_app_bar.dart';
 import 'barcode_scanner_screen.dart';
 import 'product_detail_screen.dart';
 import 'product_form_screen.dart';
+import 'quick_consumption_screen.dart';
 
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
@@ -154,7 +156,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
     await Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
         builder: (_) => match != null
-            ? ProductFormScreen(product: match)
+            ? QuickConsumptionScreen(
+                product: match,
+                source: ConsumptionSource.scanner,
+              )
             : ProductFormScreen(
                 initialBarcode: result.barcode,
                 initialSuggestedName: result.suggestedName,
@@ -163,6 +168,16 @@ class _ProductListScreenState extends State<ProductListScreen> {
     );
     if (!mounted) return;
     await vm.loadProducts();
+  }
+
+  Future<void> _openQuickConsumption(Product product) async {
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => QuickConsumptionScreen(product: product),
+      ),
+    );
+    if (!mounted) return;
+    await context.read<ProductViewModel>().loadProducts();
   }
 
   Widget _buildDetailPane(
@@ -188,6 +203,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       product: p,
       embedded: true,
       placementLine: placementLineForProduct(p, placementIndex),
+      onConsume: () => _openQuickConsumption(p),
       onEdit: () => _embeddedEdit(p),
       onDelete: () => _embeddedDelete(p),
     );
@@ -318,6 +334,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 product: p,
                 placementLine: placementLineForProduct(p, placementIndex),
                 onTap: () => _onCardTap(p, wide),
+                onConsume: () => _openQuickConsumption(p),
                 onDelete: () => _confirmDelete(p.nome, p.id),
               ),
             ),
@@ -507,6 +524,17 @@ class _ProductListScreenState extends State<ProductListScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
+                  FloatingActionButton.small(
+                    key: const ValueKey<String>('fab-consume'),
+                    heroTag: 'fab-consume',
+                    backgroundColor: scheme.tertiaryContainer,
+                    foregroundColor: scheme.onTertiaryContainer,
+                    onPressed: vm.displayedProducts.isEmpty
+                        ? null
+                        : () => _openQuickConsumption(vm.displayedProducts.first),
+                    child: const Icon(Icons.restaurant_outlined),
+                  ),
+                  const SizedBox(height: 12),
                   FloatingActionButton.small(
                     key: const ValueKey<String>('fab-scan'),
                     heroTag: 'fab-scan',

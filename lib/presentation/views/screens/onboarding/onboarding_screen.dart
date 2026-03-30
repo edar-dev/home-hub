@@ -285,7 +285,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         onTry = () => tab.setIndex(HomeShellTabController.tabAnalytics);
         break;
       case OnboardingStep.notifications:
-        onTry = () => tab.setIndex(HomeShellTabController.tabNotifications);
+        onTry = () => tab.setIndex(HomeShellTabController.tabUtility);
         break;
       default:
         onTry = null;

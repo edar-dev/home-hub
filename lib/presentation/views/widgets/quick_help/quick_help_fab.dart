@@ -62,23 +62,24 @@ class QuickHelpFab extends StatelessWidget {
     final bottomInset = mq.padding.bottom;
     final wide = isWideWidth(mq.size.width);
     final tab = context.watch<HomeShellTabController>();
-    // Posizione uniforme: sempre in basso a sinistra.
-    // Su layout wide, spostiamo leggermente a destra per non finire sotto la NavigationRail.
+    // Inventario: FAB principali sono a destra → QuickHelp a sinistra.
+    // Altre tab: QuickHelp a destra così non copre titoli/sezioni allineati a sinistra.
+    final onInventory = tab.index == HomeShellTabController.tabInventory;
     final leftPad = wide ? 104.0 : 16.0;
+    final sidePad = wide ? 24.0 : 16.0;
     final bottomPad = (wide ? 24.0 : 16.0 + kBottomNavigationBarHeight) +
-        bottomInset +
-        0.0;
+        bottomInset;
     final tabHint = switch (tab.index) {
       HomeShellTabController.tabInventory => tourLine('tour.inventory.title', lang),
       HomeShellTabController.tabAnalytics => tourLine('tour.analytics.title', lang),
-      HomeShellTabController.tabNotifications => tourLine('tour.notifications.title', lang),
+      HomeShellTabController.tabUtility => tourLine('tour.notifications.title', lang),
       _ => tourLine('help.quickTitle', lang),
     };
 
     return Positioned(
-      left: leftPad,
-      right: null,
-      bottom: bottomPad,
+      left: onInventory ? leftPad : null,
+      right: onInventory ? null : sidePad,
+      bottom: bottomPad + 8,
       child: HelpTooltip(
         message: tabHint,
         child: HelpBadge(

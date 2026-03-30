@@ -12,6 +12,8 @@ class AnalyticsMetrics {
     required this.expiredInLast30Days,
     required this.wastePercentage,
     required this.monthlyConsumptionAverage,
+    this.avgDailyConsumption = 0,
+    this.almostEmptyProducts = 0,
     required this.startDate,
     required this.endDate,
   });
@@ -29,6 +31,12 @@ class AnalyticsMetrics {
 
   /// Unità consumate implicitamente per mese (vedi euristica sopra).
   final double monthlyConsumptionAverage;
+
+  /// Media giornaliera consumi dal registro eventi (se presente).
+  final double avgDailyConsumption;
+
+  /// Numero prodotti quasi finiti.
+  final int almostEmptyProducts;
 
   final DateTime startDate;
   final DateTime endDate;

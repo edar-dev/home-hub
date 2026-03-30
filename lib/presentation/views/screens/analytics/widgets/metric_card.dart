@@ -26,9 +26,41 @@ class MetricCard extends StatelessWidget {
     final accent = accentColor ?? scheme.primary;
     return LayoutBuilder(
       builder: (context, c) {
-        final compact = c.maxHeight > 0 && c.maxHeight < 160;
+        final h = c.maxHeight;
+        final boundedGrid = h.isFinite && h > 0;
+        final compact = boundedGrid && h < 160;
         final pad = compact ? 16.0 : 20.0;
         final iconSize = compact ? 26.0 : 28.0;
+
+        final valueBlock = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                value,
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: scheme.onSurface,
+                ),
+              ),
+            ),
+            if (subtitle != null) ...[
+              SizedBox(height: compact ? 2 : 4),
+              Text(
+                subtitle!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                  fontSize: compact ? 11 : null,
+                ),
+              ),
+            ],
+          ],
+        );
 
         return Container(
           decoration: BoxDecoration(
@@ -55,31 +87,16 @@ class MetricCard extends StatelessWidget {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              const Spacer(),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    value,
-                    style: theme.textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      color: scheme.onSurface,
-                    ),
+              if (boundedGrid)
+                Expanded(
+                  child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: valueBlock,
                   ),
-                ),
-              ),
-              if (subtitle != null) ...[
-                const SizedBox(height: 4),
-                Text(
-                  subtitle!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: scheme.onSurfaceVariant,
-                  ),
-                ),
+                )
+              else ...[
+                const SizedBox(height: 12),
+                valueBlock,
               ],
             ],
           ),

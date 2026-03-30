@@ -1,13 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
 
+import '../../domain/entities/consumption_entry.dart';
+import '../../domain/entities/consumption_stats.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/exceptions/product_exception.dart';
 import '../../domain/exceptions/validation_exception.dart';
+import '../../domain/repositories/consumption_repository.dart';
 import '../../domain/repositories/location_repository.dart';
 import '../../domain/repositories/notification_repository.dart';
 import '../../domain/repositories/product_repository.dart';
+import '../../domain/services/consumption_calculator.dart';
 import '../../utils/product_validators.dart';
 
 /// Chip orizzontali inventario (prototipo Stitch).
@@ -20,13 +25,17 @@ class ProductViewModel extends ChangeNotifier {
   ProductViewModel(
     this._repository,
     this._locationRepository, {
+    ConsumptionRepository? consumptionRepository,
     NotificationRepository? notificationRepository,
-  })  : _notificationRepository = notificationRepository {
+  })  : _consumptionRepository =
+            consumptionRepository ?? _NoOpConsumptionRepository(),
+        _notificationRepository = notificationRepository {
     _syncDisplayedAndBump();
   }
 
   final ProductRepository _repository;
   final LocationRepository _locationRepository;
+  final ConsumptionRepository _consumptionRepository;
   final NotificationRepository? _notificationRepository;
 
   List<Product> _products = [];
@@ -238,6 +247,7 @@ class ProductViewModel extends ChangeNotifier {
     _syncDisplayedAndBump();
     notifyListeners();
     try {
+      await _consumptionRepository.deleteByProductId(id);
       await _repository.delete(id);
       await loadProducts();
       return null;
@@ -256,4 +266,67 @@ class ProductViewModel extends ChangeNotifier {
       return _errorMessage;
     }
   }
+
+  Future<ConsumptionStats> getConsumptionStatsFor(Product product) async {
+    final entries = await _consumptionRepository.getByProductId(product.id);
+    return ConsumptionCalculator.compute(product, entries);
+  }
+
+  Future<String?> registerConsumption({
+    required Product product,
+    required double amount,
+    ConsumptionMeal? meal,
+    String? recipe,
+    String? notes,
+    ConsumptionSource source = ConsumptionSource.manual,
+  }) async {
+    if (amount <= 0) {
+      return 'Inserisci una quantità valida';
+    }
+    final nextRemaining =
+        (product.quantitaRimasta - amount).clamp(0, product.quantitaTotale.toDouble());
+    final updated = product.copyWith(quantitaRimasta: nextRemaining.round());
+    final err = ProductValidators.validateProduct(updated);
+    if (err != null) return err;
+    try {
+      await _repository.save(updated);
+      final entry = ConsumptionEntry(
+        id: const Uuid().v4(),
+        productId: product.id,
+        amount: amount,
+        unit: product.unit,
+        date: DateTime.now(),
+        meal: meal,
+        recipe: recipe?.trim().isEmpty ?? true ? null : recipe?.trim(),
+        notes: notes?.trim().isEmpty ?? true ? null : notes?.trim(),
+        source: source,
+      );
+      await _consumptionRepository.saveEntry(entry);
+      await loadProducts();
+      return null;
+    } on ProductException catch (e) {
+      return e.message;
+    } catch (e, st) {
+      debugPrint('registerConsumption: $e\n$st');
+      return 'Impossibile registrare il consumo';
+    }
+  }
+}
+
+class _NoOpConsumptionRepository implements ConsumptionRepository {
+  @override
+  Future<void> deleteByProductId(String productId) async {}
+
+  @override
+  Future<List<ConsumptionEntry>> getByDateRange(DateTime start, DateTime end) async {
+    return const [];
+  }
+
+  @override
+  Future<List<ConsumptionEntry>> getByProductId(String productId) async {
+    return const [];
+  }
+
+  @override
+  Future<void> saveEntry(ConsumptionEntry entry) async {}
 }

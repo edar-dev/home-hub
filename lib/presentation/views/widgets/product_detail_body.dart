@@ -14,6 +14,7 @@ class ProductDetailBody extends StatelessWidget {
     this.embedded = false,
     this.onEdit,
     this.onDelete,
+    this.onConsume,
     this.placementLine,
   });
 
@@ -21,6 +22,7 @@ class ProductDetailBody extends StatelessWidget {
   final bool embedded;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
+  final VoidCallback? onConsume;
 
   /// Da [placementLineForProduct] (FASE 3).
   final String? placementLine;
@@ -126,10 +128,21 @@ class ProductDetailBody extends StatelessWidget {
                   ),
                 ],
               ),
-              if (embedded && (onEdit != null || onDelete != null)) ...[
+              if (embedded &&
+                  (onEdit != null || onDelete != null || onConsume != null)) ...[
                 const SizedBox(height: 24),
                 Row(
                   children: [
+                    if (onConsume != null)
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: onConsume,
+                          icon: const Icon(Icons.restaurant_outlined),
+                          label: const Text('Usa prodotto'),
+                        ),
+                      ),
+                    if (onConsume != null && (onEdit != null || onDelete != null))
+                      const SizedBox(width: 12),
                     if (onEdit != null)
                       Expanded(
                         child: FilledButton.icon(

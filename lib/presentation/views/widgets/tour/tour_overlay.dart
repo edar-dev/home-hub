@@ -72,7 +72,7 @@ class _TourOverlayState extends State<TourOverlay> {
         tab.setIndex(HomeShellTabController.tabAnalytics);
         break;
       case 'notifications':
-        tab.setIndex(HomeShellTabController.tabNotifications);
+        tab.setIndex(HomeShellTabController.tabUtility);
         break;
       default:
         break;

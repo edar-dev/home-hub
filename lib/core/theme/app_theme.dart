@@ -90,11 +90,16 @@ ThemeData buildLightTheme() {
     navigationBarTheme: NavigationBarThemeData(
       backgroundColor: scheme.surfaceContainerLowest,
       elevation: 0,
-      height: 72,
+      height: 68,
       indicatorColor: StitchColors.primary.withValues(alpha: 0.1),
-      labelTextStyle: WidgetStateProperty.all(
-        GoogleFonts.inter(fontSize: 11, fontWeight: FontWeight.w500),
-      ),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+          color: selected ? scheme.primary : scheme.onSurfaceVariant,
+        );
+      }),
       iconTheme: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
           return IconThemeData(color: scheme.primary, size: 24);
@@ -174,6 +179,26 @@ ThemeData buildDarkTheme() {
     floatingActionButtonTheme: FloatingActionButtonThemeData(
       backgroundColor: scheme.tertiary,
       foregroundColor: scheme.onTertiary,
+    ),
+    navigationBarTheme: NavigationBarThemeData(
+      backgroundColor: scheme.surfaceContainer,
+      elevation: 0,
+      height: 68,
+      indicatorColor: scheme.primary.withValues(alpha: 0.18),
+      labelTextStyle: WidgetStateProperty.resolveWith((states) {
+        final selected = states.contains(WidgetState.selected);
+        return GoogleFonts.inter(
+          fontSize: 11,
+          fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+          color: selected ? scheme.primary : scheme.onSurfaceVariant,
+        );
+      }),
+      iconTheme: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return IconThemeData(color: scheme.primary, size: 24);
+        }
+        return IconThemeData(color: scheme.onSurfaceVariant, size: 24);
+      }),
     ),
   );
 }

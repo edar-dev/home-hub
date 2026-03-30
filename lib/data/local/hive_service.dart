@@ -7,6 +7,7 @@ import '../../utils/onboarding_constants.dart';
 import 'models/location_hive_model.dart';
 import 'models/position_hive_model.dart';
 import 'models/barcode_cache_hive_model.dart';
+import 'models/consumption_entry_hive_model.dart';
 import 'models/notification_settings_hive_model.dart';
 import 'models/product_category_hive_model.dart';
 import 'models/product_hive_model.dart';
@@ -26,6 +27,9 @@ const String kPositionsBoxName = 'positions';
 
 /// Nome Hive box cache codici a barre ([BarcodeCacheHiveModel]).
 const String kBarcodesBoxName = 'barcodes';
+
+/// Nome Hive box eventi consumo ([ConsumptionEntryHiveModel]).
+const String kConsumptionEntriesBoxName = 'consumption_entries';
 
 /// Nome Hive box impostazioni notifiche ([NotificationSettingsHiveModel]).
 const String kNotificationSettingsBoxName = 'notification_settings';
@@ -86,6 +90,9 @@ class HiveService {
       if (!Hive.isAdapterRegistered(9)) {
         Hive.registerAdapter(OnboardingSettingsHiveModelAdapter());
       }
+      if (!Hive.isAdapterRegistered(10)) {
+        Hive.registerAdapter(ConsumptionEntryHiveModelAdapter());
+      }
     } catch (e, st) {
       debugPrint('HiveService.init failed: $e\n$st');
       throw ProductException('Impossibile inizializzare il database locale', e);
@@ -125,6 +132,17 @@ class HiveService {
     } catch (e, st) {
       debugPrint('HiveService.openBarcodesBox failed: $e\n$st');
       throw ProductException('Impossibile aprire la cache codici', e);
+    }
+  }
+
+  Future<Box<ConsumptionEntryHiveModel>> openConsumptionEntriesBox() async {
+    try {
+      return await Hive.openBox<ConsumptionEntryHiveModel>(
+        kConsumptionEntriesBoxName,
+      );
+    } catch (e, st) {
+      debugPrint('HiveService.openConsumptionEntriesBox failed: $e\n$st');
+      throw ProductException('Impossibile aprire archivio consumi', e);
     }
   }
 

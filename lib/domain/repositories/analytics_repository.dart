@@ -21,4 +21,18 @@ abstract class AnalyticsRepository {
     required int months,
     String? locationId,
   });
+
+  /// Top prodotti per quantità consumata in una finestra di [days].
+  Future<List<ChartDataPoint>> getTopConsumedProducts({
+    int days = 30,
+    int limit = 10,
+  });
+
+  /// Sintesi consumi recenti (label prodotto -> quantità consumata).
+  Future<List<ChartDataPoint>> getRecentConsumptionSummary({int days = 7});
+
+  /// Totale consumato nel mese corrente e precedente per categoria.
+  Future<List<ChartDataPoint>> getMonthlyConsumptionByCategory({
+    required DateTime month,
+  });
 }

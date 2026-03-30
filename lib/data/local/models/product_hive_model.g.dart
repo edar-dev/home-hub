@@ -30,13 +30,16 @@ class ProductHiveModelAdapter extends TypeAdapter<ProductHiveModel> {
       barcode: fields[10] as String?,
       imageRelativePath: fields[11] as String?,
       categoryId: fields[12] as String?,
+      unit: (fields[13] as String?) ?? 'unita',
+      typicalPortion: fields[14] as double?,
+      price: fields[15] as double?,
     );
   }
 
   @override
   void write(BinaryWriter writer, ProductHiveModel obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(16)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -62,7 +65,13 @@ class ProductHiveModelAdapter extends TypeAdapter<ProductHiveModel> {
       ..writeByte(11)
       ..write(obj.imageRelativePath)
       ..writeByte(12)
-      ..write(obj.categoryId);
+      ..write(obj.categoryId)
+      ..writeByte(13)
+      ..write(obj.unit)
+      ..writeByte(14)
+      ..write(obj.typicalPortion)
+      ..writeByte(15)
+      ..write(obj.price);
   }
 
   @override

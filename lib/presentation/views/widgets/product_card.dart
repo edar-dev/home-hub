@@ -18,12 +18,14 @@ class ProductCard extends StatelessWidget {
     required this.product,
     this.onTap,
     this.onDelete,
+    this.onConsume,
     this.placementLine,
   });
 
   final Product product;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
+  final VoidCallback? onConsume;
 
   /// Testo "Luogo: … · …" da [placementLineForProduct]; opzionale.
   final String? placementLine;
@@ -284,6 +286,13 @@ class ProductCard extends StatelessWidget {
                               ],
                             ),
                           ),
+                          if (onConsume != null)
+                            IconButton(
+                              icon: const Icon(Icons.restaurant_outlined),
+                              onPressed: onConsume,
+                              tooltip: 'Registra consumo',
+                              color: scheme.tertiary,
+                            ),
                           if (onDelete != null)
                             IconButton(
                               icon: const Icon(Icons.delete_outline),

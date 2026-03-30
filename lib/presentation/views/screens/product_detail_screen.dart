@@ -7,6 +7,7 @@ import '../../viewmodels/product_view_model.dart';
 import '../widgets/product_detail_body.dart';
 import '../widgets/product_placement_helper.dart';
 import 'product_form_screen.dart';
+import 'quick_consumption_screen.dart';
 
 class ProductDetailScreen extends StatefulWidget {
   const ProductDetailScreen({super.key, required this.product});
@@ -76,6 +77,24 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
+  Future<void> _openConsume() async {
+    final vm = context.read<ProductViewModel>();
+    await Navigator.of(context).push<bool>(
+      MaterialPageRoute<bool>(
+        builder: (_) => QuickConsumptionScreen(product: _product),
+      ),
+    );
+    if (!context.mounted) return;
+    await vm.loadProducts();
+    if (!context.mounted) return;
+    for (final p in vm.products) {
+      if (p.id == _product.id) {
+        setState(() => _product = p);
+        break;
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final locVm = context.watch<LocationViewModel>();
@@ -87,6 +106,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       appBar: AppBar(
         title: const Text('Dettaglio'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.restaurant_outlined),
+            tooltip: 'Usa prodotto',
+            onPressed: _openConsume,
+          ),
           IconButton(
             icon: const Icon(Icons.edit_outlined),
             tooltip: 'Modifica',

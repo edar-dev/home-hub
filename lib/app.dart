@@ -9,6 +9,7 @@ import 'data/local/hive_service.dart';
 import 'domain/repositories/analytics_repository.dart';
 import 'domain/repositories/barcode_repository.dart';
 import 'domain/repositories/category_repository.dart';
+import 'domain/repositories/consumption_repository.dart';
 import 'domain/repositories/location_repository.dart';
 import 'domain/repositories/notification_repository.dart';
 import 'domain/repositories/onboarding_repository.dart';
@@ -66,6 +67,9 @@ class HousekeepApp extends StatelessWidget {
         Provider<CategoryRepository>.value(
           value: dependencies.categoryRepository,
         ),
+        Provider<ConsumptionRepository>.value(
+          value: dependencies.consumptionRepository,
+        ),
         Provider<ShoppingListRepository>.value(
           value: dependencies.shoppingListRepository,
         ),
@@ -90,6 +94,7 @@ class HousekeepApp extends StatelessWidget {
           create: (context) => ProductViewModel(
             context.read<ProductRepository>(),
             context.read<LocationRepository>(),
+            consumptionRepository: context.read<ConsumptionRepository>(),
             notificationRepository: context.read<NotificationRepository>(),
           ),
         ),

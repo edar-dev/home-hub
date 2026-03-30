@@ -44,6 +44,15 @@ class ProductHiveModel extends HiveObject {
   @HiveField(12)
   String? categoryId;
 
+  @HiveField(13)
+  String unit;
+
+  @HiveField(14)
+  double? typicalPortion;
+
+  @HiveField(15)
+  double? price;
+
   ProductHiveModel({
     required this.id,
     required this.nome,
@@ -58,5 +67,8 @@ class ProductHiveModel extends HiveObject {
     this.barcode,
     this.imageRelativePath,
     this.categoryId,
+    this.unit = 'unita',
+    this.typicalPortion,
+    this.price,
   });
 }
