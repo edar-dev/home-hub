@@ -35,7 +35,7 @@ void main() {
     when(() => mockLoc.deletePosition(any())).thenAnswer((_) async {});
   });
 
-  testWidgets('OnboardingScreen mostra titolo Housekeep', (tester) async {
+  testWidgets('OnboardingScreen mostra titolo welcome (IT Stitch)', (tester) async {
     final repo = StubOnboardingRepository();
     await tester.pumpWidget(
       MaterialApp(
@@ -58,6 +58,7 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
-    expect(find.textContaining('Housekeep'), findsWidgets);
+    expect(find.textContaining('Benvenuto'), findsOneWidget);
+    expect(find.textContaining('Inventario Casa'), findsOneWidget);
   });
 }

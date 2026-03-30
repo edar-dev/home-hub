@@ -3,9 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:golden_toolkit/golden_toolkit.dart';
 import 'package:housekeep/core/theme/app_theme.dart';
 import 'package:housekeep/domain/entities/language_code.dart';
+import 'package:housekeep/presentation/views/screens/onboarding/widgets/onboarding_welcome_step.dart';
 import 'package:housekeep/presentation/views/screens/onboarding/widgets/step_content_completion.dart';
 import 'package:housekeep/presentation/views/screens/onboarding/widgets/step_content_scanner.dart';
-import 'package:housekeep/presentation/views/screens/onboarding/widgets/step_content_welcome.dart';
 
 void main() {
   setUpAll(() async {
@@ -13,16 +13,20 @@ void main() {
   });
 
   const lang = LanguageCode.it;
-  const surface = Size(400, 520);
+  const welcomeSurface = Size(400, 920);
 
   testGoldens('Onboarding Welcome — light', (tester) async {
     await tester.pumpWidgetBuilder(
-      const StepContentWelcome(
+      OnboardingWelcomeStep(
         lang: lang,
         showAnimation: false,
+        useHeroPlaceholder: true,
+        onSkip: () {},
+        onStart: () {},
+        onSecondary: () {},
       ),
       wrapper: materialAppWrapper(theme: buildLightTheme()),
-      surfaceSize: surface,
+      surfaceSize: welcomeSurface,
     );
     await tester.pumpAndSettle();
     await screenMatchesGolden(tester, 'onboarding_welcome_light');
@@ -30,16 +34,22 @@ void main() {
 
   testGoldens('Onboarding Welcome — dark', (tester) async {
     await tester.pumpWidgetBuilder(
-      const StepContentWelcome(
+      OnboardingWelcomeStep(
         lang: lang,
         showAnimation: false,
+        useHeroPlaceholder: true,
+        onSkip: () {},
+        onStart: () {},
+        onSecondary: () {},
       ),
       wrapper: materialAppWrapper(theme: buildDarkTheme()),
-      surfaceSize: surface,
+      surfaceSize: welcomeSurface,
     );
     await tester.pumpAndSettle();
     await screenMatchesGolden(tester, 'onboarding_welcome_dark');
   });
+
+  const surface = Size(400, 520);
 
   testGoldens('Onboarding Scanner — light', (tester) async {
     await tester.pumpWidgetBuilder(

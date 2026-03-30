@@ -84,13 +84,17 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                             builder: (context, c) {
                               final w = c.maxWidth;
                               final cross = w > 600 ? 4 : 2;
+                              // Nel prototipo Stitch le metriche su mobile sono quasi "square".
+                              // Aumentiamo leggermente l'altezza delle card per dare respiro
+                              // (e mantenere proporzioni simili a `aspect-square`).
+                              final ratio = cross == 2 ? 1.0 : 1.25;
                               return GridView.count(
                                 crossAxisCount: cross,
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 mainAxisSpacing: 12,
                                 crossAxisSpacing: 12,
-                                childAspectRatio: 1.15,
+                                childAspectRatio: ratio,
                                 children: [
                                   MetricCard(
                                     title: 'Totale prodotti',

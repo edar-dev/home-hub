@@ -37,8 +37,14 @@ Map<String, String> _tableFor(LanguageCode lang) {
 
 const Map<String, String> _it = {
   'welcome.title': 'Benvenuto in Housekeep',
+  'welcome.titlePrefix': 'Benvenuto in ',
+  'welcome.titleBrand': 'Inventario Casa',
   'welcome.body':
-      'Organizza inventario, scadenze e luoghi in un unico posto. Ti guidiamo in pochi passi.',
+      'Gestisci prodotti, scadenze, quantità e posizioni della casa in modo semplice e curato.',
+  'welcome.startNow': 'Inizia Ora',
+  'welcome.secondary': 'Accedi',
+  'welcome.digitalCurator': 'Digital Curator',
+  'welcome.smartCatalog': 'Catalogo Intelligente',
   'addProduct.title': 'Aggiungi prodotti',
   'addProduct.body':
       'Registra cosa hai in casa con quantità e scadenze. Tocca Prova ora per aprire il modulo.',
@@ -97,8 +103,14 @@ const Map<String, String> _it = {
 
 const Map<String, String> _en = {
   'welcome.title': 'Welcome to Housekeep',
+  'welcome.titlePrefix': 'Welcome to ',
+  'welcome.titleBrand': 'Housekeep',
   'welcome.body':
-      'Track inventory, expiry dates and storage in one place. A quick guided tour.',
+      'Manage products, expiry dates, quantities and where things live—simply and neatly.',
+  'welcome.startNow': 'Get started',
+  'welcome.secondary': 'Sign in',
+  'welcome.digitalCurator': 'Digital Curator',
+  'welcome.smartCatalog': 'Smart catalog',
   'addProduct.title': 'Add products',
   'addProduct.body':
       'Log what you have with quantities and dates. Tap Try it to open the form.',
@@ -157,8 +169,14 @@ const Map<String, String> _en = {
 
 const Map<String, String> _es = {
   'welcome.title': 'Bienvenido a Housekeep',
+  'welcome.titlePrefix': 'Bienvenido a ',
+  'welcome.titleBrand': 'Housekeep',
   'welcome.body':
-      'Organiza inventario, caducidades y lugares en un solo sitio.',
+      'Gestiona productos, caducidades, cantidades y dónde está cada cosa, con orden y claridad.',
+  'welcome.startNow': 'Empezar',
+  'welcome.secondary': 'Acceder',
+  'welcome.digitalCurator': 'Digital Curator',
+  'welcome.smartCatalog': 'Catálogo inteligente',
   'addProduct.title': 'Añadir productos',
   'addProduct.body':
       'Registra cantidades y fechas. Toca Probar para abrir el formulario.',

@@ -31,8 +31,8 @@ class LocalNotificationRepository implements NotificationRepository {
     if (_initialized) return;
     tzdata.initializeTimeZones();
     try {
-      final tzName = await FlutterTimezone.getLocalTimezone();
-      tz.setLocalLocation(tz.getLocation(tzName));
+      final tzInfo = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(tzInfo.identifier));
     } catch (e, st) {
       debugPrint('LocalNotificationRepository: timezone fallback $e\n$st');
       tz.setLocalLocation(tz.getLocation('Europe/Rome'));

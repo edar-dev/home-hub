@@ -1,3 +1,5 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
@@ -20,6 +22,7 @@ import 'widgets/step_content_first_setup.dart';
 import 'widgets/step_content_locations.dart';
 import 'widgets/step_content_notifications.dart';
 import 'widgets/step_content_scanner.dart';
+import 'widgets/onboarding_welcome_step.dart';
 import 'widgets/step_content_welcome.dart';
 import 'widgets/step_progress_bar.dart';
 
@@ -111,54 +114,106 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final tryLabel = obCommon('tryNow', lang);
     final finishLabel = obCommon('finish', lang);
 
+    final scheme = Theme.of(context).colorScheme;
     return Material(
-      color: Theme.of(context).colorScheme.surface,
-      child: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              StepProgressBar(
-                currentIndex: _index,
-                totalSteps: _steps.length,
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  physics: const BouncingScrollPhysics(),
-                  onPageChanged: (i) => setState(() => _index = i),
-                  itemCount: _steps.length,
-                  itemBuilder: (context, i) {
-                    final step = _steps[i];
-                    return OnboardingStepView(
-                      child: _buildStepBody(
-                        context,
-                        step,
-                        lang,
-                        showAnim,
-                      ),
-                    );
-                  },
+      color: scheme.surface,
+      child: Stack(
+        children: [
+          Positioned(
+            top: -60,
+            left: -60,
+            child: IgnorePointer(
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+                child: Container(
+                  width: 200,
+                  height: 200,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: scheme.primary.withValues(alpha: 0.05),
+                  ),
                 ),
               ),
-              _buildTryRow(context, vm, tryLabel),
-              const SizedBox(height: 8),
-              OnboardingActionButtons(
-                showBack: _index > 0,
-                onBack: _goBack,
-                onNext: () => _onPrimary(vm),
-                onSkip: () => _skipAll(vm),
-                primaryLabel: _steps[_index] == OnboardingStep.complete
-                    ? finishLabel
-                    : nextLabel,
-                backLabel: backLabel,
-                skipLabel: skipLabel,
-              ),
-            ],
+            ),
           ),
-        ),
+          Positioned(
+            bottom: -40,
+            right: -40,
+            child: IgnorePointer(
+              child: ImageFiltered(
+                imageFilter: ImageFilter.blur(sigmaX: 80, sigmaY: 80),
+                child: Container(
+                  width: 160,
+                  height: 160,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: scheme.tertiary.withValues(alpha: 0.05),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (_index > 0) ...[
+                    StepProgressBar(
+                      currentIndex: _index,
+                      totalSteps: _steps.length,
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      physics: const BouncingScrollPhysics(),
+                      onPageChanged: (i) => setState(() => _index = i),
+                      itemCount: _steps.length,
+                      itemBuilder: (context, i) {
+                        if (i == 0) {
+                          return OnboardingWelcomeStep(
+                            lang: lang,
+                            showAnimation: showAnim,
+                            onSkip: () => _skipAll(vm),
+                            onStart: () => _onPrimary(vm),
+                            onSecondary: () => _skipAll(vm),
+                          );
+                        }
+                        final step = _steps[i];
+                        return OnboardingStepView(
+                          child: _buildStepBody(
+                            context,
+                            step,
+                            lang,
+                            showAnim,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  _buildTryRow(context, vm, tryLabel),
+                  if (_index > 0) ...[
+                    const SizedBox(height: 8),
+                    OnboardingActionButtons(
+                      showBack: _index > 0,
+                      onBack: _goBack,
+                      onNext: () => _onPrimary(vm),
+                      onSkip: () => _skipAll(vm),
+                      primaryLabel: _steps[_index] == OnboardingStep.complete
+                          ? finishLabel
+                          : nextLabel,
+                      backLabel: backLabel,
+                      skipLabel: skipLabel,
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
