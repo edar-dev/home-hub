@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../domain/entities/language_code.dart';
 import '../../../viewmodels/onboarding_view_model.dart';
+import '../../widgets/stitch_top_app_bar.dart';
 import '../../../../utils/onboarding_strings.dart';
 import 'widgets/animation_speed_slider.dart';
 import 'widgets/language_selector.dart';
@@ -18,11 +19,16 @@ class OnboardingSettingsScreen extends StatelessWidget {
       builder: (context, vm, _) {
         final lang = vm.settings.preferredLanguage;
         return Scaffold(
-          appBar: AppBar(
-            title: Text(tourLine('settings.title', lang)),
+          appBar: StitchTopAppBar(
+            title: tourLine('settings.title', lang),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              tooltip: 'Indietro',
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
           ),
           body: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
             children: [
               SwitchListTile(
                 title: Text(tourLine('settings.skipAuto', lang)),

@@ -6,6 +6,7 @@ import '../../viewmodels/location_view_model.dart';
 import '../../viewmodels/product_view_model.dart';
 import '../widgets/product_detail_body.dart';
 import '../widgets/product_placement_helper.dart';
+import '../widgets/stitch_top_app_bar.dart';
 import 'product_form_screen.dart';
 import 'quick_consumption_screen.dart';
 
@@ -103,8 +104,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       buildPlacementIndex(locVm.items),
     );
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dettaglio'),
+      appBar: StitchTopAppBar(
+        title: 'Dettaglio',
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Indietro',
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.restaurant_outlined),

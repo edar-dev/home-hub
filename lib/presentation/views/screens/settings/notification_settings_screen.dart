@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../viewmodels/notification_settings_view_model.dart';
+import '../../widgets/stitch_top_app_bar.dart';
 import 'onboarding_settings_screen.dart';
 
 class NotificationSettingsScreen extends StatelessWidget {
@@ -18,11 +19,16 @@ class NotificationSettingsScreen extends StatelessWidget {
           );
         }
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Notifiche'),
+          appBar: StitchTopAppBar(
+            title: 'Notifiche',
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              tooltip: 'Indietro',
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
           ),
           body: ListView(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
             children: [
               ListTile(
                 leading: const Icon(Icons.school_outlined),

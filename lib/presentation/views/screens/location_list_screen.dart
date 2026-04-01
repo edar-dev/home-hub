@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../../domain/entities/storage_position.dart';
 import '../../viewmodels/location_view_model.dart';
+import '../widgets/stitch_top_app_bar.dart';
 import 'location_form_screen.dart';
 import 'location_inventory_screen.dart';
 import 'position_form_screen.dart';
@@ -84,8 +85,13 @@ class _LocationListScreenState extends State<LocationListScreen> {
     final vm = context.watch<LocationViewModel>();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Luoghi'),
+      appBar: StitchTopAppBar(
+        title: 'Luoghi',
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Indietro',
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

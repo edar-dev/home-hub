@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../domain/entities/consumption_entry.dart';
 import '../../../domain/entities/product.dart';
 import '../../viewmodels/product_view_model.dart';
+import '../widgets/stitch_top_app_bar.dart';
 
 class QuickConsumptionScreen extends StatefulWidget {
   const QuickConsumptionScreen({
@@ -74,10 +75,17 @@ class _QuickConsumptionScreenState extends State<QuickConsumptionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Registra consumo')),
+      appBar: StitchTopAppBar(
+        title: 'Registra consumo',
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Indietro',
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
           child: ListView(
             children: [
               Text(

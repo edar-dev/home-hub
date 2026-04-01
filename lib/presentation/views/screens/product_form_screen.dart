@@ -23,10 +23,13 @@ class ProductFormScreen extends StatefulWidget {
     this.product,
     this.initialBarcode,
     this.initialSuggestedName,
+    this.initialPositionId,
   }) : assert(
           product == null ||
-              (initialBarcode == null && initialSuggestedName == null),
-          'initialBarcode/initialSuggestedName solo per nuovo prodotto',
+              (initialBarcode == null &&
+                  initialSuggestedName == null &&
+                  initialPositionId == null),
+          'parametri initial* solo per nuovo prodotto',
         );
 
   /// Se null, creazione; altrimenti modifica.
@@ -37,6 +40,9 @@ class ProductFormScreen extends StatefulWidget {
 
   /// Da cache barcode: nome suggerito (senza [product]).
   final String? initialSuggestedName;
+
+  /// Posizione pre-selezionata in creazione rapida (senza [product]).
+  final String? initialPositionId;
 
   @override
   State<ProductFormScreen> createState() => _ProductFormScreenState();
@@ -98,6 +104,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     } else {
       _totaleController.text = '1';
       _rimastaController.text = '1';
+      _positionId = widget.initialPositionId;
       final ib = widget.initialBarcode;
       if (ib != null && ib.isNotEmpty) {
         _barcodeController.text = ib;

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../layout/breakpoints.dart';
 import '../../viewmodels/home_shell_tab_controller.dart';
 import 'analytics/analytics_dashboard_screen.dart';
-import 'location_list_screen.dart';
+import 'location_inventory_screen.dart';
 import 'more_tools_screen.dart';
 import 'product_list_screen.dart';
 
@@ -29,14 +29,14 @@ class HomeShellScreen extends StatelessWidget {
                       labelType: NavigationRailLabelType.all,
                       destinations: const [
                         NavigationRailDestination(
+                          icon: Icon(Icons.home_work_outlined),
+                          selectedIcon: Icon(Icons.home_work),
+                          label: Text('Panoramica'),
+                        ),
+                        NavigationRailDestination(
                           icon: Icon(Icons.inventory_2_outlined),
                           selectedIcon: Icon(Icons.inventory_2),
                           label: Text('Inventario'),
-                        ),
-                        NavigationRailDestination(
-                          icon: Icon(Icons.place_outlined),
-                          selectedIcon: Icon(Icons.place),
-                          label: Text('Luoghi'),
                         ),
                         NavigationRailDestination(
                           icon: Icon(Icons.insights_outlined),
@@ -79,14 +79,14 @@ class HomeShellScreen extends StatelessWidget {
                         NavigationDestinationLabelBehavior.alwaysShow,
                     destinations: const [
                   NavigationDestination(
+                    icon: Icon(Icons.home_work_outlined),
+                    selectedIcon: Icon(Icons.home_work),
+                    label: 'Panoramica',
+                  ),
+                  NavigationDestination(
                     icon: Icon(Icons.inventory_2_outlined),
                     selectedIcon: Icon(Icons.inventory_2),
                     label: 'Inventario',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.place_outlined),
-                    selectedIcon: Icon(Icons.place),
-                    label: 'Luoghi',
                   ),
                   NavigationDestination(
                     icon: Icon(Icons.insights_outlined),
@@ -111,8 +111,8 @@ class HomeShellScreen extends StatelessWidget {
 }
 
 const List<Widget> _pages = [
+  LocationInventoryScreen(),
   ProductListScreen(),
-  LocationListScreen(),
   AnalyticsDashboardScreen(),
   MoreToolsScreen(),
 ];

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../widgets/stitch_top_app_bar.dart';
+import 'location_list_screen.dart';
 import 'settings/notification_settings_screen.dart';
 import 'shopping/shopping_list_screen.dart';
 
@@ -16,6 +17,19 @@ class MoreToolsScreen extends StatelessWidget {
           padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
           children: [
             const StitchTopAppBar(title: 'Utilita'),
+            _UtilityTile(
+              icon: Icons.place_outlined,
+              title: 'Gestione luoghi',
+              subtitle: 'Crea, modifica ed elimina i luoghi di casa.',
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute<void>(
+                    builder: (_) => const LocationListScreen(),
+                  ),
+                );
+              },
+            ),
+            const SizedBox(height: 12),
             _UtilityTile(
               icon: Icons.shopping_cart_outlined,
               title: 'Lista spesa',
