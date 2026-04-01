@@ -102,15 +102,21 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
   }
 
-  testWidgets('tab Luoghi mostra stato vuoto', (tester) async {
-    await pumpShellNarrow(tester);
+  Future<void> openLocationManagementFromUtility(WidgetTester tester) async {
     await tester.tap(
       find.descendant(
         of: find.byType(NavigationBar),
-        matching: find.text('Luoghi'),
+        matching: find.text('Utilita'),
       ),
     );
     await tester.pumpAndSettle();
+    await tester.tap(find.text('Gestione luoghi'));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('gestione luoghi mostra stato vuoto', (tester) async {
+    await pumpShellNarrow(tester);
+    await openLocationManagementFromUtility(tester);
 
     expect(find.text('Nessun luogo'), findsOneWidget);
   });
@@ -129,13 +135,7 @@ void main() {
     );
 
     await pumpShellNarrow(tester);
-    await tester.tap(
-      find.descendant(
-        of: find.byType(NavigationBar),
-        matching: find.text('Luoghi'),
-      ),
-    );
-    await tester.pumpAndSettle();
+    await openLocationManagementFromUtility(tester);
 
     expect(find.text('Cucina'), findsWidgets);
 

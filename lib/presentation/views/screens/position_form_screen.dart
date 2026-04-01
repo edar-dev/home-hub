@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../domain/entities/storage_position.dart';
 import '../../../utils/location_validators.dart';
 import '../../viewmodels/location_view_model.dart';
+import '../widgets/stitch_top_app_bar.dart';
 import '../widgets/validation_error_widget.dart';
 
 class PositionFormScreen extends StatefulWidget {
@@ -101,8 +102,13 @@ class _PositionFormScreenState extends State<PositionFormScreen> {
     final locations = vm.items;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEdit ? 'Modifica posizione' : 'Nuova posizione'),
+      appBar: StitchTopAppBar(
+        title: _isEdit ? 'Modifica posizione' : 'Nuova posizione',
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Indietro',
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
       ),
       body: Center(
         child: ConstrainedBox(
@@ -111,7 +117,7 @@ class _PositionFormScreenState extends State<PositionFormScreen> {
             key: _formKey,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               children: [
                 ValidationErrorWidget(messages: _summaryErrors),
                 if (!_isEdit || locations.length > 1)

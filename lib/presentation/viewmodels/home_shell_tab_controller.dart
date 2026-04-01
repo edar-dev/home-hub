@@ -4,8 +4,6 @@ import 'package:flutter/foundation.dart';
 class HomeShellTabController extends ChangeNotifier {
   static const int tabOverview = 0;
   static const int tabInventory = 1;
-  // Compat: lo step onboarding "locations" punta alla vista inventario.
-  static const int tabLocations = tabInventory;
   static const int tabAnalytics = 2;
   static const int tabUtility = 3;
 

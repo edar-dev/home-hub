@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../../domain/entities/product_category.dart';
 import '../../../../domain/repositories/category_repository.dart';
+import '../../widgets/stitch_top_app_bar.dart';
 
 class CategoryManagementScreen extends StatefulWidget {
   const CategoryManagementScreen({super.key});
@@ -113,7 +114,14 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Categorie')),
+      appBar: StitchTopAppBar(
+        title: 'Categorie',
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Indietro',
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+      ),
       body: FutureBuilder<List<ProductCategory>>(
         future: _future ?? Future.value(const []),
         builder: (context, snap) {
@@ -125,7 +133,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
             return const Center(child: Text('Nessuna categoria.'));
           }
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
             itemCount: items.length,
             itemBuilder: (context, i) {
               final c = items[i];

@@ -99,9 +99,30 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
   }
 
+  Future<void> openInventoryTab(WidgetTester tester) async {
+    final navBarTab = find.descendant(
+      of: find.byType(NavigationBar),
+      matching: find.text('Inventario'),
+    );
+    if (navBarTab.evaluate().isNotEmpty) {
+      await tester.tap(navBarTab);
+      await tester.pumpAndSettle();
+      return;
+    }
+    final railTab = find.descendant(
+      of: find.byType(NavigationRail),
+      matching: find.text('Inventario'),
+    );
+    if (railTab.evaluate().isNotEmpty) {
+      await tester.tap(railTab.first);
+      await tester.pumpAndSettle();
+    }
+  }
+
   testWidgets('ricerca placeholder mostra SnackBar', (tester) async {
     when(() => mockRepo.getAll()).thenAnswer((_) async => []);
     await pumpListLoaded(tester);
+    await openInventoryTab(tester);
     await tester.tap(find.byTooltip('Cerca (prossimamente)'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
@@ -111,12 +132,14 @@ void main() {
   testWidgets('lista vuota mostra messaggio', (tester) async {
     when(() => mockRepo.getAll()).thenAnswer((_) async => []);
     await pumpListLoaded(tester);
+    await openInventoryTab(tester);
     expect(find.text('Nessun prodotto'), findsOneWidget);
   });
 
   testWidgets('FAB apre schermata nuovo prodotto', (tester) async {
     when(() => mockRepo.getAll()).thenAnswer((_) async => []);
     await pumpListLoaded(tester);
+    await openInventoryTab(tester);
 
     await tester.tap(find.byKey(const ValueKey<String>('fab-product')));
     await tester.pump();
@@ -137,6 +160,7 @@ void main() {
       ],
     );
     await pumpListLoaded(tester);
+    await openInventoryTab(tester);
 
     expect(find.text('Farina'), findsOneWidget);
     expect(find.textContaining('Quantità: 1 / 2'), findsOneWidget);
@@ -154,6 +178,7 @@ void main() {
       ],
     );
     await pumpListLoaded(tester);
+    await openInventoryTab(tester);
     await tester.tap(find.text('Riso'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 300));
@@ -174,6 +199,7 @@ void main() {
     );
     when(() => mockRepo.delete('sw1')).thenAnswer((_) async {});
     await pumpListLoaded(tester);
+    await openInventoryTab(tester);
 
     expect(find.text('SwipeMe'), findsOneWidget);
     await tester.fling(
@@ -205,6 +231,7 @@ void main() {
       ],
     );
     await pumpListLoaded(tester, surfaceSize: const Size(1200, 800));
+    await openInventoryTab(tester);
 
     expect(find.text('Desktop'), findsOneWidget);
     await tester.tap(find.text('Desktop'));

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../domain/entities/location_with_positions.dart';
 import '../../viewmodels/location_inventory_view_model.dart';
 import '../../viewmodels/location_view_model.dart';
 import '../widgets/product_card.dart';
 import '../widgets/stitch_top_app_bar.dart';
 import '../widgets/product_placement_helper.dart';
 import 'location_form_screen.dart';
+import 'position_form_screen.dart';
 import 'product_form_screen.dart';
 
 /// Riepilogo inventario per luogo e posizione (FASE 3).
@@ -22,11 +24,14 @@ class LocationInventoryScreen extends StatefulWidget {
 }
 
 class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
-  Future<void> _refreshAll() async {
+  Future<void> _refreshAll({bool refreshLocations = false}) async {
     if (!mounted) return;
-    await context.read<LocationViewModel>().loadHierarchy();
-    if (!mounted) return;
+    if (refreshLocations) {
+      await context.read<LocationViewModel>().loadHierarchy();
+      if (!mounted) return;
+    }
     await context.read<LocationInventoryViewModel>().load();
+    if (!mounted) return;
   }
 
   Future<void> _openCreateLocation() async {
@@ -35,7 +40,7 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
         builder: (_) => const LocationFormScreen(),
       ),
     );
-    await _refreshAll();
+    await _refreshAll(refreshLocations: true);
   }
 
   Future<void> _openCreateProduct({String? initialPositionId}) async {
@@ -45,6 +50,15 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
       ),
     );
     await _refreshAll();
+  }
+
+  Future<void> _openCreatePosition({String? initialLocationId}) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => PositionFormScreen(initialLocationId: initialLocationId),
+      ),
+    );
+    await _refreshAll(refreshLocations: true);
   }
 
   Future<void> _openQuickCreateMenu() async {
@@ -57,6 +71,15 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
+                leading: const Icon(Icons.add_box_outlined),
+                title: const Text('Nuovo prodotto'),
+                subtitle: const Text('Flusso rapido consigliato'),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  _openCreateProduct();
+                },
+              ),
+              ListTile(
                 leading: const Icon(Icons.add_business_outlined),
                 title: const Text('Nuovo luogo'),
                 onTap: () {
@@ -65,12 +88,56 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.add_box_outlined),
-                title: const Text('Nuovo prodotto'),
+                leading: const Icon(Icons.add_location_alt_outlined),
+                title: const Text('Nuova posizione'),
                 onTap: () {
                   Navigator.of(ctx).pop();
-                  _openCreateProduct();
+                  _openCreatePosition();
                 },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _openSectionQuickAdd(LocationInventorySection section) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (ctx) {
+        final hasPositions = section.blocks.isNotEmpty;
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.add_location_alt_outlined),
+                title: const Text('Nuova posizione'),
+                subtitle: Text('Nel luogo ${section.location.nome}'),
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  _openCreatePosition(initialLocationId: section.location.id);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.add_box_outlined),
+                title: const Text('Nuovo prodotto'),
+                subtitle: Text(
+                  hasPositions
+                      ? 'Con posizione pre-selezionata'
+                      : 'Prima crea una posizione in questo luogo',
+                ),
+                enabled: hasPositions,
+                onTap: !hasPositions
+                    ? null
+                    : () {
+                        Navigator.of(ctx).pop();
+                        _openCreateProduct(
+                          initialPositionId: section.blocks.first.position.id,
+                        );
+                      },
               ),
             ],
           ),
@@ -104,8 +171,11 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
   @override
   Widget build(BuildContext context) {
     final inv = context.watch<LocationInventoryViewModel>();
-    final locVm = context.watch<LocationViewModel>();
-    final placementIndex = buildPlacementIndex(locVm.items);
+    final locItems = context.select<LocationViewModel, List<LocationWithPositions>>(
+      (vm) => vm.items,
+    );
+    final locVm = context.read<LocationViewModel>();
+    final placementIndex = buildPlacementIndex(locItems);
 
     final title = widget.locationId == null
         ? 'Riepilogo per stanza'
@@ -201,18 +271,9 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
       onRefresh: () => inv.load(),
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: inv.sections.length + 1,
+        itemCount: inv.sections.length,
         itemBuilder: (context, si) {
-          if (si == 0) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: _OverviewActionsCard(
-                onCreateLocation: _openCreateLocation,
-                onCreateProduct: () => _openCreateProduct(),
-              ),
-            );
-          }
-          final section = inv.sections[si - 1];
+          final section = inv.sections[si];
           return Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Card(
@@ -225,19 +286,45 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
                   '${section.productCount} prodotti · '
                   '${section.blocks.length} posizioni',
                 ),
+                trailing: PopupMenuButton<String>(
+                  tooltip: 'Altre azioni',
+                  onSelected: (v) {
+                    if (v == 'position') {
+                      _openCreatePosition(initialLocationId: section.location.id);
+                    } else if (v == 'menu') {
+                      _openSectionQuickAdd(section);
+                    }
+                  },
+                  itemBuilder: (ctx) => const [
+                    PopupMenuItem<String>(
+                      value: 'position',
+                      child: Text('Nuova posizione'),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'menu',
+                      child: Text('Altre opzioni...'),
+                    ),
+                  ],
+                ),
                 children: [
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
                     child: Align(
                       alignment: Alignment.centerLeft,
-                      child: OutlinedButton.icon(
+                      child: FilledButton.icon(
                         onPressed: section.blocks.isEmpty
-                            ? null
+                            ? () => _openCreatePosition(
+                                  initialLocationId: section.location.id,
+                                )
                             : () => _openCreateProduct(
                                   initialPositionId: section.blocks.first.position.id,
                                 ),
                         icon: const Icon(Icons.add_box_outlined),
-                        label: const Text('Aggiungi prodotto qui'),
+                        label: Text(
+                          section.blocks.isEmpty
+                              ? 'Crea posizione per aggiungere prodotti'
+                              : 'Aggiungi prodotto',
+                        ),
                       ),
                     ),
                   ),
@@ -305,44 +392,6 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class _OverviewActionsCard extends StatelessWidget {
-  const _OverviewActionsCard({
-    required this.onCreateLocation,
-    required this.onCreateProduct,
-  });
-
-  final VoidCallback onCreateLocation;
-  final VoidCallback onCreateProduct;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      padding: const EdgeInsets.all(14),
-      child: Wrap(
-        spacing: 10,
-        runSpacing: 10,
-        children: [
-          FilledButton.icon(
-            onPressed: onCreateLocation,
-            icon: const Icon(Icons.add_business_outlined),
-            label: const Text('Nuovo luogo'),
-          ),
-          OutlinedButton.icon(
-            onPressed: onCreateProduct,
-            icon: const Icon(Icons.add_box_outlined),
-            label: const Text('Nuovo prodotto'),
-          ),
-        ],
       ),
     );
   }

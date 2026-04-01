@@ -15,6 +15,7 @@ import '../../viewmodels/location_view_model.dart';
 import '../../viewmodels/product_view_model.dart';
 import '../widgets/date_picker_field.dart';
 import '../widgets/quantity_field.dart';
+import '../widgets/stitch_top_app_bar.dart';
 import '../widgets/validation_error_widget.dart';
 
 class ProductFormScreen extends StatefulWidget {
@@ -362,8 +363,13 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         _positionStillValid(locVm.items) ? _positionId : null;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEdit ? 'Modifica prodotto' : 'Nuovo prodotto'),
+      appBar: StitchTopAppBar(
+        title: _isEdit ? 'Modifica prodotto' : 'Nuovo prodotto',
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Indietro',
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
         actions: [
           if (_isEdit)
             IconButton(
@@ -380,7 +386,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
             key: _formKey,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               children: [
                 ValidationErrorWidget(messages: _summaryErrors),
                 TextFormField(

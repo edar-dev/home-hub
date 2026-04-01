@@ -279,7 +279,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         };
         break;
       case OnboardingStep.locations:
-        onTry = () => tab.setIndex(HomeShellTabController.tabLocations);
+        onTry = () => tab.setIndex(HomeShellTabController.tabInventory);
         break;
       case OnboardingStep.analytics:
         onTry = () => tab.setIndex(HomeShellTabController.tabAnalytics);

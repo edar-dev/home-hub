@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import '../../../../domain/entities/shopping_list.dart';
 import '../../../../domain/repositories/shopping_list_repository.dart';
+import '../../widgets/stitch_top_app_bar.dart';
 
 class ShoppingHistoryScreen extends StatefulWidget {
   const ShoppingHistoryScreen({super.key});
@@ -29,7 +30,14 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Storico liste')),
+      appBar: StitchTopAppBar(
+        title: 'Storico liste',
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Indietro',
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+      ),
       body: FutureBuilder<List<ShoppingList>>(
         future: _future ?? Future.value(const []),
         builder: (context, snap) {
@@ -42,7 +50,7 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
           }
           final fmt = DateFormat.yMMMd('it_IT');
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
             itemCount: list.length,
             itemBuilder: (context, i) {
               final sl = list[i];

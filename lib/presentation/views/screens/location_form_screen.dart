@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../domain/entities/location.dart';
 import '../../../utils/location_validators.dart';
 import '../../viewmodels/location_view_model.dart';
+import '../widgets/stitch_top_app_bar.dart';
 import '../widgets/validation_error_widget.dart';
 
 class LocationFormScreen extends StatefulWidget {
@@ -83,8 +84,13 @@ class _LocationFormScreenState extends State<LocationFormScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_isEdit ? 'Modifica luogo' : 'Nuovo luogo'),
+      appBar: StitchTopAppBar(
+        title: _isEdit ? 'Modifica luogo' : 'Nuovo luogo',
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          tooltip: 'Indietro',
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
       ),
       body: Center(
         child: ConstrainedBox(
@@ -93,7 +99,7 @@ class _LocationFormScreenState extends State<LocationFormScreen> {
             key: _formKey,
             autovalidateMode: AutovalidateMode.onUserInteraction,
             child: ListView(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
               children: [
                 ValidationErrorWidget(messages: _summaryErrors),
                 TextFormField(

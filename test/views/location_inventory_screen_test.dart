@@ -113,4 +113,82 @@ void main() {
     expect(find.text('Frigo'), findsWidgets);
     expect(find.text('Latte'), findsWidgets);
   });
+
+  testWidgets('panoramica root non mostra freccia back', (tester) async {
+    final locVm = LocationViewModel(mockLoc);
+    await locVm.loadHierarchy();
+    final invVm = LocationInventoryViewModel(mockProd, mockLoc);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MultiProvider(
+          providers: [
+            Provider<ProductRepository>.value(value: mockProd),
+            Provider<LocationRepository>.value(value: mockLoc),
+            ChangeNotifierProvider<LocationViewModel>.value(value: locVm),
+            ChangeNotifierProvider<LocationInventoryViewModel>.value(value: invVm),
+          ],
+          child: const LocationInventoryScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.arrow_back), findsNothing);
+  });
+
+  testWidgets('dettaglio luogo mostra freccia back', (tester) async {
+    final loc = const Location(id: 'l1', nome: 'Cucina');
+    when(() => mockLoc.getAllWithPositions()).thenAnswer(
+      (_) async => [
+        LocationWithPositions(location: loc, positions: const []),
+      ],
+    );
+
+    final locVm = LocationViewModel(mockLoc);
+    await locVm.loadHierarchy();
+    final invVm = LocationInventoryViewModel(mockProd, mockLoc);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MultiProvider(
+          providers: [
+            Provider<ProductRepository>.value(value: mockProd),
+            Provider<LocationRepository>.value(value: mockLoc),
+            ChangeNotifierProvider<LocationViewModel>.value(value: locVm),
+            ChangeNotifierProvider<LocationInventoryViewModel>.value(value: invVm),
+          ],
+          child: const LocationInventoryScreen(locationId: 'l1'),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.byIcon(Icons.arrow_back), findsOneWidget);
+  });
+
+  testWidgets('FAB crea apre quick menu', (tester) async {
+    final locVm = LocationViewModel(mockLoc);
+    await locVm.loadHierarchy();
+    final invVm = LocationInventoryViewModel(mockProd, mockLoc);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MultiProvider(
+          providers: [
+            Provider<ProductRepository>.value(value: mockProd),
+            Provider<LocationRepository>.value(value: mockLoc),
+            ChangeNotifierProvider<LocationViewModel>.value(value: locVm),
+            ChangeNotifierProvider<LocationInventoryViewModel>.value(value: invVm),
+          ],
+          child: const LocationInventoryScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byTooltip('Crea'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Nuovo luogo'), findsWidgets);
+    expect(find.text('Nuovo prodotto'), findsOneWidget);
+  });
 }
