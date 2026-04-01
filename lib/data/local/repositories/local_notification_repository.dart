@@ -10,6 +10,7 @@ import '../../../domain/entities/consumption_stats.dart';
 import '../../../domain/entities/notification_settings.dart';
 import '../../../domain/entities/product.dart';
 import '../../../domain/repositories/consumption_repository.dart';
+import '../../../core/brand/app_brand.dart';
 import '../../../domain/repositories/notification_repository.dart';
 import '../../../domain/services/consumption_calculator.dart';
 import '../models/notification_settings_hive_model.dart';
@@ -58,9 +59,9 @@ class LocalNotificationRepository implements NotificationRepository {
     final android = _plugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>();
     await android?.createNotificationChannel(
-      const AndroidNotificationChannel(
+      AndroidNotificationChannel(
         'housekeep_main',
-        'Housekeep',
+        AppBrand.appNameShort,
         description: 'Scadenze e riepiloghi',
         importance: Importance.defaultImportance,
       ),
@@ -124,15 +125,15 @@ class LocalNotificationRepository implements NotificationRepository {
   }
 
   Future<NotificationDetails> _details() async {
-    return const NotificationDetails(
+    return NotificationDetails(
       android: AndroidNotificationDetails(
         'housekeep_main',
-        'Housekeep',
+        AppBrand.appNameShort,
         channelDescription: 'Scadenze e riepiloghi',
         importance: Importance.defaultImportance,
         priority: Priority.defaultPriority,
       ),
-      iOS: DarwinNotificationDetails(),
+      iOS: const DarwinNotificationDetails(),
     );
   }
 
@@ -224,7 +225,7 @@ class LocalNotificationRepository implements NotificationRepository {
       final when = _nextEightAmFrom(now);
       await _plugin.zonedSchedule(
         _digestNotificationId,
-        'Riepilogo Housekeep',
+        'Riepilogo ${AppBrand.appNameShort}',
         body,
         when,
         details,

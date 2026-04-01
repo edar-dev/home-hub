@@ -1,4 +1,6 @@
-# Housekeep — panoramica funzionalità
+# The Organized Hive — panoramica funzionalità
+
+*(Repository tecnico: Housekeep / package `housekeep`.)*
 
 ## A cosa serve
 

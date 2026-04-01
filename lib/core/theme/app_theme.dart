@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import 'stitch_color_scheme.dart';
+import 'organized_hive_color_scheme.dart';
 
 ThemeData buildLightTheme() {
-  final scheme = StitchColors.lightScheme();
+  final scheme = OrganizedHiveColors.lightScheme();
   final baseText = GoogleFonts.interTextTheme();
   final textTheme = baseText.copyWith(
     displayLarge: GoogleFonts.manrope(textStyle: baseText.displayLarge),
@@ -91,7 +91,7 @@ ThemeData buildLightTheme() {
       backgroundColor: scheme.surfaceContainerLowest,
       elevation: 0,
       height: 68,
-      indicatorColor: StitchColors.primary.withValues(alpha: 0.1),
+      indicatorColor: scheme.primary.withValues(alpha: 0.1),
       labelTextStyle: WidgetStateProperty.resolveWith((states) {
         final selected = states.contains(WidgetState.selected);
         return GoogleFonts.inter(
@@ -141,10 +141,7 @@ ThemeData buildLightTheme() {
 }
 
 ThemeData buildDarkTheme() {
-  final scheme = ColorScheme.fromSeed(
-    seedColor: StitchColors.primaryContainer,
-    brightness: Brightness.dark,
-  );
+  final scheme = OrganizedHiveColors.darkScheme();
   final baseText = GoogleFonts.interTextTheme(ThemeData.dark().textTheme);
   final textTheme = baseText.copyWith(
     headlineSmall: GoogleFonts.manrope(

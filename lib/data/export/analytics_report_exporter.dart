@@ -6,6 +6,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 
+import '../../core/brand/app_brand.dart';
 import '../../domain/entities/analytics_metrics.dart';
 import '../../domain/entities/chart_data_point.dart';
 
@@ -22,7 +23,10 @@ abstract final class AnalyticsReportExporter {
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         build: (context) => [
-          pw.Header(level: 0, text: 'Housekeep — Report analytics'),
+          pw.Header(
+            level: 0,
+            text: '${AppBrand.appNameDisplay} — Report analytics',
+          ),
           pw.Text(
             'Periodo: ${metrics.startDate.toIso8601String().split('T').first} — '
             '${metrics.endDate.toIso8601String().split('T').first}',
@@ -108,6 +112,9 @@ abstract final class AnalyticsReportExporter {
   }
 
   static Future<void> shareFile(File file) async {
-    await Share.shareXFiles([XFile(file.path)], text: 'Export Housekeep');
+    await Share.shareXFiles(
+      [XFile(file.path)],
+      text: 'Export ${AppBrand.appNameDisplay}',
+    );
   }
 }

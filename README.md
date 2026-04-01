@@ -1,6 +1,6 @@
-# Housekeep
+# Housekeep (prodotto: **The Organized Hive**)
 
-App Flutter per **inventario domestico** offline: prodotti (quantità, scadenze), **luoghi** e **posizioni** (es. Cucina → Frigo), collegamento opzionale prodotto–posizione. I dati restano sul dispositivo (Hive).
+App Flutter per **inventario domestico** offline: prodotti (quantità, scadenze), **luoghi** e **posizioni** (es. Cucina → Frigo), collegamento opzionale prodotto–posizione. I dati restano sul dispositivo (Hive). Il nome tecnico del repository e del package Dart resta `housekeep`; il brand consumer è **The Organized Hive** (vedi [docs/brand/the-organized-hive-brand-decisions.md](docs/brand/the-organized-hive-brand-decisions.md)).
 
 ## Requisiti
 

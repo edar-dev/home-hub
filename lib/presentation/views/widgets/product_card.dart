@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/services/photo_storage_service.dart';
-import '../../../core/theme/stitch_color_scheme.dart';
+import '../../../core/theme/organized_hive_color_scheme.dart';
 import '../../../domain/entities/product.dart';
 import '../../../utils/date_formatting.dart';
 import '../../theme/product_expiry_status.dart';
@@ -35,7 +35,7 @@ class ProductCard extends StatelessWidget {
     if (product.isLowStock &&
         product.quantitaRimasta > 0 &&
         urgencyOf(product) != ExpiryUrgency.expired) {
-      return StitchColors.amberAccent;
+      return OrganizedHiveColors.amberAccent;
     }
     final u = urgencyOf(product);
     return switch (u) {
@@ -69,7 +69,7 @@ class ProductCard extends StatelessWidget {
     if (product.isLowStock && product.quantitaRimasta > 0) {
       return (
         text: 'Basso stock',
-        fg: StitchColors.amberDark,
+        fg: OrganizedHiveColors.amberDark,
         bg: const Color(0xFFFEF3C7),
       );
     }
@@ -93,7 +93,7 @@ class ProductCard extends StatelessWidget {
   Color _progressColor(BuildContext context) {
     if (product.isExpired) return Theme.of(context).colorScheme.error;
     if (product.isLowStock && product.quantitaRimasta > 0) {
-      return StitchColors.amberAccent;
+      return OrganizedHiveColors.amberAccent;
     }
     return Theme.of(context).colorScheme.primary;
   }

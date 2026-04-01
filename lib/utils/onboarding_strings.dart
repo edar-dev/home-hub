@@ -36,11 +36,11 @@ Map<String, String> _tableFor(LanguageCode lang) {
 }
 
 const Map<String, String> _it = {
-  'welcome.title': 'Benvenuto in Housekeep',
+  'welcome.title': 'Benvenuto in The Organized Hive',
   'welcome.titlePrefix': 'Benvenuto in ',
-  'welcome.titleBrand': 'Inventario Casa',
+  'welcome.titleBrand': 'The Organized Hive',
   'welcome.body':
-      'Gestisci prodotti, scadenze, quantità e posizioni della casa in modo semplice e curato.',
+      'Inventario, scadenze e spesa in un solo posto chiaro — per chi coordina la casa.',
   'welcome.startNow': 'Inizia Ora',
   'welcome.secondary': 'Accedi',
   'welcome.digitalCurator': 'Digital Curator',
@@ -65,7 +65,7 @@ const Map<String, String> _it = {
       'Come vuoi chiamare il tuo ambiente? Creeremo il primo luogo se non ne hai ancora.',
   'firstSetup.hint': 'Es. Casa, Appartamento…',
   'complete.title': 'Tutto pronto!',
-  'complete.body': 'Hai completato il tour. Buon Housekeep!',
+  'complete.body': 'Hai completato il tour. Buon utilizzo!',
   'common.next': 'Avanti',
   'common.back': 'Indietro',
   'common.skip': 'Salta',
@@ -102,11 +102,11 @@ const Map<String, String> _it = {
 };
 
 const Map<String, String> _en = {
-  'welcome.title': 'Welcome to Housekeep',
+  'welcome.title': 'Welcome to The Organized Hive',
   'welcome.titlePrefix': 'Welcome to ',
-  'welcome.titleBrand': 'Housekeep',
+  'welcome.titleBrand': 'The Organized Hive',
   'welcome.body':
-      'Manage products, expiry dates, quantities and where things live—simply and neatly.',
+      'Inventory, expiry, and shopping in one clear place — for whoever runs the home.',
   'welcome.startNow': 'Get started',
   'welcome.secondary': 'Sign in',
   'welcome.digitalCurator': 'Digital Curator',
@@ -131,7 +131,7 @@ const Map<String, String> _en = {
       'What do you want to call your space? We’ll create the first location if needed.',
   'firstSetup.hint': 'e.g. Home, Apartment…',
   'complete.title': 'You’re set!',
-  'complete.body': 'Tour complete. Enjoy Housekeep!',
+  'complete.body': 'Tour complete. Enjoy organizing your home!',
   'common.next': 'Next',
   'common.back': 'Back',
   'common.skip': 'Skip',
@@ -168,11 +168,11 @@ const Map<String, String> _en = {
 };
 
 const Map<String, String> _es = {
-  'welcome.title': 'Bienvenido a Housekeep',
+  'welcome.title': 'Bienvenido a The Organized Hive',
   'welcome.titlePrefix': 'Bienvenido a ',
-  'welcome.titleBrand': 'Housekeep',
+  'welcome.titleBrand': 'The Organized Hive',
   'welcome.body':
-      'Gestiona productos, caducidades, cantidades y dónde está cada cosa, con orden y claridad.',
+      'Inventario, caducidades y compras en un solo lugar claro — para quien organiza el hogar.',
   'welcome.startNow': 'Empezar',
   'welcome.secondary': 'Acceder',
   'welcome.digitalCurator': 'Digital Curator',
@@ -197,7 +197,7 @@ const Map<String, String> _es = {
       '¿Cómo llamar a tu espacio? Crearemos el primer lugar si hace falta.',
   'firstSetup.hint': 'Ej. Casa…',
   'complete.title': '¡Listo!',
-  'complete.body': 'Tour completado. ¡Disfruta Housekeep!',
+  'complete.body': 'Tour completado. ¡Buen uso!',
   'common.next': 'Siguiente',
   'common.back': 'Atrás',
   'common.skip': 'Omitir',

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'core/di/app_providers.dart';
 import 'core/services/photo_storage_service.dart';
+import 'core/brand/app_brand.dart';
 import 'core/theme/app_theme.dart';
 import 'data/local/hive_service.dart';
 import 'domain/repositories/analytics_repository.dart';
@@ -126,7 +127,7 @@ class HousekeepApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'Housekeep',
+        title: AppBrand.materialAppTitle,
         locale: const Locale('it', 'IT'),
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,

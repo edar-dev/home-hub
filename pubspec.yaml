@@ -1,5 +1,5 @@
 name: housekeep
-description: "Inventario domestico — FASE 1 prodotti."
+description: "The Organized Hive — inventario, scadenze, lista spesa e scanner per la casa (repo: housekeep)."
 publish_to: 'none'
 
 version: 1.0.0+1
