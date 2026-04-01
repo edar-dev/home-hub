@@ -21,10 +21,6 @@ Future<void> main() async {
   final dependencies = await AppFactory.create();
   try {
     await dependencies.notificationRepository.initialize();
-    final products = await dependencies.productRepository.getAll();
-    await dependencies.notificationRepository.rescheduleAllForProducts(
-      products,
-    );
   } catch (e, st) {
     debugPrint('Notification bootstrap: $e\n$st');
   }
@@ -43,4 +39,15 @@ Future<void> main() async {
       initialShowOnboarding: showOnboarding,
     ),
   );
+
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    try {
+      final products = await dependencies.productRepository.getAll();
+      await dependencies.notificationRepository.rescheduleAllForProducts(
+        products,
+      );
+    } catch (e, st) {
+      debugPrint('Notification reschedule (deferred): $e\n$st');
+    }
+  });
 }

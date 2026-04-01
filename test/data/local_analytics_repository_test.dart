@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive/hive.dart';
 import 'package:housekeep/core/di/app_providers.dart';
+import 'package:housekeep/domain/entities/consumption_entry.dart';
 import 'package:housekeep/domain/entities/location.dart';
 import 'package:housekeep/domain/entities/product.dart';
 import 'package:housekeep/domain/entities/storage_position.dart';
@@ -57,5 +58,49 @@ void main() {
 
     final pie = await analytics.getProductDistributionByLocation();
     expect(pie.any((e) => e.label == 'Cucina'), isTrue);
+  });
+
+  test('getMetrics aggrega consumi con una sola lettura grouped (avgDaily)', () async {
+    final deps = await AppFactory.create(hiveStoragePath: dir!.path);
+    const uuid = Uuid();
+    final productId = uuid.v4();
+    await deps.productRepository.save(
+      Product(
+        id: productId,
+        nome: 'Yogurt',
+        quantitaTotale: 10,
+        quantitaRimasta: 5,
+        positionId: null,
+      ),
+    );
+    final d0 = DateTime.now().subtract(const Duration(days: 2));
+    final d1 = DateTime.now().subtract(const Duration(days: 1));
+    await deps.consumptionRepository.saveEntry(
+      ConsumptionEntry(
+        id: uuid.v4(),
+        productId: productId,
+        amount: 2,
+        unit: 'pz',
+        date: d0,
+      ),
+    );
+    await deps.consumptionRepository.saveEntry(
+      ConsumptionEntry(
+        id: uuid.v4(),
+        productId: productId,
+        amount: 1,
+        unit: 'pz',
+        date: d1,
+      ),
+    );
+
+    final now = DateTime.now();
+    final m = await deps.analyticsRepository.getMetrics(
+      startDate: DateTime(now.year, now.month - 1, 1),
+      endDate: DateTime(now.year, now.month, now.day),
+    );
+    expect(m.totalProducts, 1);
+    // 3 unità su 2 giorni di span (stesso giorno calendario incluso) → ConsumptionCalculator
+    expect(m.avgDailyConsumption, greaterThan(0));
   });
 }

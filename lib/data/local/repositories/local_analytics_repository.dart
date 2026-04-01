@@ -46,9 +46,10 @@ class LocalAnalyticsRepository implements AnalyticsRepository {
     var avgDailySum = 0.0;
     var almostEmptyCount = 0;
 
+    final groupedEntries = await _consumptions.getAllGroupedByProductId();
     for (final p in list) {
       sumConsumed += (p.quantitaTotale - p.quantitaRimasta).clamp(0, 1 << 30);
-      final entries = await _consumptions.getByProductId(p.id);
+      final entries = groupedEntries[p.id] ?? const [];
       final stats = ConsumptionCalculator.compute(p, entries);
       avgDailySum += stats.avgDailyConsumption;
       if (stats.isAlmostEmpty) {
@@ -211,7 +212,8 @@ class LocalAnalyticsRepository implements AnalyticsRepository {
   }
 
   @override
-  Future<List<ChartDataPoint>> getRecentConsumptionSummary({int days = 7}) async {
+  Future<List<ChartDataPoint>> getRecentConsumptionSummary(
+      {int days = 7}) async {
     return getTopConsumedProducts(days: days, limit: 5);
   }
 
@@ -231,7 +233,8 @@ class LocalAnalyticsRepository implements AnalyticsRepository {
       totals[key] = (totals[key] ?? 0) + e.amount;
     }
     final out = totals.entries
-        .map((e) => ChartDataPoint(label: e.key, value: e.value, groupKey: e.key))
+        .map((e) =>
+            ChartDataPoint(label: e.key, value: e.value, groupKey: e.key))
         .toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     return out;
@@ -254,13 +257,19 @@ class _NoOpConsumptionRepository implements ConsumptionRepository {
   Future<void> deleteByProductId(String productId) async {}
 
   @override
-  Future<List<ConsumptionEntry>> getByDateRange(DateTime start, DateTime end) async {
+  Future<List<ConsumptionEntry>> getByDateRange(
+      DateTime start, DateTime end) async {
     return const [];
   }
 
   @override
   Future<List<ConsumptionEntry>> getByProductId(String productId) async {
     return const [];
+  }
+
+  @override
+  Future<Map<String, List<ConsumptionEntry>>> getAllGroupedByProductId() async {
+    return const {};
   }
 
   @override

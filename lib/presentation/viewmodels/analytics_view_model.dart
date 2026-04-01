@@ -31,12 +31,14 @@ class AnalyticsViewModel extends ChangeNotifier {
   String? _selectedLocationId;
 
   AnalyticsMetrics? get metrics => _metrics;
-  List<ChartDataPoint> get locationDistribution => List.unmodifiable(_byLocation);
+  List<ChartDataPoint> get locationDistribution =>
+      List.unmodifiable(_byLocation);
   List<ChartDataPoint> get topByQuantity => List.unmodifiable(_topQuantity);
   List<ChartDataPoint> get topConsumed => List.unmodifiable(_topConsumed);
   List<ChartDataPoint> get recentConsumptionSummary =>
       List.unmodifiable(_recentSummary);
-  List<ChartDataPoint> get monthlyByCategory => List.unmodifiable(_monthlyByCategory);
+  List<ChartDataPoint> get monthlyByCategory =>
+      List.unmodifiable(_monthlyByCategory);
   List<ChartDataPoint> get consumptionTrend => List.unmodifiable(_trend);
 
   bool get isLoading => _isLoading;
@@ -56,22 +58,29 @@ class AnalyticsViewModel extends ChangeNotifier {
     _errorMessage = null;
     notifyListeners();
     try {
-      _metrics = await _repository.getMetrics(
-        startDate: _startDate,
-        endDate: _endDate,
-        locationId: _selectedLocationId,
-      );
-      _byLocation = await _repository.getProductDistributionByLocation();
-      _topQuantity = await _repository.getTopByQuantity(limit: 5);
-      _topConsumed = await _repository.getTopConsumedProducts(days: 30, limit: 10);
-      _recentSummary = await _repository.getRecentConsumptionSummary(days: 7);
-      _monthlyByCategory = await _repository.getMonthlyConsumptionByCategory(
-        month: _endDate,
-      );
-      _trend = await _repository.getConsumptionTrendMonths(
-        months: 3,
-        locationId: _selectedLocationId,
-      );
+      final start = _startDate;
+      final end = _endDate;
+      final loc = _selectedLocationId;
+      final results = await Future.wait<Object>([
+        _repository.getMetrics(
+          startDate: start,
+          endDate: end,
+          locationId: loc,
+        ),
+        _repository.getProductDistributionByLocation(),
+        _repository.getTopByQuantity(limit: 5),
+        _repository.getTopConsumedProducts(days: 30, limit: 10),
+        _repository.getRecentConsumptionSummary(days: 7),
+        _repository.getMonthlyConsumptionByCategory(month: end),
+        _repository.getConsumptionTrendMonths(months: 3, locationId: loc),
+      ]);
+      _metrics = results[0] as AnalyticsMetrics;
+      _byLocation = results[1] as List<ChartDataPoint>;
+      _topQuantity = results[2] as List<ChartDataPoint>;
+      _topConsumed = results[3] as List<ChartDataPoint>;
+      _recentSummary = results[4] as List<ChartDataPoint>;
+      _monthlyByCategory = results[5] as List<ChartDataPoint>;
+      _trend = results[6] as List<ChartDataPoint>;
     } catch (e, st) {
       debugPrint('AnalyticsViewModel.loadAnalytics: $e\n$st');
       _errorMessage = 'Impossibile caricare le statistiche';

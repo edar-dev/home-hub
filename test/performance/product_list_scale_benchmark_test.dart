@@ -93,6 +93,8 @@ Future<void> _runScale(
   );
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
+  await tester.tap(find.text('Inventario'));
+  await tester.pumpAndSettle();
   pumpSw.stop();
 
   expect(find.text('Prodotto 00000'), findsOneWidget);

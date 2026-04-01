@@ -88,8 +88,7 @@ class ProductViewModel extends ChangeNotifier {
         _filterLocationId != null) {
       cand = cand.where(
         (p) =>
-            p.positionId != null &&
-            _positionIdsInFilter.contains(p.positionId),
+            p.positionId != null && _positionIdsInFilter.contains(p.positionId),
       );
     }
     _displayedProducts = List.unmodifiable(cand.toList());
@@ -283,8 +282,8 @@ class ProductViewModel extends ChangeNotifier {
     if (amount <= 0) {
       return 'Inserisci una quantità valida';
     }
-    final nextRemaining =
-        (product.quantitaRimasta - amount).clamp(0, product.quantitaTotale.toDouble());
+    final nextRemaining = (product.quantitaRimasta - amount)
+        .clamp(0, product.quantitaTotale.toDouble());
     final updated = product.copyWith(quantitaRimasta: nextRemaining.round());
     final err = ProductValidators.validateProduct(updated);
     if (err != null) return err;
@@ -318,13 +317,19 @@ class _NoOpConsumptionRepository implements ConsumptionRepository {
   Future<void> deleteByProductId(String productId) async {}
 
   @override
-  Future<List<ConsumptionEntry>> getByDateRange(DateTime start, DateTime end) async {
+  Future<List<ConsumptionEntry>> getByDateRange(
+      DateTime start, DateTime end) async {
     return const [];
   }
 
   @override
   Future<List<ConsumptionEntry>> getByProductId(String productId) async {
     return const [];
+  }
+
+  @override
+  Future<Map<String, List<ConsumptionEntry>>> getAllGroupedByProductId() async {
+    return const {};
   }
 
   @override

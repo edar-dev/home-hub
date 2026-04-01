@@ -46,7 +46,8 @@ void main() {
     registerFallbackValue(<String>[]);
   });
 
-  testWidgets('lista 1000 prodotti: pump e scroll entro soglia empirica', (tester) async {
+  testWidgets('lista 1000 prodotti: pump e scroll entro soglia empirica',
+      (tester) async {
     final products = List<Product>.generate(
       1000,
       (i) => Product(
@@ -96,6 +97,8 @@ void main() {
     );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
+    await tester.tap(find.text('Inventario'));
+    await tester.pumpAndSettle();
     sw.stop();
 
     expect(find.text('Prodotto 0000'), findsOneWidget);

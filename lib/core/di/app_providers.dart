@@ -88,13 +88,19 @@ class _NoOpConsumptionRepository implements ConsumptionRepository {
   Future<void> deleteByProductId(String productId) async {}
 
   @override
-  Future<List<ConsumptionEntry>> getByDateRange(DateTime start, DateTime end) async {
+  Future<List<ConsumptionEntry>> getByDateRange(
+      DateTime start, DateTime end) async {
     return const [];
   }
 
   @override
   Future<List<ConsumptionEntry>> getByProductId(String productId) async {
     return const [];
+  }
+
+  @override
+  Future<Map<String, List<ConsumptionEntry>>> getAllGroupedByProductId() async {
+    return const {};
   }
 
   @override

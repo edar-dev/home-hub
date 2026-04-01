@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -25,6 +27,19 @@ class LocationInventoryScreen extends StatefulWidget {
 
 class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
   late final TextEditingController _searchCtrl;
+  Timer? _searchDebounce;
+
+  static const Duration _searchDebounceDuration = Duration(milliseconds: 250);
+
+  void _onSearchTextChanged(String value) {
+    _searchDebounce?.cancel();
+    _searchDebounce = Timer(_searchDebounceDuration, () {
+      if (!mounted) return;
+      context.read<LocationInventoryViewModel>().setSearchQuery(value);
+    });
+  }
+
+  void _cancelSearchDebounce() => _searchDebounce?.cancel();
 
   @override
   void initState() {
@@ -40,6 +55,7 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchCtrl.dispose();
     super.dispose();
   }
@@ -75,7 +91,8 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
   Future<void> _openCreatePosition({String? initialLocationId}) async {
     await Navigator.of(context).push<void>(
       MaterialPageRoute<void>(
-        builder: (_) => PositionFormScreen(initialLocationId: initialLocationId),
+        builder: (_) =>
+            PositionFormScreen(initialLocationId: initialLocationId),
       ),
     );
     await _refreshAll(refreshLocations: true);
@@ -181,7 +198,8 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
   @override
   Widget build(BuildContext context) {
     final inv = context.watch<LocationInventoryViewModel>();
-    final locItems = context.select<LocationViewModel, List<LocationWithPositions>>(
+    final locItems =
+        context.select<LocationViewModel, List<LocationWithPositions>>(
       (vm) => vm.items,
     );
     final locVm = context.read<LocationViewModel>();
@@ -270,6 +288,7 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
                 const SizedBox(height: 16),
                 FilledButton.tonal(
                   onPressed: () {
+                    _cancelSearchDebounce();
                     inv.clearProductFilters();
                     _searchCtrl.clear();
                   },
@@ -344,134 +363,137 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
             statusFilter: inv.statusFilter,
             openStateFilter: inv.openStateFilter,
             hasActiveFilters: inv.hasActiveProductFilters,
-            onSearchChanged: inv.setSearchQuery,
+            onSearchChanged: _onSearchTextChanged,
             onStatusChanged: inv.setStatusFilter,
             onOpenStateChanged: inv.setOpenStateFilter,
             onReset: () {
+              _cancelSearchDebounce();
               inv.clearProductFilters();
               _searchCtrl.clear();
             },
           ),
           const SizedBox(height: 12),
           ...List.generate(inv.sections.length, (si) {
-          final section = inv.sections[si];
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Card(
-              clipBehavior: Clip.antiAlias,
-              child: ExpansionTile(
-                key: ValueKey('loc-inv-${section.location.id}'),
-                leading: const Icon(Icons.place_outlined),
-                title: Text(section.location.nome),
-                subtitle: Text(
-                  '${section.productCount} prodotti · '
-                  '${section.blocks.length} posizioni',
-                ),
-                trailing: PopupMenuButton<String>(
-                  tooltip: 'Altre azioni',
-                  onSelected: (v) {
-                    if (v == 'position') {
-                      _openCreatePosition(initialLocationId: section.location.id);
-                    } else if (v == 'menu') {
-                      _openSectionQuickAdd(section);
-                    }
-                  },
-                  itemBuilder: (ctx) => const [
-                    PopupMenuItem<String>(
-                      value: 'position',
-                      child: Text('Nuova posizione'),
-                    ),
-                    PopupMenuItem<String>(
-                      value: 'menu',
-                      child: Text('Altre opzioni...'),
-                    ),
-                  ],
-                ),
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: FilledButton.icon(
-                        onPressed: section.blocks.isEmpty
-                            ? () => _openCreatePosition(
-                                  initialLocationId: section.location.id,
-                                )
-                            : () => _openCreateProduct(
-                                  initialPositionId: section.blocks.first.position.id,
-                                ),
-                        icon: const Icon(Icons.add_box_outlined),
-                        label: Text(
-                          section.blocks.isEmpty
-                              ? 'Crea posizione per aggiungere prodotti'
-                              : 'Aggiungi prodotto',
+            final section = inv.sections[si];
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: Card(
+                clipBehavior: Clip.antiAlias,
+                child: ExpansionTile(
+                  key: ValueKey('loc-inv-${section.location.id}'),
+                  leading: const Icon(Icons.place_outlined),
+                  title: Text(section.location.nome),
+                  subtitle: Text(
+                    '${section.productCount} prodotti · '
+                    '${section.blocks.length} posizioni',
+                  ),
+                  trailing: PopupMenuButton<String>(
+                    tooltip: 'Altre azioni',
+                    onSelected: (v) {
+                      if (v == 'position') {
+                        _openCreatePosition(
+                            initialLocationId: section.location.id);
+                      } else if (v == 'menu') {
+                        _openSectionQuickAdd(section);
+                      }
+                    },
+                    itemBuilder: (ctx) => const [
+                      PopupMenuItem<String>(
+                        value: 'position',
+                        child: Text('Nuova posizione'),
+                      ),
+                      PopupMenuItem<String>(
+                        value: 'menu',
+                        child: Text('Altre opzioni...'),
+                      ),
+                    ],
+                  ),
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: FilledButton.icon(
+                          onPressed: section.blocks.isEmpty
+                              ? () => _openCreatePosition(
+                                    initialLocationId: section.location.id,
+                                  )
+                              : () => _openCreateProduct(
+                                    initialPositionId:
+                                        section.blocks.first.position.id,
+                                  ),
+                          icon: const Icon(Icons.add_box_outlined),
+                          label: Text(
+                            section.blocks.isEmpty
+                                ? 'Crea posizione per aggiungere prodotti'
+                                : 'Aggiungi prodotto',
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  if (section.blocks.isEmpty)
-                    const Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Text('Nessuna posizione in questo luogo.'),
-                    )
-                  else
-                    ...section.blocks.map((block) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-                            child: Text(
-                              block.position.nome,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .titleSmall
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                          if (block.products.isEmpty)
+                    if (section.blocks.isEmpty)
+                      const Padding(
+                        padding: EdgeInsets.all(16),
+                        child: Text('Nessuna posizione in questo luogo.'),
+                      )
+                    else
+                      ...section.blocks.map((block) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
                             Padding(
-                              padding: const EdgeInsets.only(
-                                left: 16,
-                                right: 16,
-                                bottom: 8,
-                              ),
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
                               child: Text(
-                                'Nessun prodotto',
+                                block.position.nome,
                                 style: Theme.of(context)
                                     .textTheme
-                                    .bodySmall
-                                    ?.copyWith(
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .onSurfaceVariant,
-                                    ),
+                                    .titleSmall
+                                    ?.copyWith(fontWeight: FontWeight.w600),
                               ),
-                            )
-                          else
-                            ...block.products.map(
-                              (p) => Padding(
+                            ),
+                            if (block.products.isEmpty)
+                              Padding(
                                 padding: const EdgeInsets.only(
-                                  left: 8,
-                                  right: 8,
+                                  left: 16,
+                                  right: 16,
                                   bottom: 8,
                                 ),
-                                child: ProductCard(
-                                  product: p,
-                                  placementLine: placementLineForProduct(
-                                    p,
-                                    placementIndex,
+                                child: Text(
+                                  'Nessun prodotto',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall
+                                      ?.copyWith(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                      ),
+                                ),
+                              )
+                            else
+                              ...block.products.map(
+                                (p) => Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 8,
+                                    right: 8,
+                                    bottom: 8,
+                                  ),
+                                  child: ProductCard(
+                                    product: p,
+                                    placementLine: placementLineForProduct(
+                                      p,
+                                      placementIndex,
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                        ],
-                      );
-                    }),
-                ],
+                          ],
+                        );
+                      }),
+                  ],
+                ),
               ),
-            ),
-          );
+            );
           }),
         ],
       ),
@@ -565,7 +587,8 @@ class _FiltersSectionState extends State<_FiltersSection> {
                 borderRadius: BorderRadius.circular(12),
                 onTap: () => setState(() => _advancedOpen = !_advancedOpen),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
                   child: Row(
                     children: [
                       Icon(
@@ -587,7 +610,10 @@ class _FiltersSectionState extends State<_FiltersSection> {
                                 summary,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall
+                                    ?.copyWith(
                                       color: scheme.onSurfaceVariant,
                                     ),
                               ),

@@ -8,8 +8,8 @@ class StubAnalyticsRepository extends Mock implements AnalyticsRepository {}
 StubAnalyticsRepository buildStubAnalyticsRepository() {
   final mockAnalytics = StubAnalyticsRepository();
   final now = DateTime.now();
-  final start = DateTime(now.year, now.month, now.day)
-      .subtract(const Duration(days: 30));
+  final start =
+      DateTime(now.year, now.month, now.day).subtract(const Duration(days: 30));
   final end = DateTime(now.year, now.month, now.day);
   when(
     () => mockAnalytics.getMetrics(
@@ -36,6 +36,22 @@ StubAnalyticsRepository buildStubAnalyticsRepository() {
     () => mockAnalytics.getConsumptionTrendMonths(
       months: any(named: 'months'),
       locationId: any(named: 'locationId'),
+    ),
+  ).thenAnswer((_) async => []);
+  when(
+    () => mockAnalytics.getTopConsumedProducts(
+      days: any(named: 'days'),
+      limit: any(named: 'limit'),
+    ),
+  ).thenAnswer((_) async => []);
+  when(
+    () => mockAnalytics.getRecentConsumptionSummary(
+      days: any(named: 'days'),
+    ),
+  ).thenAnswer((_) async => []);
+  when(
+    () => mockAnalytics.getMonthlyConsumptionByCategory(
+      month: any(named: 'month'),
     ),
   ).thenAnswer((_) async => []);
   return mockAnalytics;

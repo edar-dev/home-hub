@@ -36,7 +36,21 @@ class LocalConsumptionRepository implements ConsumptionRepository {
   }
 
   @override
-  Future<List<ConsumptionEntry>> getByDateRange(DateTime start, DateTime end) async {
+  Future<Map<String, List<ConsumptionEntry>>> getAllGroupedByProductId() async {
+    final map = <String, List<ConsumptionEntry>>{};
+    for (final row in _box.values) {
+      final e = _toDomain(row);
+      (map[e.productId] ??= []).add(e);
+    }
+    for (final list in map.values) {
+      list.sort((a, b) => a.date.compareTo(b.date));
+    }
+    return map;
+  }
+
+  @override
+  Future<List<ConsumptionEntry>> getByDateRange(
+      DateTime start, DateTime end) async {
     final s = start.toUtc().millisecondsSinceEpoch;
     final e = end.toUtc().millisecondsSinceEpoch;
     final out = _box.values
@@ -62,7 +76,8 @@ class LocalConsumptionRepository implements ConsumptionRepository {
       productId: e.productId,
       amount: e.amount,
       unit: e.unit,
-      date: DateTime.fromMillisecondsSinceEpoch(e.dateMs, isUtc: true).toLocal(),
+      date:
+          DateTime.fromMillisecondsSinceEpoch(e.dateMs, isUtc: true).toLocal(),
       meal: e.meal == null ? null : ConsumptionMeal.values[e.meal!],
       recipe: e.recipe,
       notes: e.notes,

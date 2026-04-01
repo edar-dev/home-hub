@@ -246,6 +246,7 @@ void main() {
     expect(find.text('Pasta'), findsOneWidget);
 
     await tester.enterText(find.byType(TextField).first, 'Lat');
+    await tester.pump(const Duration(milliseconds: 300));
     await tester.pumpAndSettle();
 
     expect(find.text('Latte'), findsOneWidget);

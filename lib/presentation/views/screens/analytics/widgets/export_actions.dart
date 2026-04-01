@@ -8,21 +8,22 @@ class ExportActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final analytics = context.watch<AnalyticsViewModel>();
+    final loading =
+        context.select<AnalyticsViewModel, bool>((vm) => vm.isLoading);
     return Row(
       children: [
         FilledButton.icon(
-          onPressed: analytics.isLoading
+          onPressed: loading
               ? null
-              : () => analytics.exportPdf(),
+              : () => context.read<AnalyticsViewModel>().exportPdf(),
           icon: const Icon(Icons.picture_as_pdf_outlined),
           label: const Text('PDF'),
         ),
         const SizedBox(width: 12),
         OutlinedButton.icon(
-          onPressed: analytics.isLoading
+          onPressed: loading
               ? null
-              : () => analytics.exportCsv(),
+              : () => context.read<AnalyticsViewModel>().exportCsv(),
           icon: const Icon(Icons.table_chart_outlined),
           label: const Text('CSV'),
         ),

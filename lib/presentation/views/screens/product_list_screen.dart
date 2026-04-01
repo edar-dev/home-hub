@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../domain/entities/location_with_positions.dart';
 import '../../../domain/entities/product.dart';
 import '../../../domain/entities/consumption_entry.dart';
 import '../../layout/breakpoints.dart';
@@ -212,7 +213,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   Widget _inventoryQuickChips(
     BuildContext context,
     ProductViewModel vm,
-    LocationViewModel locVm,
+    List<LocationWithPositions> locationItems,
   ) {
     final scheme = Theme.of(context).colorScheme;
     Widget capsule(String label, bool selected, VoidCallback onTap) {
@@ -229,8 +230,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
               child: Text(
                 label,
                 style: TextStyle(
-                  color:
-                      selected ? scheme.onPrimary : scheme.onSurfaceVariant,
+                  color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
                   fontSize: 13,
                   fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
                 ),
@@ -241,7 +241,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
       );
     }
 
-    final rows = locVm.items.take(3).toList();
+    final rows = locationItems.take(3).toList();
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
@@ -420,7 +420,8 @@ class _ProductListScreenState extends State<ProductListScreen> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
-            const Text('Modifica il filtro o assegna prodotti a una posizione.'),
+            const Text(
+                'Modifica il filtro o assegna prodotti a una posizione.'),
           ],
         ),
       );
@@ -440,8 +441,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Selector<
-        ProductViewModel,
+    return Selector<ProductViewModel,
         (bool, String?, int, int, int, String?, InventoryQuickChip)>(
       selector: (_, vm) => (
         vm.isLoading,
@@ -453,114 +453,119 @@ class _ProductListScreenState extends State<ProductListScreen> {
         vm.quickInventoryChip,
       ),
       builder: (context, _, __) {
-        final vm = context.read<ProductViewModel>();
-        final locVm = context.watch<LocationViewModel>();
-        final placementIndex = buildPlacementIndex(locVm.items);
+        return Selector<LocationViewModel, List<LocationWithPositions>>(
+          selector: (_, locVm) => locVm.items,
+          builder: (context, locItems, __) {
+            final vm = context.read<ProductViewModel>();
+            final placementIndex = buildPlacementIndex(locItems);
 
-        if (_selectedId != null && _selectedProduct(vm.products) == null) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (mounted) setState(() => _selectedId = null);
-          });
-        }
+            if (_selectedId != null && _selectedProduct(vm.products) == null) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) setState(() => _selectedId = null);
+              });
+            }
 
-        return LayoutBuilder(
-          builder: (context, constraints) {
-            final wide = isWideWidth(constraints.maxWidth);
-            final scheme = Theme.of(context).colorScheme;
-            return Scaffold(
-              body: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  StitchTopAppBar(
-                    title: 'Il Tuo Inventario',
-                    actions: [
-                      IconButton(
-                        icon: const Icon(Icons.search),
-                        tooltip: 'Cerca (prossimamente)',
-                        onPressed: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Ricerca in arrivo in una prossima versione',
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      PopupMenuButton<String?>(
-                        icon: const Icon(Icons.filter_list_outlined),
-                        tooltip: 'Filtra per luogo',
-                        onSelected: (id) {
-                          unawaited(vm.setLocationFilter(id));
-                        },
-                        itemBuilder: (ctx) => [
-                          const PopupMenuItem<String?>(
-                            value: null,
-                            child: Text('Tutti i prodotti'),
+            return LayoutBuilder(
+              builder: (context, constraints) {
+                final wide = isWideWidth(constraints.maxWidth);
+                final scheme = Theme.of(context).colorScheme;
+                return Scaffold(
+                  body: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      StitchTopAppBar(
+                        title: 'Il Tuo Inventario',
+                        actions: [
+                          IconButton(
+                            icon: const Icon(Icons.search),
+                            tooltip: 'Cerca (prossimamente)',
+                            onPressed: () {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Ricerca in arrivo in una prossima versione',
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                          ...locVm.items.map(
-                            (e) => PopupMenuItem<String?>(
-                              value: e.location.id,
-                              child: Text(e.location.nome),
-                            ),
+                          PopupMenuButton<String?>(
+                            icon: const Icon(Icons.filter_list_outlined),
+                            tooltip: 'Filtra per luogo',
+                            onSelected: (id) {
+                              unawaited(vm.setLocationFilter(id));
+                            },
+                            itemBuilder: (ctx) => [
+                              const PopupMenuItem<String?>(
+                                value: null,
+                                child: Text('Tutti i prodotti'),
+                              ),
+                              ...locItems.map(
+                                (e) => PopupMenuItem<String?>(
+                                  value: e.location.id,
+                                  child: Text(e.location.nome),
+                                ),
+                              ),
+                            ],
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.refresh),
+                            onPressed:
+                                vm.isLoading ? null : () => vm.loadProducts(),
+                            tooltip: 'Aggiorna',
                           ),
                         ],
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.refresh),
-                        onPressed:
-                            vm.isLoading ? null : () => vm.loadProducts(),
-                        tooltip: 'Aggiorna',
+                      _inventoryQuickChips(context, vm, locItems),
+                      Expanded(
+                        child: _buildBody(context, vm, wide, placementIndex),
                       ),
                     ],
                   ),
-                  _inventoryQuickChips(context, vm, locVm),
-                  Expanded(
-                    child: _buildBody(context, vm, wide, placementIndex),
+                  floatingActionButton: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      FloatingActionButton.small(
+                        key: const ValueKey<String>('fab-consume'),
+                        heroTag: 'fab-consume',
+                        backgroundColor: scheme.tertiaryContainer,
+                        foregroundColor: scheme.onTertiaryContainer,
+                        onPressed: vm.displayedProducts.isEmpty
+                            ? null
+                            : () => _openQuickConsumption(
+                                vm.displayedProducts.first),
+                        child: const Icon(Icons.restaurant_outlined),
+                      ),
+                      const SizedBox(height: 12),
+                      FloatingActionButton.small(
+                        key: const ValueKey<String>('fab-scan'),
+                        heroTag: 'fab-scan',
+                        backgroundColor: scheme.surfaceContainerHigh,
+                        foregroundColor: scheme.primary,
+                        onPressed: _openBarcodeScanner,
+                        child: const Icon(Icons.qr_code_scanner_outlined),
+                      ),
+                      const SizedBox(height: 12),
+                      FloatingActionButton(
+                        key: const ValueKey<String>('fab-product'),
+                        heroTag: 'fab-product',
+                        onPressed: () async {
+                          final vmFab = context.read<ProductViewModel>();
+                          await Navigator.of(context).push<void>(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const ProductFormScreen(),
+                            ),
+                          );
+                          if (!context.mounted) return;
+                          await vmFab.loadProducts();
+                        },
+                        child: const Icon(Icons.add),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              floatingActionButton: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  FloatingActionButton.small(
-                    key: const ValueKey<String>('fab-consume'),
-                    heroTag: 'fab-consume',
-                    backgroundColor: scheme.tertiaryContainer,
-                    foregroundColor: scheme.onTertiaryContainer,
-                    onPressed: vm.displayedProducts.isEmpty
-                        ? null
-                        : () => _openQuickConsumption(vm.displayedProducts.first),
-                    child: const Icon(Icons.restaurant_outlined),
-                  ),
-                  const SizedBox(height: 12),
-                  FloatingActionButton.small(
-                    key: const ValueKey<String>('fab-scan'),
-                    heroTag: 'fab-scan',
-                    backgroundColor: scheme.surfaceContainerHigh,
-                    foregroundColor: scheme.primary,
-                    onPressed: _openBarcodeScanner,
-                    child: const Icon(Icons.qr_code_scanner_outlined),
-                  ),
-                  const SizedBox(height: 12),
-                  FloatingActionButton(
-                    key: const ValueKey<String>('fab-product'),
-                    heroTag: 'fab-product',
-                    onPressed: () async {
-                      final vmFab = context.read<ProductViewModel>();
-                      await Navigator.of(context).push<void>(
-                        MaterialPageRoute<void>(
-                          builder: (_) => const ProductFormScreen(),
-                        ),
-                      );
-                      if (!context.mounted) return;
-                      await vmFab.loadProducts();
-                    },
-                    child: const Icon(Icons.add),
-                  ),
-                ],
-              ),
+                );
+              },
             );
           },
         );
