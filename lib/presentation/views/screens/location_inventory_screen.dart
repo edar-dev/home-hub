@@ -24,6 +24,26 @@ class LocationInventoryScreen extends StatefulWidget {
 }
 
 class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
+  late final TextEditingController _searchCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _searchCtrl = TextEditingController();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final inv = context.read<LocationInventoryViewModel>();
+      inv.setLocationFilter(widget.locationId);
+      _searchCtrl.text = inv.searchQuery;
+      await inv.load();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
   Future<void> _refreshAll({bool refreshLocations = false}) async {
     if (!mounted) return;
     if (refreshLocations) {
@@ -147,16 +167,6 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final inv = context.read<LocationInventoryViewModel>();
-      inv.setLocationFilter(widget.locationId);
-      await inv.load();
-    });
-  }
-
-  @override
   void didUpdateWidget(covariant LocationInventoryScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.locationId != widget.locationId) {
@@ -237,6 +247,63 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
       );
     }
     if (inv.sections.isEmpty) {
+      if (inv.hasActiveProductFilters && inv.productsInScopeBeforeFilters > 0) {
+        return Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.filter_alt_off_outlined,
+                  size: 56,
+                  color: Theme.of(context).colorScheme.outline,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Nessun risultato con i filtri correnti',
+                  style: Theme.of(context).textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const Text('Prova ad allargare i filtri o reimpostarli.'),
+                const SizedBox(height: 16),
+                FilledButton.tonal(
+                  onPressed: () {
+                    inv.clearProductFilters();
+                    _searchCtrl.clear();
+                  },
+                  child: const Text('Reset filtri'),
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+      if (inv.hasLocationsInScope) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+          child: ListView(
+            children: [
+              _FiltersSection(
+                searchController: _searchCtrl,
+                statusFilter: inv.statusFilter,
+                openStateFilter: inv.openStateFilter,
+                hasActiveFilters: inv.hasActiveProductFilters,
+                onSearchChanged: inv.setSearchQuery,
+                onStatusChanged: inv.setStatusFilter,
+                onOpenStateChanged: inv.setOpenStateFilter,
+                onReset: () {
+                  inv.clearProductFilters();
+                  _searchCtrl.clear();
+                },
+              ),
+              const SizedBox(height: 24),
+              const Center(child: Text('Nessun prodotto nelle posizioni.')),
+            ],
+          ),
+        );
+      }
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -269,10 +336,24 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
 
     return RefreshIndicator(
       onRefresh: () => inv.load(),
-      child: ListView.builder(
+      child: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        itemCount: inv.sections.length,
-        itemBuilder: (context, si) {
+        children: [
+          _FiltersSection(
+            searchController: _searchCtrl,
+            statusFilter: inv.statusFilter,
+            openStateFilter: inv.openStateFilter,
+            hasActiveFilters: inv.hasActiveProductFilters,
+            onSearchChanged: inv.setSearchQuery,
+            onStatusChanged: inv.setStatusFilter,
+            onOpenStateChanged: inv.setOpenStateFilter,
+            onReset: () {
+              inv.clearProductFilters();
+              _searchCtrl.clear();
+            },
+          ),
+          const SizedBox(height: 12),
+          ...List.generate(inv.sections.length, (si) {
           final section = inv.sections[si];
           return Padding(
             padding: const EdgeInsets.only(bottom: 16),
@@ -391,7 +472,226 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
               ),
             ),
           );
-        },
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+class _FiltersSection extends StatefulWidget {
+  const _FiltersSection({
+    required this.searchController,
+    required this.statusFilter,
+    required this.openStateFilter,
+    required this.hasActiveFilters,
+    required this.onSearchChanged,
+    required this.onStatusChanged,
+    required this.onOpenStateChanged,
+    required this.onReset,
+  });
+
+  final TextEditingController searchController;
+  final ProductStatusFilter statusFilter;
+  final ProductOpenStateFilter openStateFilter;
+  final bool hasActiveFilters;
+  final ValueChanged<String> onSearchChanged;
+  final ValueChanged<ProductStatusFilter> onStatusChanged;
+  final ValueChanged<ProductOpenStateFilter> onOpenStateChanged;
+  final VoidCallback onReset;
+
+  @override
+  State<_FiltersSection> createState() => _FiltersSectionState();
+}
+
+class _FiltersSectionState extends State<_FiltersSection> {
+  bool _advancedOpen = false;
+
+  bool get _advancedActive =>
+      widget.statusFilter != ProductStatusFilter.all ||
+      widget.openStateFilter != ProductOpenStateFilter.all;
+
+  String _advancedSummary() {
+    final parts = <String>[];
+    switch (widget.statusFilter) {
+      case ProductStatusFilter.all:
+        break;
+      case ProductStatusFilter.expiring:
+        parts.add('In scadenza');
+        break;
+      case ProductStatusFilter.expired:
+        parts.add('Scaduti');
+        break;
+      case ProductStatusFilter.lowStock:
+        parts.add('Low stock');
+        break;
+    }
+    switch (widget.openStateFilter) {
+      case ProductOpenStateFilter.all:
+        break;
+      case ProductOpenStateFilter.opened:
+        parts.add('Aperti');
+        break;
+      case ProductOpenStateFilter.unopened:
+        parts.add('Non aperti');
+        break;
+    }
+    return parts.join(' · ');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final summary = _advancedSummary();
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 10, 12, 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            TextField(
+              controller: widget.searchController,
+              onChanged: widget.onSearchChanged,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(Icons.search),
+                hintText: 'Cerca prodotto',
+                isDense: true,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(12),
+                onTap: () => setState(() => _advancedOpen = !_advancedOpen),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.tune_outlined,
+                        size: 22,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Filtri avanzati',
+                              style: Theme.of(context).textTheme.titleSmall,
+                            ),
+                            if (!_advancedOpen && summary.isNotEmpty)
+                              Text(
+                                summary,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: scheme.onSurfaceVariant,
+                                    ),
+                              ),
+                          ],
+                        ),
+                      ),
+                      if (widget.hasActiveFilters)
+                        IconButton(
+                          icon: const Icon(Icons.close, size: 20),
+                          tooltip: 'Reset filtri',
+                          visualDensity: VisualDensity.compact,
+                          onPressed: widget.onReset,
+                        ),
+                      Icon(
+                        _advancedOpen ? Icons.expand_less : Icons.expand_more,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            if (_advancedOpen) ...[
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Expanded(
+                    child: DropdownButtonFormField<ProductStatusFilter>(
+                      value: widget.statusFilter,
+                      isDense: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Stato',
+                        isDense: true,
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: ProductStatusFilter.all,
+                          child: Text('Tutti'),
+                        ),
+                        DropdownMenuItem(
+                          value: ProductStatusFilter.expiring,
+                          child: Text('In scadenza'),
+                        ),
+                        DropdownMenuItem(
+                          value: ProductStatusFilter.expired,
+                          child: Text('Scaduti'),
+                        ),
+                        DropdownMenuItem(
+                          value: ProductStatusFilter.lowStock,
+                          child: Text('Low stock'),
+                        ),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) widget.onStatusChanged(v);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: DropdownButtonFormField<ProductOpenStateFilter>(
+                      value: widget.openStateFilter,
+                      isDense: true,
+                      decoration: const InputDecoration(
+                        labelText: 'Apertura',
+                        isDense: true,
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: ProductOpenStateFilter.all,
+                          child: Text('Aperti e non'),
+                        ),
+                        DropdownMenuItem(
+                          value: ProductOpenStateFilter.opened,
+                          child: Text('Aperti'),
+                        ),
+                        DropdownMenuItem(
+                          value: ProductOpenStateFilter.unopened,
+                          child: Text('Non aperti'),
+                        ),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) widget.onOpenStateChanged(v);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              if (_advancedActive) ...[
+                const SizedBox(height: 4),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: widget.onReset,
+                    style: TextButton.styleFrom(
+                      foregroundColor: scheme.onSurfaceVariant,
+                      visualDensity: VisualDensity.compact,
+                    ),
+                    child: const Text('Reset filtri'),
+                  ),
+                ),
+              ],
+            ],
+          ],
+        ),
       ),
     );
   }

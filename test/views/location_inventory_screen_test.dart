@@ -191,4 +191,136 @@ void main() {
     expect(find.text('Nuovo luogo'), findsWidgets);
     expect(find.text('Nuovo prodotto'), findsOneWidget);
   });
+
+  testWidgets('filtra per ricerca testo', (tester) async {
+    when(() => mockLoc.getAllWithPositions()).thenAnswer(
+      (_) async => [
+        LocationWithPositions(
+          location: const Location(id: 'l1', nome: 'Cucina'),
+          positions: const [
+            StoragePosition(id: 'p1', nome: 'Dispensa', locationId: 'l1'),
+          ],
+        ),
+      ],
+    );
+    when(() => mockProd.getAll()).thenAnswer(
+      (_) async => [
+        Product(
+          id: 'pr1',
+          nome: 'Latte',
+          quantitaTotale: 1,
+          quantitaRimasta: 1,
+          positionId: 'p1',
+        ),
+        Product(
+          id: 'pr2',
+          nome: 'Pasta',
+          quantitaTotale: 1,
+          quantitaRimasta: 1,
+          positionId: 'p1',
+        ),
+      ],
+    );
+
+    final locVm = LocationViewModel(mockLoc);
+    await locVm.loadHierarchy();
+    final invVm = LocationInventoryViewModel(mockProd, mockLoc);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MultiProvider(
+          providers: [
+            Provider<ProductRepository>.value(value: mockProd),
+            Provider<LocationRepository>.value(value: mockLoc),
+            ChangeNotifierProvider<LocationViewModel>.value(value: locVm),
+            ChangeNotifierProvider<LocationInventoryViewModel>.value(value: invVm),
+          ],
+          child: const LocationInventoryScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cucina').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Latte'), findsOneWidget);
+    expect(find.text('Pasta'), findsOneWidget);
+
+    await tester.enterText(find.byType(TextField).first, 'Lat');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Latte'), findsOneWidget);
+    expect(find.text('Pasta'), findsNothing);
+  });
+
+  testWidgets('reset filtri ripristina risultati', (tester) async {
+    when(() => mockLoc.getAllWithPositions()).thenAnswer(
+      (_) async => [
+        LocationWithPositions(
+          location: const Location(id: 'l1', nome: 'Cucina'),
+          positions: const [
+            StoragePosition(id: 'p1', nome: 'Dispensa', locationId: 'l1'),
+          ],
+        ),
+      ],
+    );
+    when(() => mockProd.getAll()).thenAnswer(
+      (_) async => [
+        Product(
+          id: 'pr1',
+          nome: 'Latte',
+          quantitaTotale: 1,
+          quantitaRimasta: 1,
+          positionId: 'p1',
+          dataApertura: DateTime.now(),
+        ),
+        Product(
+          id: 'pr2',
+          nome: 'Pasta',
+          quantitaTotale: 1,
+          quantitaRimasta: 1,
+          positionId: 'p1',
+        ),
+      ],
+    );
+
+    final locVm = LocationViewModel(mockLoc);
+    await locVm.loadHierarchy();
+    final invVm = LocationInventoryViewModel(mockProd, mockLoc);
+
+    await tester.pumpWidget(
+      MaterialApp(
+        home: MultiProvider(
+          providers: [
+            Provider<ProductRepository>.value(value: mockProd),
+            Provider<LocationRepository>.value(value: mockLoc),
+            ChangeNotifierProvider<LocationViewModel>.value(value: locVm),
+            ChangeNotifierProvider<LocationInventoryViewModel>.value(value: invVm),
+          ],
+          child: const LocationInventoryScreen(),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Filtri avanzati'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aperti e non'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Aperti'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cucina').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Latte'), findsOneWidget);
+    expect(find.text('Pasta'), findsNothing);
+
+    await tester.tap(find.byTooltip('Reset filtri'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cucina').first);
+    await tester.pumpAndSettle();
+    if (find.text('Pasta').evaluate().isEmpty) {
+      await tester.tap(find.text('Cucina').first);
+      await tester.pumpAndSettle();
+    }
+    expect(find.text('Pasta'), findsOneWidget);
+  });
 }
