@@ -1,4 +1,4 @@
-package com.housekeep.app
+package com.organizedhive.app
 
 import io.flutter.embedding.android.FlutterActivity
 

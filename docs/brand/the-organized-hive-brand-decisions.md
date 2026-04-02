@@ -173,7 +173,7 @@ Uso: UI app, icona, materiali marketing. Aggiustare contrasto WCAG su testo picc
 
 ## 12. Nota su Housekeep
 
-Il codice e il repository possono mantenere il nome tecnico **housekeep**; questo documento definisce il **brand prodotto consumer** **The Organized Hive** per comunicazione, store e UI copy pubblica. Allineare `pubspec.yaml` / bundle ID / nome legal entity secondo roadmap legale e ASO.
+Il codice e il repository possono mantenere il nome tecnico **housekeep**; questo documento definisce il **brand prodotto consumer** **The Organized Hive** per comunicazione, store e UI copy pubblica. **Application ID Android** e **bundle ID iOS:** `com.organizedhive.app`. Allineare `pubspec.yaml` / nome legal entity secondo roadmap legale e ASO.
 
 ---
 
