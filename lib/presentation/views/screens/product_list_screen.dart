@@ -7,6 +7,8 @@ import '../../../domain/entities/location_with_positions.dart';
 import '../../../domain/entities/product.dart';
 import '../../../domain/entities/consumption_entry.dart';
 import '../../layout/breakpoints.dart';
+import '../../mixins/deferred_shell_tab_load_mixin.dart';
+import '../../viewmodels/home_shell_tab_controller.dart';
 import '../../viewmodels/location_view_model.dart';
 import '../../viewmodels/product_view_model.dart';
 import '../widgets/product_card.dart';
@@ -25,16 +27,17 @@ class ProductListScreen extends StatefulWidget {
   State<ProductListScreen> createState() => _ProductListScreenState();
 }
 
-class _ProductListScreenState extends State<ProductListScreen> {
+class _ProductListScreenState extends State<ProductListScreen>
+    with DeferredShellTabLoadMixin {
   String? _selectedId;
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProductViewModel>().loadProducts();
-      context.read<LocationViewModel>().loadHierarchy();
-    });
+  int get deferredShellTabIndex => HomeShellTabController.tabInventory;
+
+  @override
+  void onDeferredShellTabVisible() {
+    context.read<ProductViewModel>().loadProducts();
+    context.read<LocationViewModel>().loadHierarchy();
   }
 
   Product? _selectedProduct(List<Product> products) {

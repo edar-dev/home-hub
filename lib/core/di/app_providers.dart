@@ -16,6 +16,7 @@ import '../../data/local/repositories/local_product_repository.dart';
 import '../../data/local/repositories/local_onboarding_repository.dart';
 import '../../data/local/repositories/local_shopping_list_repository.dart';
 import '../../data/local/repositories/no_op_notification_repository.dart';
+import '../../data/local/models/notification_settings_hive_model.dart';
 import '../../data/local/models/product_category_hive_model.dart';
 import 'package:flutter/foundation.dart';
 
@@ -118,11 +119,33 @@ class AppFactory {
   static Future<AppDependencies> create({String? hiveStoragePath}) async {
     final hiveService = HiveService(storagePath: hiveStoragePath);
     await hiveService.init();
-    final box = await hiveService.openProductsBox();
-    final locationsBox = await hiveService.openLocationsBox();
-    final positionsBox = await hiveService.openPositionsBox();
+
+    final fProducts = hiveService.openProductsBox();
+    final fLocations = hiveService.openLocationsBox();
+    final fPositions = hiveService.openPositionsBox();
+    final fConsumption = hiveService.openConsumptionEntriesBox();
+    final fBarcodes = hiveService.openBarcodesBox();
+    final Future<Box<NotificationSettingsHiveModel>>? fNotif =
+        kIsWeb ? null : hiveService.openNotificationSettingsBox();
+    final fCategories = hiveService.openCategoriesBox();
+    final fShopActive = hiveService.openShoppingActiveBox();
+    final fShopHistory = hiveService.openShoppingHistoryBox();
+    final fOnbState = hiveService.openOnboardingStateBox();
+    final fOnbSettings = hiveService.openOnboardingSettingsBox();
+
+    final box = await fProducts;
+    final locationsBox = await fLocations;
+    final positionsBox = await fPositions;
+    final consumptionBox = await fConsumption;
+    final barcodesBox = await fBarcodes;
+    final notifBox = fNotif != null ? await fNotif : null;
+    final categoriesBox = await fCategories;
+    final shoppingActiveBox = await fShopActive;
+    final shoppingHistoryBox = await fShopHistory;
+    final onboardingStateBox = await fOnbState;
+    final onboardingSettingsBox = await fOnbSettings;
+
     final productRepository = LocalProductRepository(box, positionsBox);
-    final consumptionBox = await hiveService.openConsumptionEntriesBox();
     final consumptionRepository = LocalConsumptionRepository(consumptionBox);
     final locationRepository = LocalLocationRepository(
       locationsBox,
@@ -134,7 +157,6 @@ class AppFactory {
       locationRepository,
       consumptionRepository,
     );
-    final barcodesBox = await hiveService.openBarcodesBox();
     final barcodeRepository = LocalBarcodeRepository(barcodesBox);
 
     final Directory photoRoot;
@@ -151,30 +173,24 @@ class AppFactory {
     if (kIsWeb) {
       notificationRepository = NoOpNotificationRepository();
     } else {
-      final notifBox = await hiveService.openNotificationSettingsBox();
       notificationRepository = LocalNotificationRepository(
-        notifBox,
+        notifBox!,
         consumptionRepository: consumptionRepository,
       );
     }
 
-    final categoriesBox = await hiveService.openCategoriesBox();
     await _seedCategoriesIfEmpty(categoriesBox);
     final categoryRepository = LocalCategoryRepository(
       categoriesBox,
       productRepository,
     );
 
-    final shoppingActiveBox = await hiveService.openShoppingActiveBox();
-    final shoppingHistoryBox = await hiveService.openShoppingHistoryBox();
     final shoppingListRepository = LocalShoppingListRepository(
       shoppingActiveBox,
       shoppingHistoryBox,
       productRepository,
     );
 
-    final onboardingStateBox = await hiveService.openOnboardingStateBox();
-    final onboardingSettingsBox = await hiveService.openOnboardingSettingsBox();
     final onboardingRepository = LocalOnboardingRepository(
       stateBox: onboardingStateBox,
       settingsBox: onboardingSettingsBox,

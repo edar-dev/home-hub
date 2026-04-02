@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../../../../domain/entities/analytics_metrics.dart';
 import '../../../../domain/entities/chart_data_point.dart';
+import '../../../mixins/deferred_shell_tab_load_mixin.dart';
 import '../../../viewmodels/analytics_view_model.dart';
+import '../../../viewmodels/home_shell_tab_controller.dart';
 import '../../../viewmodels/location_view_model.dart';
 import 'widgets/analytics_filter_controls.dart';
 import 'widgets/consumption_line_chart.dart';
@@ -21,15 +23,16 @@ class AnalyticsDashboardScreen extends StatefulWidget {
       _AnalyticsDashboardScreenState();
 }
 
-class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
+class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen>
+    with DeferredShellTabLoadMixin {
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      context.read<LocationViewModel>().loadHierarchy();
-      context.read<AnalyticsViewModel>().loadAnalytics();
-    });
+  int get deferredShellTabIndex => HomeShellTabController.tabAnalytics;
+
+  @override
+  void onDeferredShellTabVisible() {
+    if (!mounted) return;
+    context.read<LocationViewModel>().loadHierarchy();
+    context.read<AnalyticsViewModel>().loadAnalytics();
   }
 
   @override

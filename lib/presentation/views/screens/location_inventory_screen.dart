@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../domain/entities/location_with_positions.dart';
+import '../../mixins/deferred_shell_tab_load_mixin.dart';
+import '../../viewmodels/home_shell_tab_controller.dart';
 import '../../viewmodels/location_inventory_view_model.dart';
 import '../../viewmodels/location_view_model.dart';
 import '../widgets/product_card.dart';
@@ -25,7 +27,8 @@ class LocationInventoryScreen extends StatefulWidget {
       _LocationInventoryScreenState();
 }
 
-class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
+class _LocationInventoryScreenState extends State<LocationInventoryScreen>
+    with DeferredShellTabLoadMixin {
   late final TextEditingController _searchCtrl;
   Timer? _searchDebounce;
 
@@ -42,15 +45,23 @@ class _LocationInventoryScreenState extends State<LocationInventoryScreen> {
   void _cancelSearchDebounce() => _searchDebounce?.cancel();
 
   @override
-  void initState() {
-    super.initState();
-    _searchCtrl = TextEditingController();
+  int get deferredShellTabIndex => HomeShellTabController.tabOverview;
+
+  @override
+  void onDeferredShellTabVisible() {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
       final inv = context.read<LocationInventoryViewModel>();
       inv.setLocationFilter(widget.locationId);
       _searchCtrl.text = inv.searchQuery;
       await inv.load();
     });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _searchCtrl = TextEditingController();
   }
 
   @override

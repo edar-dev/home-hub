@@ -19,11 +19,6 @@ Future<void> main() async {
     };
   }
   final dependencies = await AppFactory.create();
-  try {
-    await dependencies.notificationRepository.initialize();
-  } catch (e, st) {
-    debugPrint('Notification bootstrap: $e\n$st');
-  }
 
   final onboardingService = OnboardingService(
     repository: dependencies.onboardingRepository,
@@ -31,7 +26,6 @@ Future<void> main() async {
     locationRepository: dependencies.locationRepository,
   );
   final showOnboarding = await onboardingService.shouldShowOnboarding();
-  await dependencies.onboardingRepository.touchLastAppOpen();
 
   runApp(
     HousekeepApp(
@@ -41,6 +35,18 @@ Future<void> main() async {
   );
 
   WidgetsBinding.instance.addPostFrameCallback((_) async {
+    try {
+      await dependencies.onboardingRepository.touchLastAppOpen();
+    } catch (e, st) {
+      debugPrint('touchLastAppOpen (deferred): $e\n$st');
+    }
+
+    try {
+      await dependencies.notificationRepository.initialize();
+    } catch (e, st) {
+      debugPrint('Notification bootstrap: $e\n$st');
+    }
+
     try {
       final products = await dependencies.productRepository.getAll();
       await dependencies.notificationRepository.rescheduleAllForProducts(
