@@ -1,0 +1,74 @@
+workflows:
+  ci_checks:
+    name: CI Checks
+    max_build_duration: 60
+    instance_type: linux_x2
+    environment:
+      flutter: stable
+    triggering:
+      events:
+        - push
+        - pull_request
+      branch_patterns:
+        - pattern: main
+          include: true
+        - pattern: master
+          include: true
+        - pattern: develop
+          include: true
+      cancel_previous_builds: true
+    scripts:
+      - name: Flutter pub get
+        script: flutter pub get
+      - name: Check formatting
+        script: dart format --output=none --set-exit-if-changed .
+      - name: Analyze
+        script: flutter analyze
+      - name: Tests
+        script: flutter test test/
+
+  android_play_internal:
+    name: Android Play Internal
+    max_build_duration: 60
+    instance_type: linux_x2
+    environment:
+      flutter: stable
+      vars:
+        PACKAGE_NAME: "com.organizedhive.app"
+    # Run manually from Codemagic UI, or automatically on tag v*
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: v*
+          include: true
+      cancel_previous_builds: false
+    scripts:
+      - name: Flutter pub get
+        script: flutter pub get
+      - name: Configure Android signing
+        script: |
+          if [ -z "$CM_KEYSTORE" ]; then
+            echo "Missing CM_KEYSTORE (base64 upload-keystore.jks)."
+            exit 1
+          fi
+          if [ -z "$CM_KEYSTORE_PASSWORD" ] || [ -z "$CM_KEY_ALIAS" ] || [ -z "$CM_KEY_PASSWORD" ]; then
+            echo "Missing signing secrets: CM_KEYSTORE_PASSWORD / CM_KEY_ALIAS / CM_KEY_PASSWORD."
+            exit 1
+          fi
+          echo "$CM_KEYSTORE" | base64 --decode > "$CM_BUILD_DIR/android/upload-keystore.jks"
+          {
+            echo "storePassword=$CM_KEYSTORE_PASSWORD"
+            echo "keyPassword=$CM_KEY_PASSWORD"
+            echo "keyAlias=$CM_KEY_ALIAS"
+            echo "storeFile=upload-keystore.jks"
+          } > "$CM_BUILD_DIR/android/key.properties"
+      - name: Build AAB
+        script: flutter build appbundle --release
+    artifacts:
+      - build/app/outputs/bundle/release/app-release.aab
+    publishing:
+      google_play:
+        credentials: $PLAY_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: false

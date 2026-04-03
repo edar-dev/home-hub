@@ -16,9 +16,9 @@ Guida operativa per pubblicare **The Organized Hive** (progetto Flutter `houseke
 ## 1. Panoramica del flusso
 
 1. Preparare **keystore** e **firma release** (una tantum; salva backup in luogo sicuro).
-2. Generare **Android App Bundle** (`.aab`) con `flutter build appbundle`.
+2. Generare **Android App Bundle** (`.aab`) con `flutter build appbundle` — in locale oppure tramite **CI/CD** (vedi §4).
 3. In Play Console: **creare l’app** (se non esiste) e compilare tutte le sezioni obbligatorie.
-4. Caricare il bundle nella traccia **test interno** (o closed), verificare su dispositivi reali.
+4. Caricare il bundle nella traccia **test interno** (o closed), verificare su dispositivi reali — **manualmente** o **automaticamente** da pipeline (§4).
 5. Completare **scheda store**, **Politica sui contenuti**, **Sicurezza dei dati**, **valutazione dei contenuti**, ecc.
 6. Inviare per **revisione** e poi promuovere a **produzione** quando approvato.
 
@@ -93,7 +93,109 @@ Se `key.properties` manca, la build può ancora usare firma **debug** (vedi `bui
 
 ---
 
-## 4. Creare l’applicazione in Google Play Console
+## 4. CI/CD con Codemagic (firma + upload Play)
+
+Obiettivo: **ogni release** produce un `.aab` **firmato** e, se configurato, lo pubblica su Google Play senza passare dal laptop.
+
+### 4.1 Principi
+
+- **Mai** committare `upload-keystore.jks`, `key.properties` o JSON del service account: usa **Environment variables / credentials** in Codemagic.
+- Mantieni la stessa **upload key** usata in locale; Play App Signing resta l’opzione consigliata (§3.3).
+- Il **`versionCode`** deve essere sempre crescente: aggiorna `pubspec.yaml` (`x.y.z+BUILD`) prima del trigger.
+
+### 4.2 Setup Codemagic nel progetto
+
+1. Crea un account su [Codemagic](https://codemagic.io/) e collega il repository.
+2. In Codemagic apri l’app e scegli se usare:
+   - **Workflow Editor** (UI, più semplice), oppure
+   - `codemagic.yaml` versionato nel repo (più controllabile e replicabile).
+3. Imposta trigger (branch `main`/`develop`, tag `v*`, oppure build manuale).
+
+### 4.3 Secret/credential da configurare in Codemagic
+
+Nella sezione **Environment variables** (gruppo protetto), crea:
+
+| Variabile | Contenuto |
+|-----------|-----------|
+| `CM_KEYSTORE` | `upload-keystore.jks` in Base64 |
+| `CM_KEYSTORE_PASSWORD` | Password keystore |
+| `CM_KEY_ALIAS` | Alias chiave, es. `upload` |
+| `CM_KEY_PASSWORD` | Password della chiave (alias) |
+| `PLAY_SERVICE_ACCOUNT_CREDENTIALS` | JSON completo del service account Google Play |
+
+Esempio Base64 su PowerShell:
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("C:\path\upload-keystore.jks"))
+```
+
+### 4.4 Service account Google Play (upload API)
+
+Per l’upload automatico su Play serve un **service account** con accesso alla **Google Play Developer API**:
+
+1. In [Google Cloud Console](https://console.cloud.google.com/) crea (o seleziona) un progetto.
+2. Abilita [Google Play Android Developer API](https://console.developers.google.com/apis/api/androidpublisher.googleapis.com/).
+3. Crea un service account in [IAM → Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts).
+4. Genera una chiave **JSON** (download una sola volta).
+5. In Play Console → [Users and permissions](https://play.google.com/console/users-and-permissions), invita l’email del service account e assegna i permessi di release sulla tua app/traccia.
+6. Incolla il JSON in `PLAY_SERVICE_ACCOUNT_CREDENTIALS` su Codemagic.
+
+### 4.5 Esempio `codemagic.yaml` (Android + Play internal)
+
+Metti questo file in root repository (`codemagic.yaml`) e adatta i nomi variabili/traccia:
+
+```yaml
+workflows:
+  android-play-internal:
+    name: Android Play Internal
+    max_build_duration: 60
+    environment:
+      flutter: stable
+      vars:
+        PACKAGE_NAME: "com.organizedhive.app"
+    scripts:
+      - name: Flutter pub get
+        script: flutter pub get
+      - name: Configure Android signing
+        script: |
+          echo $CM_KEYSTORE | base64 --decode > $CM_BUILD_DIR/android/upload-keystore.jks
+          cat > $CM_BUILD_DIR/android/key.properties <<EOF
+          storePassword=$CM_KEYSTORE_PASSWORD
+          keyPassword=$CM_KEY_PASSWORD
+          keyAlias=$CM_KEY_ALIAS
+          storeFile=upload-keystore.jks
+          EOF
+      - name: Build AAB
+        script: flutter build appbundle --release
+    artifacts:
+      - build/app/outputs/bundle/release/app-release.aab
+    publishing:
+      google_play:
+        credentials: $PLAY_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+        submit_as_draft: false
+```
+
+### 4.6 Flusso consigliato
+
+1. Incrementa `version` in `pubspec.yaml` (soprattutto `+BUILD`).
+2. Push su branch/tag che attiva il workflow Codemagic.
+3. Verifica build logs + artifact `.aab`.
+4. Se publishing abilitato, controlla la release in Play Console (traccia `internal` prima di `production`).
+
+### 4.7 Produzione e sicurezza
+
+- Inizia sempre da `internal`, poi `closed`/`open`, infine `production`.
+- Proteggi i workflow di produzione (approval manuale / branch protection).
+- Ruota periodicamente la chiave service account se sospetti esposizione.
+
+### 4.8 GitHub Actions nel repo (opzionale)
+
+I file in `.github/workflows/` possono restare come CI complementare (analyze/test/artifact). Se usi Codemagic come pipeline principale di release, usa **una sola pipeline “autorizzata a pubblicare”** per evitare rilasci doppi/confusi.
+
+---
+
+## 5. Creare l’applicazione in Google Play Console
 
 1. Accedi a [Google Play Console](https://play.google.com/console).
 2. **Crea app** (o seleziona l’app se già creata).
@@ -103,7 +205,7 @@ Se `key.properties` manca, la build può ancora usare firma **debug** (vedi `bui
 
 ---
 
-## 5. Versioning (ogni upload)
+## 6. Versioning (ogni upload)
 
 - In `pubspec.yaml`: `version: MAJOR.MINOR.PATCH+BUILD`
   - Prima parte → **versionName** (es. `1.0.0`).
@@ -119,7 +221,7 @@ flutter build appbundle --release
 
 ---
 
-## 6. Tracce di distribuzione (ordine consigliato)
+## 7. Tracce di distribuzione (ordine consigliato)
 
 ### 6.1 Test interno
 
@@ -139,7 +241,7 @@ Quando scheda e policy sono complete e i test sono ok, crea una **release in pro
 
 ---
 
-## 7. Scheda del negozio (Store listing)
+## 8. Scheda del negozio (Store listing)
 
 ### 7.1 Testi (allineati al brand del repo)
 
@@ -170,7 +272,7 @@ Usa screenshot reali dell’app (no ingannevoli). Il brand prevede icone/splash 
 
 ---
 
-## 8. Permessi dell’app e dichiarazioni
+## 9. Permessi dell’app e dichiarazioni
 
 Dal manifest risultano almeno:
 
@@ -184,7 +286,7 @@ In Play Console, nelle sezioni **Dichiarazione delle autorizzazioni** / **Sicure
 
 ---
 
-## 9. Politica sulla privacy e URL
+## 10. Politica sulla privacy e URL
 
 Per la maggior parte delle app che raccolgono dati o usano permessi sensibili, Play richiede un **URL di informativa sulla privacy** accessibile pubblicamente.
 
@@ -193,7 +295,7 @@ Per la maggior parte delle app che raccolgono dati o usano permessi sensibili, P
 
 ---
 
-## 10. Sicurezza dei dati (Data safety)
+## 11. Sicurezza dei dati (Data safety)
 
 Compila il modulo **Sicurezza dei dati** in modo coerente con il codice:
 
@@ -206,20 +308,20 @@ Incongruenze tra dichiarazione e comportamento reale possono causare **rifiuto**
 
 ---
 
-## 11. Valutazione dei contenuti (questionario IARC)
+## 12. Valutazione dei contenuti (questionario IARC)
 
 Completa il questionario per ottenere la **classificazione per età**. Rispondi in base alle funzioni reali (app di inventario domestico → in genere classificazione ampia e permissiva).
 
 ---
 
-## 12. Pubblico di destinazione e app per famiglie
+## 13. Pubblico di destinazione e app per famiglie
 
 - Indica se l’app è rivolta a **bambini** o no. Se non è pensata per bambini, dichiaralo chiaramente per evitare obblighi del programma “Designed for Families”.
 - Allinea le risposte a contenuti e marketing reali.
 
 ---
 
-## 13. Target API e compatibilità
+## 14. Target API e compatibilità
 
 Play richiede un **targetSdk** aggiornato (le soglie cambiano nel tempo; Flutter di solito allinea i template). Prima di ogni release:
 
@@ -240,7 +342,7 @@ Aggiorna Flutter/SDK se la console segnala problemi.
 
 ---
 
-## 14. Checklist pre-invio revisione
+## 15. Checklist pre-invio revisione
 
 - [ ] `flutter test` e smoke test manuale su dispositivo fisico (release o profile).
 - [ ] Bundle firmato con keystore **release** (`key.properties` presente).
@@ -255,7 +357,7 @@ Aggiorna Flutter/SDK se la console segnala problemi.
 
 ---
 
-## 15. Comandi riepilogativi
+## 16. Comandi riepilogativi
 
 ```bash
 # Dipendenze e analisi
@@ -271,7 +373,7 @@ File da caricare:
 
 ---
 
-## 16. Dopo la pubblicazione
+## 17. Dopo la pubblicazione
 
 - Monitora **Android vitals** (ANR, crash), recensioni e **policy updates** Google.
 - Per ogni versione: aggiorna `pubspec.yaml`, ricostruisci `.aab`, carica nella traccia appropriata, invia note di versione (cosa è cambiato per l’utente).
@@ -282,6 +384,10 @@ File da caricare:
 
 - [Pubblicare un’app su Google Play](https://support.google.com/googleplay/android-developer/answer/9859348) (Help Center)
 - [Flutter — Build and release an Android app](https://docs.flutter.dev/deployment/android)
+- [Flutter — Continuous delivery](https://docs.flutter.dev/deployment/cd)
+- [Google Play Android Developer API — Getting started](https://developers.google.com/android-publisher/getting_started)
+- [Codemagic — Publish Flutter app to Google Play](https://docs.codemagic.io/flutter-publishing/publishing-to-google-play/)
+- [Codemagic — Flutter apps (yaml/workflows)](https://docs.codemagic.io/yaml-quick-start/building-a-flutter-app/)
 - [Android App Bundle](https://developer.android.com/guide/app-bundle)
 - Brand/copy app: `docs/brand/the-organized-hive-brand-decisions.md`
 

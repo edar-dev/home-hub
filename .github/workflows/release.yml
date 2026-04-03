@@ -1,9 +1,10 @@
 # Secrets (optional unless noted):
 #   ANDROID_KEYSTORE_BASE64 — base64 of upload-keystore.jks
 #   ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD — release signing
+#   PLAY_STORE_SERVICE_ACCOUNT_JSON — Google Play Developer API (JSON service account) for upload step
 #   FIREBASE_TOKEN, FIREBASE_PROJECT_ID — deploy web after build (same job)
 #
-# Triggers: git tag v* (Android + Web), or workflow_dispatch (same + optional iOS if build_ios=true).
+# Triggers: git tag v* (Android + Web), or workflow_dispatch (same + optional iOS / Play upload).
 
 name: Release builds
 
@@ -18,6 +19,21 @@ on:
         required: false
         type: boolean
         default: false
+      upload_to_play:
+        description: 'Upload AAB to Google Play (needs PLAY_STORE_SERVICE_ACCOUNT_JSON secret)'
+        required: false
+        type: boolean
+        default: false
+      play_track:
+        description: 'Play track when upload_to_play is true'
+        required: false
+        type: choice
+        default: internal
+        options:
+          - internal
+          - alpha
+          - beta
+          - production
 
 permissions:
   contents: read
@@ -53,17 +69,27 @@ jobs:
             exit 0
           fi
           echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$GITHUB_WORKSPACE/android/upload-keystore.jks"
-          cat > "$GITHUB_WORKSPACE/android/key.properties" << EOF
-          storePassword=$ANDROID_KEYSTORE_PASSWORD
-          keyPassword=$ANDROID_KEY_PASSWORD
-          keyAlias=$ANDROID_KEY_ALIAS
-          storeFile=upload-keystore.jks
-          EOF
+          {
+            echo "storePassword=$ANDROID_KEYSTORE_PASSWORD"
+            echo "keyPassword=$ANDROID_KEY_PASSWORD"
+            echo "keyAlias=$ANDROID_KEY_ALIAS"
+            echo "storeFile=upload-keystore.jks"
+          } > "$GITHUB_WORKSPACE/android/key.properties"
 
       - name: Build APK and App Bundle (release)
         run: |
           flutter build apk --release
           flutter build appbundle --release
+
+      - name: Upload AAB to Google Play
+        if: github.event_name == 'workflow_dispatch' && github.event.inputs.upload_to_play == 'true'
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_SERVICE_ACCOUNT_JSON }}
+          packageName: com.organizedhive.app
+          releaseFiles: build/app/outputs/bundle/release/app-release.aab
+          track: ${{ github.event.inputs.play_track }}
+          status: completed
 
       - uses: actions/upload-artifact@v4
         with:
