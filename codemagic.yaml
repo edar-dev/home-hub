@@ -2,7 +2,7 @@ workflows:
   ci_checks:
     name: CI Checks
     max_build_duration: 60
-    instance_type: linux_x2
+    # instance_type: ometti per usare il default del piano; linux_x2 richiede billing.
     environment:
       flutter: stable
     triggering:
@@ -30,7 +30,7 @@ workflows:
   android_play_internal:
     name: Android Play Internal
     max_build_duration: 60
-    instance_type: linux_x2
+    # instance_type: ometti per usare il default del piano; linux_x2 richiede billing.
     environment:
       flutter: stable
       vars:

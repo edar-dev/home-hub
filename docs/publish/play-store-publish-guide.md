@@ -176,6 +176,8 @@ workflows:
         submit_as_draft: false
 ```
 
+Il file **`codemagic.yaml` nel repository** non imposta `instance_type`: così Codemagic usa il **default consentito dal tuo piano**. Valori come `linux_x2` richiedono di solito **fatturazione attiva** o un piano a pagamento ([pricing Codemagic](https://docs.codemagic.io/billing/pricing/)). Se vedi *The selected instance type is not available with the current billing plan*, rimuovi o non impostare `instance_type`, oppure abilita il piano che include quella macchina.
+
 ### 4.6 Flusso consigliato
 
 1. Incrementa `version` in `pubspec.yaml` (soprattutto `+BUILD`).
