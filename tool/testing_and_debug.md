@@ -34,7 +34,7 @@ Non esiste API Dart portabile per l’uso memoria nei test. Per verifiche manual
 2. Aprire **Dart DevTools → Memory** durante salvataggi ripetuti o scroll su lista grande
 3. **Performance** per jank su liste lunghe
 
-Il test `test/performance/product_list_scroll_test.dart` misura solo tempi di `pump` / scroll in ambiente test (soglia ampia per variabilità CI/VM).
+Il file `test/performance/product_list_scroll_benchmark.dart` misura solo tempi di `pump` / scroll in ambiente test (soglia ampia per variabilità CI/VM).
 
 ## Hive su disco
 

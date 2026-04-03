@@ -7,7 +7,7 @@ Usare questa tabella come **fonte di verità** durante i test manuali. Comportam
 | **Elimina luogo con prodotti assegnati** | I **prodotti non** vengono cancellati. Perdono `positionId` (link alle posizioni rimosse). Posizioni del luogo eliminate. | Dopo delete: prodotti ancora in Inventario, senza posizione; conteggio invariato. Codice: `LocalLocationRepository.deleteLocation`. |
 | **Elimina posizione con prodotti** | Prodotti **non** cancellati; `positionId` azzerato per chi puntava a quella posizione. | `LocalLocationRepository.deletePosition` + `clearPositionIdsForPositions`. |
 | **Elimina prodotto** | Solo il record prodotto viene rimosso. Le **posizioni** non cambiano (non “contano” prodotti). | Lista Luoghi invariata. |
-| **Dataset grande (1000+)** | Lista scrollabile; `loadProducts` carica tutto in memoria (limite noto post-MVP). | DevTools Performance/Memory oppure `flutter test test/performance/`. |
+| **Dataset grande (1000+)** | Lista scrollabile; `loadProducts` carica tutto in memoria (limite noto post-MVP). | DevTools Performance/Memory oppure i file `test/performance/*_benchmark.dart` (vedi [testing.md](../developer/testing.md)). |
 | **Date estreme** | `Product.isExpired` confronta solo **date locali** (anno/mese/giorno). Scadenza molto nel futuro o nel passato: coerenza badge/UI. | Form prodotto: rispettare `validateDateOrder` (scadenza ≥ acquisto se entrambe presenti). |
 | **Stesso nome, posizioni diverse** | Ordinamento per nome in lista; due righe distinte. | Inventario ordinato alfabeticamente. |
 

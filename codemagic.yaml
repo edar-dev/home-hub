@@ -24,9 +24,9 @@ workflows:
         script: dart format --output=none --set-exit-if-changed .
       - name: Analyze
         script: flutter analyze
-      # Esclude test in test/performance/ (tag `performance`); lenti o sensibili al runner Mac/CI.
+      # I benchmark in test/performance/ sono `*_benchmark.dart` (non `*_test.dart`) e non entrano in questa suite.
       - name: Tests
-        script: flutter test test/ --exclude-tags=performance
+        script: flutter test test/
 
   android_play_internal:
     name: Android Play Internal

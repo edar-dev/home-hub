@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:test/test.dart' show Tags;
 import 'package:hive/hive.dart';
 import 'package:housekeep/core/di/app_providers.dart';
 import 'package:housekeep/domain/entities/product.dart';
@@ -9,7 +8,6 @@ import 'package:housekeep/presentation/viewmodels/product_view_model.dart';
 import 'package:uuid/uuid.dart';
 
 /// Verifica che [ProductViewModel.loadProducts] gestisca un inventario grande senza errori.
-@Tags(['performance'])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

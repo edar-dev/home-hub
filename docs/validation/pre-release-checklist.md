@@ -15,13 +15,13 @@ Segnare ogni voce prima di taggare una release o pubblicare su store.
 flutter analyze
 flutter test test/
 flutter test integration_test/app_test.dart
-flutter test test/performance/
+flutter test test/performance/product_list_scroll_benchmark.dart test/performance/product_view_model_load_benchmark.dart test/performance/product_list_scale_benchmark.dart
 ```
 
 - [ ] `flutter analyze` senza errori.
 - [ ] `flutter test test/` verde.
 - [ ] `integration_test/app_test.dart` verde (persistenza Hive).
-- [ ] `test/performance/` verde (carico lista; include `product_view_model_load_test` e benchmark lista).
+- [ ] Benchmark `test/performance/*_benchmark.dart` verdi (scroll lista, `loadProducts` massivo, scale multi-riga).
 
 Script opzionale (solo VM Dart, box `products` in directory temporanea o passata):
 

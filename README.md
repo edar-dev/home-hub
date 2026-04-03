@@ -30,7 +30,8 @@ Supportate le piattaforme abilitate nel progetto (Android, iOS, Web, desktop sec
 ```bash
 flutter analyze
 flutter test test/
-flutter test test/performance/
+# Benchmark opzionali (non `*_test.dart`, non inclusi in `flutter test test/`):
+flutter test test/performance/product_list_scroll_benchmark.dart test/performance/product_view_model_load_benchmark.dart test/performance/product_list_scale_benchmark.dart
 ```
 
 Opzionale: `flutter test integration_test/app_test.dart` (vedi [docs/developer/testing.md](docs/developer/testing.md)).

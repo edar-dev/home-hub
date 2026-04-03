@@ -5,7 +5,8 @@
 ```bash
 flutter analyze
 flutter test test/
-flutter test test/performance/
+# Benchmark (file `*_benchmark.dart`, esclusi dalla suite `test/`):
+flutter test test/performance/product_list_scroll_benchmark.dart test/performance/product_view_model_load_benchmark.dart test/performance/product_list_scale_benchmark.dart
 ```
 
 Validazione manuale e checklist pre-rilascio: [docs/validation/README.md](../validation/README.md).
@@ -24,7 +25,7 @@ flutter test integration_test/app_test.dart
 | `test/data/` | Repository Hive su directory temporanea, mapper |
 | `test/presentation/` | ViewModel con mock repository |
 | `test/views/` | Widget test, `MaterialApp` + `MultiProvider` |
-| `test/performance/` | Liste grandi, soglie temporali indicative |
+| `test/performance/` | Liste grandi, soglie temporali (`*_benchmark.dart`, da lanciare esplicitamente) |
 | `integration_test/` | Flussi end-to-end con Hive reale |
 
 ## Mock

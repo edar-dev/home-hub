@@ -34,5 +34,5 @@ flowchart LR
 ## Automazione nel repo
 
 - Test integration: `flutter test integration_test/app_test.dart` (Hive su path temporaneo; persistenza dopo `close`).
-- Carico lista: `flutter test test/performance/` (seed programmato + `ProductViewModel.loadProducts`).
+- Carico lista: `flutter test test/performance/product_list_scroll_benchmark.dart test/performance/product_view_model_load_benchmark.dart test/performance/product_list_scale_benchmark.dart`.
 - Seed Hive su disco (benchmark o ispezione): `dart run tool/seed_performance_dataset.dart [count] [outputDir]`
