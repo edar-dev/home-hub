@@ -35,6 +35,7 @@ flutter test integration_test/app_test.dart
 ## Golden
 
 - `test/views/goldens/` — aggiornare con `flutter test --update-goldens` solo quando il cambiamento UI è voluto.
+- `test/views/goldens/flutter_test_config.dart` imposta un comparatore con **tolleranza pixel** piccola, così gli stessi PNG possono passare su host diversi (es. Windows vs macOS su Codemagic).
 
 ## Linee guida
 
