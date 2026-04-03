@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart' show Tags;
 import 'package:housekeep/app.dart';
 import 'package:housekeep/core/di/app_providers.dart';
 import 'package:housekeep/data/local/hive_service.dart';
@@ -25,6 +26,7 @@ class _LargeListRepo extends Mock implements ProductRepository {}
 
 class _MockLocationRepo extends Mock implements LocationRepository {}
 
+@Tags(['performance'])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

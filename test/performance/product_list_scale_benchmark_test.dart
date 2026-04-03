@@ -1,6 +1,7 @@
 // Baseline performance (Flutter test VM, debug build — valori indicativi).
 //
 // Come usare per confronti reali: `flutter test test/performance/product_list_scale_benchmark_test.dart`
+// In CI (Codemagic/GitHub) questi test sono esclusi con `--exclude-tags=performance`.
 // e, per misure frame accurate, Flutter DevTools Performance su device/profile con stesso seed.
 //
 // Soglie sotto sono empiriche anti-regressione in CI (molto larghe per macchine lente).
@@ -13,6 +14,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:test/test.dart' show Tags;
 import 'package:housekeep/app.dart';
 import 'package:housekeep/core/di/app_providers.dart';
 import 'package:housekeep/data/local/hive_service.dart';
@@ -109,6 +111,7 @@ Future<void> _runScale(
   expect(scrollSw.elapsed, lessThan(maxScroll));
 }
 
+@Tags(['performance'])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
