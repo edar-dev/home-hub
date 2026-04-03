@@ -653,7 +653,8 @@ class _FiltersSectionState extends State<_FiltersSection> {
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<ProductStatusFilter>(
-                      value: widget.statusFilter,
+                      key: ValueKey(widget.statusFilter),
+                      initialValue: widget.statusFilter,
                       isDense: true,
                       decoration: const InputDecoration(
                         labelText: 'Stato',
@@ -685,7 +686,8 @@ class _FiltersSectionState extends State<_FiltersSection> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: DropdownButtonFormField<ProductOpenStateFilter>(
-                      value: widget.openStateFilter,
+                      key: ValueKey(widget.openStateFilter),
+                      initialValue: widget.openStateFilter,
                       isDense: true,
                       decoration: const InputDecoration(
                         labelText: 'Apertura',
