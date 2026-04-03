@@ -146,7 +146,8 @@ class HiveService {
     }
   }
 
-  Future<Box<NotificationSettingsHiveModel>> openNotificationSettingsBox() async {
+  Future<Box<NotificationSettingsHiveModel>>
+      openNotificationSettingsBox() async {
     try {
       return await Hive.openBox<NotificationSettingsHiveModel>(
         kNotificationSettingsBoxName,
@@ -186,7 +187,8 @@ class HiveService {
 
   Future<Box<OnboardingStateHiveModel>> openOnboardingStateBox() async {
     try {
-      return await Hive.openBox<OnboardingStateHiveModel>(kOnboardingStateBoxName);
+      return await Hive.openBox<OnboardingStateHiveModel>(
+          kOnboardingStateBoxName);
     } catch (e, st) {
       debugPrint('HiveService.openOnboardingStateBox failed: $e\n$st');
       throw ProductException('Impossibile aprire lo stato onboarding', e);
@@ -200,7 +202,8 @@ class HiveService {
       );
     } catch (e, st) {
       debugPrint('HiveService.openOnboardingSettingsBox failed: $e\n$st');
-      throw ProductException('Impossibile aprire le impostazioni onboarding', e);
+      throw ProductException(
+          'Impossibile aprire le impostazioni onboarding', e);
     }
   }
 

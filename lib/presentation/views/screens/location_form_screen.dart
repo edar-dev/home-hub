@@ -46,8 +46,8 @@ class _LocationFormScreenState extends State<LocationFormScreen> {
     setState(() => _summaryErrors = []);
     if (!_formKey.currentState!.validate()) {
       setState(() => _summaryErrors = const [
-        'Controlla i campi evidenziati in rosso.',
-      ]);
+            'Controlla i campi evidenziati in rosso.',
+          ]);
       return;
     }
 
@@ -140,7 +140,8 @@ class _LocationFormScreenState extends State<LocationFormScreen> {
                             ? const SizedBox(
                                 height: 22,
                                 width: 22,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               )
                             : Text(_isEdit ? 'Salva' : 'Aggiungi'),
                       ),

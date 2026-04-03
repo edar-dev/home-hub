@@ -46,7 +46,8 @@ class OnboardingService {
     }
 
     // Inattività
-    if (_isInactive(state.lastAppOpenDate, OnboardingConfig.inactivityDaysThreshold)) {
+    if (_isInactive(
+        state.lastAppOpenDate, OnboardingConfig.inactivityDaysThreshold)) {
       return true;
     }
 

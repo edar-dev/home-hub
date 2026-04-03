@@ -103,8 +103,7 @@ class LocalProductRepository implements ProductRepository {
       final list = _box.values
           .map(ProductMapper.toDomain)
           .where(
-            (p) =>
-                p.positionId != null && positionIds.contains(p.positionId),
+            (p) => p.positionId != null && positionIds.contains(p.positionId),
           )
           .toList()
         ..sort(
@@ -134,7 +133,8 @@ class LocalProductRepository implements ProductRepository {
         }
       }
     } catch (e, st) {
-      debugPrint('LocalProductRepository.clearPositionIdsForPositions: $e\n$st');
+      debugPrint(
+          'LocalProductRepository.clearPositionIdsForPositions: $e\n$st');
       throw ProductException('Impossibile aggiornare i prodotti collegati', e);
     }
   }

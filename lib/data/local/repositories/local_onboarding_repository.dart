@@ -45,9 +45,7 @@ class LocalOnboardingRepository implements OnboardingRepository {
   OnboardingState _entityFromHive(OnboardingStateHiveModel m) {
     OnboardingStep? current;
     final idx = m.currentStepIndex;
-    if (idx != null &&
-        idx >= 0 &&
-        idx < OnboardingStep.values.length) {
+    if (idx != null && idx >= 0 && idx < OnboardingStep.values.length) {
       current = OnboardingStep.values[idx];
     }
     final completed = <OnboardingStep>[];

@@ -34,9 +34,7 @@ class FakeProductRepository implements ProductRepository {
 
   @override
   Future<List<Product>> getByPositionId(String positionId) async {
-    return _byId.values
-        .where((p) => p.positionId == positionId)
-        .toList();
+    return _byId.values.where((p) => p.positionId == positionId).toList();
   }
 
   @override

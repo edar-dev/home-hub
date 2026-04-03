@@ -119,8 +119,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
                                 hintText: 'EAN / barcode',
                               ),
                               autofocus: true,
-                              onSubmitted: (s) =>
-                                  Navigator.pop(ctx, s),
+                              onSubmitted: (s) => Navigator.pop(ctx, s),
                             ),
                             actions: [
                               TextButton(
@@ -128,8 +127,7 @@ class _BarcodeScannerScreenState extends State<BarcodeScannerScreen> {
                                 child: const Text('Annulla'),
                               ),
                               FilledButton(
-                                onPressed: () =>
-                                    Navigator.pop(ctx, c.text),
+                                onPressed: () => Navigator.pop(ctx, c.text),
                                 child: const Text('OK'),
                               ),
                             ],

@@ -60,7 +60,8 @@ void main() {
     expect(pie.any((e) => e.label == 'Cucina'), isTrue);
   });
 
-  test('getMetrics aggrega consumi con una sola lettura grouped (avgDaily)', () async {
+  test('getMetrics aggrega consumi con una sola lettura grouped (avgDaily)',
+      () async {
     final deps = await AppFactory.create(hiveStoragePath: dir!.path);
     const uuid = Uuid();
     final productId = uuid.v4();

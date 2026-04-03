@@ -28,7 +28,8 @@ void main() {
     mockLoc = _MockLocationRepo();
     when(() => mockLoc.getAllWithPositions()).thenAnswer((_) async => []);
     when(() => mockLoc.getLocationById(any())).thenAnswer((_) async => null);
-    when(() => mockLoc.getLocationWithPositions(any())).thenAnswer((_) async => null);
+    when(() => mockLoc.getLocationWithPositions(any()))
+        .thenAnswer((_) async => null);
     when(() => mockLoc.saveLocation(any())).thenAnswer((_) async {});
     when(() => mockLoc.deleteLocation(any())).thenAnswer((_) async {});
     when(() => mockLoc.savePosition(any())).thenAnswer((_) async {});

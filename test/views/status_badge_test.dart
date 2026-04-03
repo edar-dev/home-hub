@@ -15,12 +15,14 @@ void main() {
   }
 
   testWidgets('StatusBadge expired', (tester) async {
-    await tester.pumpWidget(wrap(const StatusBadge(urgency: ExpiryUrgency.expired)));
+    await tester
+        .pumpWidget(wrap(const StatusBadge(urgency: ExpiryUrgency.expired)));
     expect(find.text('Scaduto'), findsOneWidget);
   });
 
   testWidgets('StatusBadge urgent', (tester) async {
-    await tester.pumpWidget(wrap(const StatusBadge(urgency: ExpiryUrgency.urgent)));
+    await tester
+        .pumpWidget(wrap(const StatusBadge(urgency: ExpiryUrgency.urgent)));
     expect(find.text('Urgente'), findsOneWidget);
   });
 
@@ -30,7 +32,8 @@ void main() {
   });
 
   testWidgets('StatusBadge unknown', (tester) async {
-    await tester.pumpWidget(wrap(const StatusBadge(urgency: ExpiryUrgency.unknown)));
+    await tester
+        .pumpWidget(wrap(const StatusBadge(urgency: ExpiryUrgency.unknown)));
     expect(find.text('Senza scadenza'), findsOneWidget);
   });
 }

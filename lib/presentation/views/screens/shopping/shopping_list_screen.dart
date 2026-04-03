@@ -27,7 +27,8 @@ class ShoppingListScreen extends StatelessWidget {
     await Share.share(buf.toString());
   }
 
-  Widget _gradientGenerateButton(BuildContext context, ShoppingListViewModel vm) {
+  Widget _gradientGenerateButton(
+      BuildContext context, ShoppingListViewModel vm) {
     final scheme = Theme.of(context).colorScheme;
     return Material(
       color: Colors.transparent,
@@ -231,7 +232,8 @@ class ShoppingListScreen extends StatelessWidget {
             itemCount: list.items.length,
             itemBuilder: (context, index) {
               final item = list.items[index];
-              final borderAccent = index.isEven ? scheme.error : scheme.tertiary;
+              final borderAccent =
+                  index.isEven ? scheme.error : scheme.tertiary;
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: Container(

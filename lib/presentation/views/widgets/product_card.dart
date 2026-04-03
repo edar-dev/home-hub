@@ -105,7 +105,8 @@ class ProductCard extends StatelessWidget {
   String _progressRightLabel() {
     if (product.isExpired) return 'Getta via';
     if (product.quantitaTotale <= 0) return '—';
-    final pct = (product.quantitaRimasta / product.quantitaTotale * 100).round();
+    final pct =
+        (product.quantitaRimasta / product.quantitaTotale * 100).round();
     if (product.isLowStock && product.quantitaRimasta > 0) {
       return 'Acquista';
     }
@@ -241,16 +242,16 @@ class ProductCard extends StatelessWidget {
                                       const SizedBox(height: 4),
                                       Text(
                                         'Scadenza: ${formatDate(product.dataScadenza)}',
-                                        style: theme.textTheme.bodySmall
-                                            ?.copyWith(
+                                        style:
+                                            theme.textTheme.bodySmall?.copyWith(
                                           color: scheme.onSurfaceVariant,
                                         ),
                                       ),
                                       const SizedBox(height: 2),
                                       Text(
                                         expiryLineForList(product),
-                                        style: theme.textTheme.bodySmall
-                                            ?.copyWith(
+                                        style:
+                                            theme.textTheme.bodySmall?.copyWith(
                                           color: accent,
                                           fontWeight: FontWeight.w600,
                                         ),

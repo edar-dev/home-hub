@@ -219,7 +219,8 @@ void main() {
     verify(() => mockRepo.delete('sw1')).called(1);
   });
 
-  testWidgets('layout wide: tap card mostra riquadro dettaglio', (tester) async {
+  testWidgets('layout wide: tap card mostra riquadro dettaglio',
+      (tester) async {
     when(() => mockRepo.getAll()).thenAnswer(
       (_) async => [
         Product(

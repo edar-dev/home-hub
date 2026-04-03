@@ -47,8 +47,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     super.dispose();
   }
 
-  LanguageCode _lang(OnboardingViewModel vm) =>
-      vm.settings.preferredLanguage;
+  LanguageCode _lang(OnboardingViewModel vm) => vm.settings.preferredLanguage;
 
   Future<void> _markCurrent(OnboardingViewModel vm) async {
     await vm.markStepCompleted(_steps[_index]);
@@ -106,8 +105,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     final vm = context.watch<OnboardingViewModel>();
     final lang = _lang(vm);
-    final showAnim = vm.state.showAnimations &&
-        !MediaQuery.disableAnimationsOf(context);
+    final showAnim =
+        vm.state.showAnimations && !MediaQuery.disableAnimationsOf(context);
     final nextLabel = obCommon('next', lang);
     final backLabel = obCommon('back', lang);
     final skipLabel = obCommon('skip', lang);

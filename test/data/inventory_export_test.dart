@@ -66,15 +66,18 @@ void main() {
     expect(doc['locations'], isA<List<dynamic>>());
     expect(doc['positions'], isA<List<dynamic>>());
 
-    final pj = (doc['products'] as List<dynamic>).single as Map<String, dynamic>;
+    final pj =
+        (doc['products'] as List<dynamic>).single as Map<String, dynamic>;
     expect(pj['id'], 'p1');
     expect(pj['syncVersion'], 2);
     expect(pj['updatedAt'], '2026-03-01T12:00:00.000Z');
 
-    final lj = (doc['locations'] as List<dynamic>).single as Map<String, dynamic>;
+    final lj =
+        (doc['locations'] as List<dynamic>).single as Map<String, dynamic>;
     expect(lj['nome'], 'Cucina');
 
-    final sj = (doc['positions'] as List<dynamic>).single as Map<String, dynamic>;
+    final sj =
+        (doc['positions'] as List<dynamic>).single as Map<String, dynamic>;
     expect(sj['locationId'], 'l1');
   });
 }

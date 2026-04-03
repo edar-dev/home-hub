@@ -40,9 +40,8 @@ class QuantityBarChart extends StatelessWidget {
                     return const SizedBox.shrink();
                   }
                   final label = points[i].label;
-                  final short = label.length > 8
-                      ? '${label.substring(0, 7)}…'
-                      : label;
+                  final short =
+                      label.length > 8 ? '${label.substring(0, 7)}…' : label;
                   return Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(

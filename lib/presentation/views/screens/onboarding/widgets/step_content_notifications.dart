@@ -35,7 +35,8 @@ class StepContentNotifications extends StatelessWidget {
         ),
         if (showAnimation) ...[
           const SizedBox(height: 16),
-          const LottieAnimationWidget(assetPath: OnboardingAssets.notificationAlert),
+          const LottieAnimationWidget(
+              assetPath: OnboardingAssets.notificationAlert),
         ],
       ],
     );

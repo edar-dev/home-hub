@@ -17,9 +17,7 @@ abstract final class LocationValidators {
 
   static String? validatePosition(StoragePosition p) {
     return validateNome(p.nome) ??
-        (p.locationId.trim().isEmpty
-            ? 'Seleziona un luogo'
-            : null);
+        (p.locationId.trim().isEmpty ? 'Seleziona un luogo' : null);
   }
 
   static void validateLocationOrThrow(Location l) {

@@ -23,7 +23,8 @@ void main() {
   setUp(() {
     mock = MockProductRepository();
     mockLoc = MockLocationRepository();
-    when(() => mockLoc.getLocationWithPositions(any())).thenAnswer((_) async => null);
+    when(() => mockLoc.getLocationWithPositions(any()))
+        .thenAnswer((_) async => null);
     vm = ProductViewModel(mock, mockLoc);
   });
 
@@ -182,7 +183,8 @@ void main() {
   });
 
   test('updateProduct mappa ProductException', () async {
-    when(() => mock.save(any())).thenThrow(ProductException('Salvataggio fallito'));
+    when(() => mock.save(any()))
+        .thenThrow(ProductException('Salvataggio fallito'));
     final p = Product(
       id: '1',
       nome: 'X',

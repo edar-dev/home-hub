@@ -112,9 +112,12 @@ class Product {
     return Product(
       id: id ?? this.id,
       nome: nome ?? this.nome,
-      dataAcquisto: clearDataAcquisto ? null : (dataAcquisto ?? this.dataAcquisto),
-      dataScadenza: clearDataScadenza ? null : (dataScadenza ?? this.dataScadenza),
-      dataApertura: clearDataApertura ? null : (dataApertura ?? this.dataApertura),
+      dataAcquisto:
+          clearDataAcquisto ? null : (dataAcquisto ?? this.dataAcquisto),
+      dataScadenza:
+          clearDataScadenza ? null : (dataScadenza ?? this.dataScadenza),
+      dataApertura:
+          clearDataApertura ? null : (dataApertura ?? this.dataApertura),
       quantitaTotale: quantitaTotale ?? this.quantitaTotale,
       quantitaRimasta: quantitaRimasta ?? this.quantitaRimasta,
       positionId: clearPositionId ? null : (positionId ?? this.positionId),
@@ -126,9 +129,8 @@ class Product {
           : (imageRelativePath ?? this.imageRelativePath),
       categoryId: clearCategoryId ? null : (categoryId ?? this.categoryId),
       unit: unit ?? this.unit,
-      typicalPortion: clearTypicalPortion
-          ? null
-          : (typicalPortion ?? this.typicalPortion),
+      typicalPortion:
+          clearTypicalPortion ? null : (typicalPortion ?? this.typicalPortion),
       price: clearPrice ? null : (price ?? this.price),
     );
   }

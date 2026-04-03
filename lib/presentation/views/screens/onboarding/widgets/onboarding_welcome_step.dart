@@ -33,10 +33,8 @@ class OnboardingWelcomeStep extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final startLabel =
-        obString(OnboardingStep.welcome, 'startNow', lang);
-    final secondaryLabel =
-        obString(OnboardingStep.welcome, 'secondary', lang);
+    final startLabel = obString(OnboardingStep.welcome, 'startNow', lang);
+    final secondaryLabel = obString(OnboardingStep.welcome, 'secondary', lang);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

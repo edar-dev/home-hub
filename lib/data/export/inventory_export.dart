@@ -29,9 +29,8 @@ class InventoryExportService {
       'exportedAt': now.toIso8601String(),
       'products': plist.map(_productToJson).toList(),
       'locations': hierarchy.map((e) => _locationToJson(e.location)).toList(),
-      'positions': hierarchy
-          .expand((e) => e.positions.map(_positionToJson))
-          .toList(),
+      'positions':
+          hierarchy.expand((e) => e.positions.map(_positionToJson)).toList(),
     };
   }
 

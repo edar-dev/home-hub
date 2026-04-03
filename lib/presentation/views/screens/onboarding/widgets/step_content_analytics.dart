@@ -35,7 +35,8 @@ class StepContentAnalytics extends StatelessWidget {
         ),
         if (showAnimation) ...[
           const SizedBox(height: 16),
-          const LottieAnimationWidget(assetPath: OnboardingAssets.analyticsCharts),
+          const LottieAnimationWidget(
+              assetPath: OnboardingAssets.analyticsCharts),
         ],
       ],
     );

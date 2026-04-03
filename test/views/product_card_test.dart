@@ -34,7 +34,8 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  testWidgets('card senza scadenza mostra badge e testi attesi', (tester) async {
+  testWidgets('card senza scadenza mostra badge e testi attesi',
+      (tester) async {
     final p = Product(
       id: '1',
       nome: 'Farro',

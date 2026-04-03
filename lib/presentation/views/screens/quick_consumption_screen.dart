@@ -31,7 +31,8 @@ class _QuickConsumptionScreenState extends State<QuickConsumptionScreen> {
   void initState() {
     super.initState();
     final p = widget.product.typicalPortion;
-    _amountCtrl.text = ((p ?? 1).toStringAsFixed(p != null && p % 1 != 0 ? 1 : 0));
+    _amountCtrl.text =
+        ((p ?? 1).toStringAsFixed(p != null && p % 1 != 0 ? 1 : 0));
   }
 
   @override
@@ -66,9 +67,10 @@ class _QuickConsumptionScreenState extends State<QuickConsumptionScreen> {
 
   Widget _quick(double amount) {
     return ActionChip(
-      label: Text('${amount.toStringAsFixed(amount % 1 == 0 ? 0 : 1)} ${widget.product.unit}'),
-      onPressed: () => _amountCtrl.text =
-          amount.toStringAsFixed(amount % 1 == 0 ? 0 : 1),
+      label: Text(
+          '${amount.toStringAsFixed(amount % 1 == 0 ? 0 : 1)} ${widget.product.unit}'),
+      onPressed: () =>
+          _amountCtrl.text = amount.toStringAsFixed(amount % 1 == 0 ? 0 : 1),
     );
   }
 
@@ -95,7 +97,8 @@ class _QuickConsumptionScreenState extends State<QuickConsumptionScreen> {
               const SizedBox(height: 12),
               TextField(
                 controller: _amountCtrl,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 decoration: InputDecoration(
                   labelText: 'Quantità usata (${widget.product.unit})',
                 ),
@@ -126,12 +129,14 @@ class _QuickConsumptionScreenState extends State<QuickConsumptionScreen> {
               const SizedBox(height: 16),
               TextField(
                 controller: _recipeCtrl,
-                decoration: const InputDecoration(labelText: 'Ricetta (opzionale)'),
+                decoration:
+                    const InputDecoration(labelText: 'Ricetta (opzionale)'),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _notesCtrl,
-                decoration: const InputDecoration(labelText: 'Note (opzionale)'),
+                decoration:
+                    const InputDecoration(labelText: 'Note (opzionale)'),
                 maxLines: 2,
               ),
               const SizedBox(height: 24),

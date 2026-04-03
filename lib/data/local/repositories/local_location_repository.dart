@@ -35,10 +35,11 @@ class LocalLocationRepository implements LocationRepository {
     }
 
     return allLocations.map((loc) {
-      final children = List<StoragePosition>.from(byLocation[loc.id] ?? const [])
-        ..sort(
-          (a, b) => a.nome.toLowerCase().compareTo(b.nome.toLowerCase()),
-        );
+      final children =
+          List<StoragePosition>.from(byLocation[loc.id] ?? const [])
+            ..sort(
+              (a, b) => a.nome.toLowerCase().compareTo(b.nome.toLowerCase()),
+            );
       return LocationWithPositions(location: loc, positions: children);
     }).toList()
       ..sort(

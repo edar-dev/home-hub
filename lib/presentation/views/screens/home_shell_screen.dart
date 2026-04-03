@@ -78,27 +78,27 @@ class HomeShellScreen extends StatelessWidget {
                     labelBehavior:
                         NavigationDestinationLabelBehavior.alwaysShow,
                     destinations: const [
-                  NavigationDestination(
-                    icon: Icon(Icons.home_work_outlined),
-                    selectedIcon: Icon(Icons.home_work),
-                    label: 'Panoramica',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.inventory_2_outlined),
-                    selectedIcon: Icon(Icons.inventory_2),
-                    label: 'Inventario',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.insights_outlined),
-                    selectedIcon: Icon(Icons.insights),
-                    label: 'Analytics',
-                  ),
-                  NavigationDestination(
-                    icon: Icon(Icons.tune_outlined),
-                    selectedIcon: Icon(Icons.tune),
-                    label: 'Utilita',
-                  ),
-                ],
+                      NavigationDestination(
+                        icon: Icon(Icons.home_work_outlined),
+                        selectedIcon: Icon(Icons.home_work),
+                        label: 'Panoramica',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.inventory_2_outlined),
+                        selectedIcon: Icon(Icons.inventory_2),
+                        label: 'Inventario',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.insights_outlined),
+                        selectedIcon: Icon(Icons.insights),
+                        label: 'Analytics',
+                      ),
+                      NavigationDestination(
+                        icon: Icon(Icons.tune_outlined),
+                        selectedIcon: Icon(Icons.tune),
+                        label: 'Utilita',
+                      ),
+                    ],
                   ),
                 ),
               ),

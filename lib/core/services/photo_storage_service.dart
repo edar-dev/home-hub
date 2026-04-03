@@ -39,7 +39,8 @@ class PhotoStorageService {
     return p.join(sub, name);
   }
 
-  File resolveFile(String relativePath) => File(p.join(root.path, relativePath));
+  File resolveFile(String relativePath) =>
+      File(p.join(root.path, relativePath));
 
   Future<void> deleteIfExists(String? relativePath) async {
     if (relativePath == null || relativePath.isEmpty) return;

@@ -24,7 +24,8 @@ void main() {
     hiveDir = null;
   });
 
-  testWidgets('HousekeepApp si avvia con initialShowOnboarding false', (tester) async {
+  testWidgets('HousekeepApp si avvia con initialShowOnboarding false',
+      (tester) async {
     final deps = await AppFactory.create(hiveStoragePath: hiveDir!.path);
     await tester.pumpWidget(
       HousekeepApp(

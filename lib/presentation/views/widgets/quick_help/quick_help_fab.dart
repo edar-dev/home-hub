@@ -68,12 +68,15 @@ class QuickHelpFab extends StatelessWidget {
         tab.index == HomeShellTabController.tabOverview;
     final leftPad = wide ? 104.0 : 16.0;
     final sidePad = wide ? 24.0 : 16.0;
-    final bottomPad = (wide ? 24.0 : 16.0 + kBottomNavigationBarHeight) +
-        bottomInset;
+    final bottomPad =
+        (wide ? 24.0 : 16.0 + kBottomNavigationBarHeight) + bottomInset;
     final tabHint = switch (tab.index) {
-      HomeShellTabController.tabInventory => tourLine('tour.inventory.title', lang),
-      HomeShellTabController.tabAnalytics => tourLine('tour.analytics.title', lang),
-      HomeShellTabController.tabUtility => tourLine('tour.notifications.title', lang),
+      HomeShellTabController.tabInventory =>
+        tourLine('tour.inventory.title', lang),
+      HomeShellTabController.tabAnalytics =>
+        tourLine('tour.analytics.title', lang),
+      HomeShellTabController.tabUtility =>
+        tourLine('tour.notifications.title', lang),
       _ => tourLine('help.quickTitle', lang),
     };
 

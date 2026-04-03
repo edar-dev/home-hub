@@ -15,10 +15,12 @@ void main(List<String> args) {
   }
 
   var content = pubspec.readAsStringSync();
-  final re = RegExp(r'^version:\s*(\d+)\.(\d+)\.(\d+)\+(\d+)\s*$', multiLine: true);
+  final re =
+      RegExp(r'^version:\s*(\d+)\.(\d+)\.(\d+)\+(\d+)\s*$', multiLine: true);
   final m = re.firstMatch(content);
   if (m == null) {
-    stderr.writeln('Could not parse version: line must be like version: 1.0.0+1');
+    stderr
+        .writeln('Could not parse version: line must be like version: 1.0.0+1');
     exitCode = 1;
     return;
   }

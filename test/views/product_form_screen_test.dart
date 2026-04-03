@@ -61,10 +61,12 @@ void main() {
     when(() => mock.getById(any())).thenAnswer((_) async => null);
     when(() => mock.getByPositionId(any())).thenAnswer((_) async => []);
     when(() => mock.getByLocationId(any())).thenAnswer((_) async => []);
-    when(() => mock.clearPositionIdsForPositions(any())).thenAnswer((_) async {});
+    when(() => mock.clearPositionIdsForPositions(any()))
+        .thenAnswer((_) async {});
     when(() => mockLoc.getAllWithPositions()).thenAnswer((_) async => []);
     when(() => mockLoc.getLocationById(any())).thenAnswer((_) async => null);
-    when(() => mockLoc.getLocationWithPositions(any())).thenAnswer((_) async => null);
+    when(() => mockLoc.getLocationWithPositions(any()))
+        .thenAnswer((_) async => null);
   });
 
   testWidgets('form nuovo prodotto mostra campi', (tester) async {
@@ -138,7 +140,8 @@ void main() {
     verifyNever(() => mock.save(any()));
   });
 
-  testWidgets('compilazione minima e Salva chiama createProduct/save', (tester) async {
+  testWidgets('compilazione minima e Salva chiama createProduct/save',
+      (tester) async {
     final viewModel = ProductViewModel(mock, mockLoc);
     when(() => mock.save(any())).thenAnswer((_) async {});
     when(() => mock.getAll()).thenAnswer((_) async => []);

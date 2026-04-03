@@ -29,7 +29,8 @@ void main() {
     hiveDir = null;
   });
 
-  testWidgets('FAB, salvataggio e lista; persistenza dopo Hive.close', (tester) async {
+  testWidgets('FAB, salvataggio e lista; persistenza dopo Hive.close',
+      (tester) async {
     final deps = await AppFactory.create(hiveStoragePath: hiveDir!.path);
     await tester.pumpWidget(HousekeepApp(dependencies: deps));
     await tester.pump();
@@ -57,7 +58,8 @@ void main() {
     expect(find.text('ProdottoE2E'), findsOneWidget);
   });
 
-  testWidgets('Luoghi: salvataggio e persistenza dopo Hive.close', (tester) async {
+  testWidgets('Luoghi: salvataggio e persistenza dopo Hive.close',
+      (tester) async {
     await tester.binding.setSurfaceSize(const Size(420, 900));
     addTearDown(() async {
       await tester.binding.setSurfaceSize(null);

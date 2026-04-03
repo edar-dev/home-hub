@@ -94,9 +94,7 @@ class ProductDetailBody extends StatelessWidget {
                 )
               else if (d != null)
                 Text(
-                  d == 0
-                      ? 'Scade oggi.'
-                      : 'Giorni alla scadenza: $d',
+                  d == 0 ? 'Scade oggi.' : 'Giorni alla scadenza: $d',
                   style: theme.textTheme.bodyLarge,
                 ),
               const SizedBox(height: 16),
@@ -129,7 +127,9 @@ class ProductDetailBody extends StatelessWidget {
                 ],
               ),
               if (embedded &&
-                  (onEdit != null || onDelete != null || onConsume != null)) ...[
+                  (onEdit != null ||
+                      onDelete != null ||
+                      onConsume != null)) ...[
                 const SizedBox(height: 24),
                 Row(
                   children: [
@@ -141,7 +141,8 @@ class ProductDetailBody extends StatelessWidget {
                           label: const Text('Usa prodotto'),
                         ),
                       ),
-                    if (onConsume != null && (onEdit != null || onDelete != null))
+                    if (onConsume != null &&
+                        (onEdit != null || onDelete != null))
                       const SizedBox(width: 12),
                     if (onEdit != null)
                       Expanded(

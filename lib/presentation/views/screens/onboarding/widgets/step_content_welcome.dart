@@ -43,7 +43,8 @@ class StepContentWelcome extends StatelessWidget {
               color: scheme.onSurface,
             ),
             children: [
-              TextSpan(text: obString(OnboardingStep.welcome, 'titlePrefix', lang)),
+              TextSpan(
+                  text: obString(OnboardingStep.welcome, 'titlePrefix', lang)),
               TextSpan(
                 text: obString(OnboardingStep.welcome, 'titleBrand', lang),
                 style: GoogleFonts.manrope(

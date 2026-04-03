@@ -48,7 +48,8 @@ class _LocationListScreenState extends State<LocationListScreen> {
       final err = await context.read<LocationViewModel>().deleteLocation(id);
       if (!mounted) return;
       if (err != null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(err)));
       }
     }
   }
@@ -75,7 +76,8 @@ class _LocationListScreenState extends State<LocationListScreen> {
       final err = await context.read<LocationViewModel>().deletePosition(id);
       if (!mounted) return;
       if (err != null) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(err)));
       }
     }
   }
@@ -284,8 +286,7 @@ class _LocationListScreenState extends State<LocationListScreen> {
                         IconButton(
                           icon: const Icon(Icons.delete_outline),
                           tooltip: 'Elimina',
-                          onPressed: () =>
-                              _confirmDeletePosition(p.nome, p.id),
+                          onPressed: () => _confirmDeletePosition(p.nome, p.id),
                         ),
                       ],
                     ),

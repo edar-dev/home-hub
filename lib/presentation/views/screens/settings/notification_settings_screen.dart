@@ -67,8 +67,9 @@ class NotificationSettingsScreen extends StatelessWidget {
                 title: const Text('Promemoria giorno prima della scadenza'),
                 subtitle: const Text('Alle 9:00 del giorno precedente.'),
                 value: vm.settings.remindDayBefore,
-                onChanged:
-                    kIsWeb || !vm.settings.enabled ? null : vm.setRemindDayBefore,
+                onChanged: kIsWeb || !vm.settings.enabled
+                    ? null
+                    : vm.setRemindDayBefore,
               ),
               SwitchListTile(
                 title: const Text('Riepilogo giornaliero'),
@@ -78,17 +79,18 @@ class NotificationSettingsScreen extends StatelessWidget {
                     kIsWeb || !vm.settings.enabled ? null : vm.setDailyDigest,
               ),
               SwitchListTile(
-                title: const Text('Includi prodotti in esaurimento nel riepilogo'),
+                title:
+                    const Text('Includi prodotti in esaurimento nel riepilogo'),
                 value: vm.settings.includeLowStockInDigest,
-                onChanged: kIsWeb ||
-                        !vm.settings.enabled ||
-                        !vm.settings.dailyDigest
-                    ? null
-                    : vm.setIncludeLowStock,
+                onChanged:
+                    kIsWeb || !vm.settings.enabled || !vm.settings.dailyDigest
+                        ? null
+                        : vm.setIncludeLowStock,
               ),
               const SizedBox(height: 24),
               FilledButton(
-                onPressed: kIsWeb || vm.isSaving ? null : () => _save(context, vm),
+                onPressed:
+                    kIsWeb || vm.isSaving ? null : () => _save(context, vm),
                 child: vm.isSaving
                     ? const SizedBox(
                         height: 22,

@@ -217,8 +217,7 @@ class LocalNotificationRepository implements NotificationRepository {
       }).length;
       final expired = products.where((p) => p.isExpired).length;
 
-      final body =
-          'Scaduti: $expired · In scadenza (7gg): $expiringSoon'
+      final body = 'Scaduti: $expired · In scadenza (7gg): $expiringSoon'
           '${settings.includeLowStockInDigest ? ' · Poca quantità: $low' : ''}'
           '${statsByProduct.isNotEmpty ? ' · Quasi finiti: ${statsByProduct.values.where((s) => s.isAlmostEmpty).length}' : ''}';
 

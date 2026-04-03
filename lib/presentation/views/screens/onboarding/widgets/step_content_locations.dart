@@ -35,7 +35,8 @@ class StepContentLocations extends StatelessWidget {
         ),
         if (showAnimation) ...[
           const SizedBox(height: 16),
-          const LottieAnimationWidget(assetPath: OnboardingAssets.locationsOrganize),
+          const LottieAnimationWidget(
+              assetPath: OnboardingAssets.locationsOrganize),
         ],
       ],
     );

@@ -24,7 +24,8 @@ void main() {
       currentStep: OnboardingStep.welcome,
       tourResumeStepIndex: 2,
     );
-    final cleared = base.copyWith(clearCurrentStep: true, clearTourResume: true);
+    final cleared =
+        base.copyWith(clearCurrentStep: true, clearTourResume: true);
     expect(cleared.currentStep, isNull);
     expect(cleared.tourResumeStepIndex, isNull);
   });

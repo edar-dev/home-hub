@@ -37,7 +37,10 @@ abstract final class AnalyticsReportExporter {
             data: <List<String>>[
               <String>['Prodotti totali', '${metrics.totalProducts}'],
               <String>['In scadenza (7 giorni)', '${metrics.expiringIn7Days}'],
-              <String>['Scaduti (ultimi 30 gg)', '${metrics.expiredInLast30Days}'],
+              <String>[
+                'Scaduti (ultimi 30 gg)',
+                '${metrics.expiredInLast30Days}'
+              ],
               <String>['Sprechi %', metrics.wastePercentage.toStringAsFixed(1)],
               <String>[
                 'Consumo medio mensile (stima)',
@@ -91,7 +94,8 @@ abstract final class AnalyticsReportExporter {
       ..writeln('expiringIn7Days,${metrics.expiringIn7Days}')
       ..writeln('expiredInLast30Days,${metrics.expiredInLast30Days}')
       ..writeln('wastePercentage,${metrics.wastePercentage}')
-      ..writeln('monthlyConsumptionAverage,${metrics.monthlyConsumptionAverage}')
+      ..writeln(
+          'monthlyConsumptionAverage,${metrics.monthlyConsumptionAverage}')
       ..writeln()
       ..writeln('location,count');
     for (final e in byLocation) {

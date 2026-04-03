@@ -41,8 +41,7 @@ class StatusBadge extends StatelessWidget {
 
     return Chip(
       label: Text(label),
-      visualDensity:
-          compact ? VisualDensity.compact : VisualDensity.standard,
+      visualDensity: compact ? VisualDensity.compact : VisualDensity.standard,
       backgroundColor: bg,
       labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(color: fg),
       padding: compact ? null : const EdgeInsets.symmetric(horizontal: 8),

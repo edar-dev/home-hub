@@ -34,8 +34,7 @@ class LocationInventorySection {
   final Location location;
   final List<PositionProductsBlock> blocks;
 
-  int get productCount =>
-      blocks.fold<int>(0, (s, b) => s + b.products.length);
+  int get productCount => blocks.fold<int>(0, (s, b) => s + b.products.length);
 }
 
 /// Riepilogo inventario per stanza: per ogni [Location], blocchi posizione → prodotti.
@@ -58,8 +57,7 @@ class LocationInventoryViewModel extends ChangeNotifier {
   bool _hasLocationsInScope = false;
   int _productsInScopeBeforeFilters = 0;
 
-  List<LocationInventorySection> get sections =>
-      List.unmodifiable(_sections);
+  List<LocationInventorySection> get sections => List.unmodifiable(_sections);
 
   bool get isLoading => _isLoading;
 
@@ -123,9 +121,8 @@ class LocationInventoryViewModel extends ChangeNotifier {
     try {
       var hierarchy = await _locationRepository.getAllWithPositions();
       if (_filterLocationId != null) {
-        hierarchy = hierarchy
-            .where((e) => e.location.id == _filterLocationId)
-            .toList();
+        hierarchy =
+            hierarchy.where((e) => e.location.id == _filterLocationId).toList();
       }
       _hierarchyCache = hierarchy;
       _productsCache = await _productRepository.getAll();
@@ -221,7 +218,8 @@ class LocationInventoryViewModel extends ChangeNotifier {
         final withMatches = blocks.where((b) => b.products.isNotEmpty).toList();
         if (withMatches.isNotEmpty) {
           nextSections.add(
-            LocationInventorySection(location: row.location, blocks: withMatches),
+            LocationInventorySection(
+                location: row.location, blocks: withMatches),
           );
         }
       } else {

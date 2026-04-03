@@ -112,7 +112,8 @@ class OnboardingViewModel extends ChangeNotifier {
   Future<void> startTour() async {
     if (kTourSteps.isEmpty) return;
     await _loadState();
-    _tourStepIndex = (_state.tourResumeStepIndex ?? 0).clamp(0, kTourSteps.length - 1);
+    _tourStepIndex =
+        (_state.tourResumeStepIndex ?? 0).clamp(0, kTourSteps.length - 1);
     _showTourOverlay = true;
     notifyListeners();
   }

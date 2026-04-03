@@ -86,7 +86,8 @@ class _TourOverlayState extends State<TourOverlay> {
       rect = _rectForKey(TourKeys.helpFab);
     }
     if (rect == null && keyName != null) {
-      debugPrint('TourOverlay: target "$keyName" non trovato, step senza buco.');
+      debugPrint(
+          'TourOverlay: target "$keyName" non trovato, step senza buco.');
     }
     if (mounted) {
       setState(() => _hole = rect);

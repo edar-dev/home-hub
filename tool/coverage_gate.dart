@@ -47,10 +47,12 @@ void main() {
 
   final ratio = lh / lf;
   final pct = (ratio * 100).toStringAsFixed(2);
-  stdout.writeln('Line coverage (escl. *.g.dart, lib/main.dart): $pct% ($lh/$lf)');
+  stdout.writeln(
+      'Line coverage (escl. *.g.dart, lib/main.dart): $pct% ($lh/$lf)');
 
   if (ratio + 1e-9 < minLineCoverage) {
-    stderr.writeln('Sotto la soglia minima ${(minLineCoverage * 100).toStringAsFixed(0)}%.');
+    stderr.writeln(
+        'Sotto la soglia minima ${(minLineCoverage * 100).toStringAsFixed(0)}%.');
     exit(1);
   }
 }

@@ -165,7 +165,8 @@ class _FakeLocationRepo implements LocationRepository {
       throw UnimplementedError();
 
   @override
-  Future<LocationWithPositions?> getLocationWithPositions(String locationId) async =>
+  Future<LocationWithPositions?> getLocationWithPositions(
+          String locationId) async =>
       throw UnimplementedError();
 
   @override
@@ -175,7 +176,8 @@ class _FakeLocationRepo implements LocationRepository {
   Future<void> deletePosition(String id) async => throw UnimplementedError();
 
   @override
-  Future<void> saveLocation(Location location) async => throw UnimplementedError();
+  Future<void> saveLocation(Location location) async =>
+      throw UnimplementedError();
 
   @override
   Future<void> savePosition(StoragePosition position) async =>

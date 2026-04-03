@@ -50,7 +50,8 @@ void main() {
         quantitaTotale: 2,
         quantitaRimasta: 2,
       );
-      expect(() => ProductValidators.validateProductOrThrow(good), returnsNormally);
+      expect(() => ProductValidators.validateProductOrThrow(good),
+          returnsNormally);
     });
 
     test('validateProduct aggregates rules', () {

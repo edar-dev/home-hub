@@ -54,8 +54,8 @@ class _PositionFormScreenState extends State<PositionFormScreen> {
     setState(() => _summaryErrors = []);
     if (!_formKey.currentState!.validate()) {
       setState(() => _summaryErrors = const [
-        'Controlla i campi evidenziati in rosso.',
-      ]);
+            'Controlla i campi evidenziati in rosso.',
+          ]);
       return;
     }
     final locId = _locationId;
@@ -138,9 +138,8 @@ class _PositionFormScreenState extends State<PositionFormScreen> {
                           ),
                         )
                         .toList(),
-                    onChanged: _saving
-                        ? null
-                        : (v) => setState(() => _locationId = v),
+                    onChanged:
+                        _saving ? null : (v) => setState(() => _locationId = v),
                     validator: (v) =>
                         (v == null || v.isEmpty) ? 'Seleziona un luogo' : null,
                   ),
@@ -184,7 +183,8 @@ class _PositionFormScreenState extends State<PositionFormScreen> {
                             ? const SizedBox(
                                 height: 22,
                                 width: 22,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               )
                             : Text(_isEdit ? 'Salva' : 'Aggiungi'),
                       ),

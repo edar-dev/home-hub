@@ -197,7 +197,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       if (err == null) {
         Navigator.of(context).pop();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(err)));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(err)));
       }
     }
   }
@@ -206,8 +207,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     setState(() => _summaryErrors = []);
     if (!_formKey.currentState!.validate()) {
       setState(() => _summaryErrors = const [
-        'Controlla i campi evidenziati in rosso.',
-      ]);
+            'Controlla i campi evidenziati in rosso.',
+          ]);
       return;
     }
 
@@ -216,9 +217,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     final rimStr = _rimastaController.text.trim();
     final totale = totStr.isEmpty ? 1 : (int.tryParse(totStr) ?? 1);
     final totaleClamped = totale < 1 ? 1 : totale;
-    final rimasta = rimStr.isEmpty
-        ? totaleClamped
-        : (int.tryParse(rimStr) ?? 0);
+    final rimasta =
+        rimStr.isEmpty ? totaleClamped : (int.tryParse(rimStr) ?? 0);
 
     final id = widget.product?.id ?? const Uuid().v4();
 
@@ -235,9 +235,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       quantitaRimasta: rimasta,
       positionId: _positionId,
       barcode: barcode,
-      imageRelativePath: _removeImage
-          ? null
-          : (widget.product?.imageRelativePath),
+      imageRelativePath:
+          _removeImage ? null : (widget.product?.imageRelativePath),
       categoryId: _categoryId,
     );
 
@@ -424,9 +423,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                       ),
                     ),
                   ],
-                  onChanged: _saving
-                      ? null
-                      : (v) => setState(() => _categoryId = v),
+                  onChanged:
+                      _saving ? null : (v) => setState(() => _categoryId = v),
                 ),
                 const SizedBox(height: 8),
                 if (!kIsWeb) ...[
@@ -475,9 +473,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                     labelText: 'Posizione (opzionale)',
                   ),
                   items: positionItems,
-                  onChanged: _saving
-                      ? null
-                      : (v) => setState(() => _positionId = v),
+                  onChanged:
+                      _saving ? null : (v) => setState(() => _positionId = v),
                 ),
                 const SizedBox(height: 16),
                 DatePickerField(

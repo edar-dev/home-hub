@@ -37,8 +37,7 @@ void main() {
   setUp(() async {
     final ts = DateTime.now().microsecondsSinceEpoch;
     stateBox = await Hive.openBox<OnboardingStateHiveModel>('ob_state_$ts');
-    settingsBox =
-        await Hive.openBox<OnboardingSettingsHiveModel>('ob_set_$ts');
+    settingsBox = await Hive.openBox<OnboardingSettingsHiveModel>('ob_set_$ts');
     repository = LocalOnboardingRepository(
       stateBox: stateBox,
       settingsBox: settingsBox,

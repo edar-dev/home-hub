@@ -81,7 +81,8 @@ void main() {
     when(() => mock.getAllWithPositions()).thenAnswer((_) async => []);
     final err = await vm.addPosition(locationId: 'l1', nome: 'Frigo');
     expect(err, isNull);
-    verify(() => mock.savePosition(any(that: isA<StoragePosition>()))).called(1);
+    verify(() => mock.savePosition(any(that: isA<StoragePosition>())))
+        .called(1);
   });
 
   test('getLocationWithPositions from cache', () async {

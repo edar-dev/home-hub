@@ -59,16 +59,16 @@ class _ShoppingHistoryScreenState extends State<ShoppingHistoryScreen> {
                 child: ExpansionTile(
                   title: Text(sl.title),
                   subtitle: Text(
-                    when != null
-                        ? 'Completata: ${fmt.format(when)}'
-                        : '—',
+                    when != null ? 'Completata: ${fmt.format(when)}' : '—',
                   ),
                   children: [
                     for (final it in sl.items)
                       ListTile(
                         dense: true,
                         leading: Icon(
-                          it.done ? Icons.check_box : Icons.check_box_outline_blank,
+                          it.done
+                              ? Icons.check_box
+                              : Icons.check_box_outline_blank,
                         ),
                         title: Text(it.nome),
                         trailing: Text('${it.quantity}'),

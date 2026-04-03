@@ -126,7 +126,8 @@ void main() {
             Provider<ProductRepository>.value(value: mockProd),
             Provider<LocationRepository>.value(value: mockLoc),
             ChangeNotifierProvider<LocationViewModel>.value(value: locVm),
-            ChangeNotifierProvider<LocationInventoryViewModel>.value(value: invVm),
+            ChangeNotifierProvider<LocationInventoryViewModel>.value(
+                value: invVm),
           ],
           child: const LocationInventoryScreen(),
         ),
@@ -155,7 +156,8 @@ void main() {
             Provider<ProductRepository>.value(value: mockProd),
             Provider<LocationRepository>.value(value: mockLoc),
             ChangeNotifierProvider<LocationViewModel>.value(value: locVm),
-            ChangeNotifierProvider<LocationInventoryViewModel>.value(value: invVm),
+            ChangeNotifierProvider<LocationInventoryViewModel>.value(
+                value: invVm),
           ],
           child: const LocationInventoryScreen(locationId: 'l1'),
         ),
@@ -177,7 +179,8 @@ void main() {
             Provider<ProductRepository>.value(value: mockProd),
             Provider<LocationRepository>.value(value: mockLoc),
             ChangeNotifierProvider<LocationViewModel>.value(value: locVm),
-            ChangeNotifierProvider<LocationInventoryViewModel>.value(value: invVm),
+            ChangeNotifierProvider<LocationInventoryViewModel>.value(
+                value: invVm),
           ],
           child: const LocationInventoryScreen(),
         ),
@@ -233,7 +236,8 @@ void main() {
             Provider<ProductRepository>.value(value: mockProd),
             Provider<LocationRepository>.value(value: mockLoc),
             ChangeNotifierProvider<LocationViewModel>.value(value: locVm),
-            ChangeNotifierProvider<LocationInventoryViewModel>.value(value: invVm),
+            ChangeNotifierProvider<LocationInventoryViewModel>.value(
+                value: invVm),
           ],
           child: const LocationInventoryScreen(),
         ),
@@ -295,7 +299,8 @@ void main() {
             Provider<ProductRepository>.value(value: mockProd),
             Provider<LocationRepository>.value(value: mockLoc),
             ChangeNotifierProvider<LocationViewModel>.value(value: locVm),
-            ChangeNotifierProvider<LocationInventoryViewModel>.value(value: invVm),
+            ChangeNotifierProvider<LocationInventoryViewModel>.value(
+                value: invVm),
           ],
           child: const LocationInventoryScreen(),
         ),

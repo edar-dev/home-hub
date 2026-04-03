@@ -52,14 +52,11 @@ const Map<String, String> _it = {
   'scanner.body':
       'Associa rapidamente un codice al prodotto. Su web puoi inserirlo a mano.',
   'locations.title': 'Luoghi e posizioni',
-  'locations.body':
-      'Crea stanze e ripiani per ritrovare tutto al primo colpo.',
+  'locations.body': 'Crea stanze e ripiani per ritrovare tutto al primo colpo.',
   'analytics.title': 'Analytics',
-  'analytics.body':
-      'Grafici e riepiloghi per capire cosa consumi di più.',
+  'analytics.body': 'Grafici e riepiloghi per capire cosa consumi di più.',
   'notifications.title': 'Notifiche',
-  'notifications.body':
-      'Promemoria su scadenze e digest giornaliero.',
+  'notifications.body': 'Promemoria su scadenze e digest giornaliero.',
   'firstSetup.title': 'Nome della casa',
   'firstSetup.body':
       'Come vuoi chiamare il tuo ambiente? Creeremo il primo luogo se non ne hai ancora.',
@@ -118,14 +115,11 @@ const Map<String, String> _en = {
   'scanner.body':
       'Link a barcode to a product quickly. On web you can type it manually.',
   'locations.title': 'Places & shelves',
-  'locations.body':
-      'Create rooms and shelves to find everything fast.',
+  'locations.body': 'Create rooms and shelves to find everything fast.',
   'analytics.title': 'Analytics',
-  'analytics.body':
-      'Charts and summaries to see what you use most.',
+  'analytics.body': 'Charts and summaries to see what you use most.',
   'notifications.title': 'Notifications',
-  'notifications.body':
-      'Reminders for expiry and daily digest.',
+  'notifications.body': 'Reminders for expiry and daily digest.',
   'firstSetup.title': 'Home name',
   'firstSetup.body':
       'What do you want to call your space? We’ll create the first location if needed.',
@@ -184,14 +178,11 @@ const Map<String, String> _es = {
   'scanner.body':
       'Vincula un código al producto. En web puedes escribirlo a mano.',
   'locations.title': 'Lugares',
-  'locations.body':
-      'Crea habitaciones y estantes para encontrar todo rápido.',
+  'locations.body': 'Crea habitaciones y estantes para encontrar todo rápido.',
   'analytics.title': 'Analítica',
-  'analytics.body':
-      'Gráficos y resúmenes de consumo.',
+  'analytics.body': 'Gráficos y resúmenes de consumo.',
   'notifications.title': 'Notificaciones',
-  'notifications.body':
-      'Recordatorios de caducidad y resumen diario.',
+  'notifications.body': 'Recordatorios de caducidad y resumen diario.',
   'firstSetup.title': 'Nombre del hogar',
   'firstSetup.body':
       '¿Cómo llamar a tu espacio? Crearemos el primer lugar si hace falta.',
