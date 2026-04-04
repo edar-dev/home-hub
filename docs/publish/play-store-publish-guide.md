@@ -113,7 +113,10 @@ Obiettivo: **ogni release** produce un `.aab` **firmato** e, se configurato, lo 
 
 ### 4.3 Secret/credential da configurare in Codemagic
 
-Nella sezione **Environment variables** (gruppo protetto), crea:
+Con **`codemagic.yaml`**, i secret vanno quasi sempre in un **Environment variable group** e il workflow deve dichiarare quel gruppo in `environment.groups` (vedi [documentazione Codemagic — Google Play + YAML](https://docs.codemagic.io/yaml-publishing/google-play/)). Se ometti `groups` o il nome non coincide, le variabili **non** entrano nel build: `PLAY_SERVICE_ACCOUNT_CREDENTIALS` risulta **vuota** e in publish compare l’errore JSON `Expecting value: line 1 column 1 (char 0)`.
+
+1. In Codemagic apri l’app → **Environment variables**.
+2. Crea un gruppo (es. **`google_credentials`**) e aggiungi le variabili sotto come **Secret** (stesso nome usato in `codemagic.yaml` in `groups:`).
 
 | Variabile | Contenuto |
 |-----------|-----------|
@@ -121,7 +124,9 @@ Nella sezione **Environment variables** (gruppo protetto), crea:
 | `CM_KEYSTORE_PASSWORD` | Password keystore |
 | `CM_KEY_ALIAS` | Alias chiave, es. `upload` |
 | `CM_KEY_PASSWORD` | Password della chiave (alias) |
-| `PLAY_SERVICE_ACCOUNT_CREDENTIALS` | JSON completo del service account Google Play |
+| `PLAY_SERVICE_ACCOUNT_CREDENTIALS` | **Intero** file JSON del service account (da `{` a `}`), incollato così com’è — non Base64, non path su disco |
+
+Se preferisci un altro nome gruppo, usa **lo stesso** in Codemagic e in `codemagic.yaml` (`groups: - nome_gruppo`).
 
 Esempio Base64 su PowerShell:
 
@@ -138,7 +143,18 @@ Per l’upload automatico su Play serve un **service account** con accesso alla 
 3. Crea un service account in [IAM → Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts).
 4. Genera una chiave **JSON** (download una sola volta).
 5. In Play Console → [Users and permissions](https://play.google.com/console/users-and-permissions), invita l’email del service account e assegna i permessi di release sulla tua app/traccia.
-6. Incolla il JSON in `PLAY_SERVICE_ACCOUNT_CREDENTIALS` su Codemagic.
+6. Incolla il JSON in `PLAY_SERVICE_ACCOUNT_CREDENTIALS` nel gruppo referenziato da `codemagic.yaml` (es. `google_credentials`).
+
+### 4.4b Errore: `Expecting value: line 1 column 1 (char 0)` (publish Google Play)
+
+Significa che Codemagic sta parsando **JSON vuoto o non valido** come service account. Controlla nell’ordine:
+
+1. **`environment.groups`** nel workflow Play coincide con un gruppo esistente in Codemagic e quel gruppo contiene `PLAY_SERVICE_ACCOUNT_CREDENTIALS`.
+2. Il **valore** è il JSON scaricato da Google (chiave **JSON**), non un file `.p12`, non una stringa vuota, non solo spazi.
+3. Il **nome variabile** è esattamente `PLAY_SERVICE_ACCOUNT_CREDENTIALS` (come in `credentials: $PLAY_SERVICE_ACCOUNT_CREDENTIALS` nel YAML).
+4. L’app Codemagic è quella giusta (**home-hub**): variabili definite su un’altra app non si applicano.
+
+Il workflow nel repo include uno step **Check Play credentials** che fallisce subito con messaggio esplicito se la variabile è vuota.
 
 ### 4.5 Esempio `codemagic.yaml` (Android + Play internal)
 
@@ -151,6 +167,8 @@ workflows:
     max_build_duration: 60
     environment:
       flutter: stable
+      groups:
+        - google_credentials
       vars:
         PACKAGE_NAME: "com.organizedhive.app"
     scripts:

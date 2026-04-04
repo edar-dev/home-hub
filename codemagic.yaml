@@ -34,6 +34,10 @@ workflows:
     # instance_type: ometti per usare il default del piano; linux_x2 richiede billing.
     environment:
       flutter: stable
+      # Obbligatorio con YAML: i secret devono stare in un gruppo con QUESTO nome in Codemagic
+      # (App → Environment variables → crea gruppo `google_credentials` → variabili Secret).
+      groups:
+        - google_credentials
       vars:
         PACKAGE_NAME: "com.organizedhive.app"
     # Run manually from Codemagic UI, or automatically on tag v*
@@ -47,6 +51,15 @@ workflows:
     scripts:
       - name: Flutter pub get
         script: flutter pub get
+      - name: Check Play credentials
+        script: |
+          if [ -z "${PLAY_SERVICE_ACCOUNT_CREDENTIALS:-}" ]; then
+            echo "PLAY_SERVICE_ACCOUNT_CREDENTIALS è vuota: il workflow non sta caricando il secret."
+            echo "Con codemagic.yaml devi (1) creare il gruppo google_credentials in Codemagic,"
+            echo "(2) aggiungervi il JSON del service account come variabile Secret con quel nome esatto,"
+            echo "(3) avere groups: - google_credentials in questo workflow. Vedi docs/publish/play-store-publish-guide.md."
+            exit 1
+          fi
       - name: Configure Android signing
         script: |
           if [ -z "$CM_KEYSTORE" ]; then
