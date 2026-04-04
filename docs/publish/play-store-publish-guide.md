@@ -162,8 +162,8 @@ Succede in **`signReleaseBundle`**: Gradle non riesce ad aprire la chiave nel ke
 
 | Controllo | Cosa verificare |
 |-------------|-----------------|
-| **`CM_KEYSTORE`** | Deve essere il **Base64 su una sola riga** del file **`upload-keystore.jks`** (stesso file che usi in locale per firmare l’upload). Non un `.pem`, non due volte Base64, non path o testo placeholder. Rigenera il Base64 e re-incolla in Codemagic. |
-| **`CM_KEYSTORE_PASSWORD`** | Password del **keystore** (come `storePassword` in `android/key.properties` locale). |
+| **`CM_KEYSTORE`** | Deve essere il **Base64 standard** del file **`upload-keystore.jks`** (stesso file che usi in locale per firmare l’upload). Non un `.pem`, non due volte Base64, non path o testo placeholder. Il workflow **rimuove a capo e spazi** nel valore prima del decode (utile se il Base64 è stato spezzato su più righe). Se Codemagic **tronca** i secret molto lunghi, il decode produce un `.jks` invalido: in quel caso usa un gruppo variabili / file come da documentazione Codemagic o un keystore più piccolo. |
+| **`CM_KEYSTORE_PASSWORD`** | Password del **keystore** (come `storePassword` in `android/key.properties` locale). Controlla che non ci siano spazi involuti per errore all’inizio/fine nel campo Secret. |
 | **`CM_KEY_ALIAS`** | **Esattamente** l’alias mostrato da `keytool -list -keystore upload-keystore.jks` (niente spazi prima/dopo, niente ritorni a capo incollati dal foglio di calcolo). |
 | **`CM_KEY_PASSWORD`** | Password della **chiave** (`keyPassword` in `key.properties`). Se in locale è uguale alla store password, metti lo stesso valore in Codemagic. |
 | **Caratteri speciali** | Se la password contiene `$`, `` ` ``, `!`, virgolette, il vecchio script con `echo` poteva corrompere `key.properties`. Il `codemagic.yaml` nel repo usa `printf` per evitarlo: aggiorna il workflow. |
