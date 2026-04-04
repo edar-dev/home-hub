@@ -99,14 +99,9 @@ workflows:
           STORE_PASS=$(printf '%s' "$CM_KEYSTORE_PASSWORD" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/\r//g')
           KEY_PASS=$(printf '%s' "$CM_KEY_PASSWORD" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/\r//g')
           ALIAS=$(printf '%s' "$CM_KEY_ALIAS" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/\r//g')
-          {
-            printf 'storePassword=%s\n' "$STORE_PASS"
-            printf 'keyPassword=%s\n' "$KEY_PASS"
-            printf 'keyAlias=%s\n' "$ALIAS"
-            printf '%s\n' 'storeFile=upload-keystore.jks'
-          } > "$CM_BUILD_DIR/android/key.properties"
           KT_ERR="$CM_BUILD_DIR/android/keytool-signing.err"
-          if ! keytool -list -keystore "$KS" -storepass "$STORE_PASS" >"$CM_BUILD_DIR/android/keytool-signing.out" 2>"$KT_ERR"; then
+          KLIST="$CM_BUILD_DIR/android/keytool-list.out"
+          if ! keytool -list -keystore "$KS" -storepass "$STORE_PASS" >"$KLIST" 2>"$KT_ERR"; then
             echo "keytool non apre il keystore. Messaggio keytool:"
             sed 's/^/  /' "$KT_ERR" || true
             echo "Se dice password errata: verifica CM_KEYSTORE_PASSWORD in Codemagic = storePassword in android/key.properties locale."
@@ -114,10 +109,22 @@ workflows:
             exit 1
           fi
           if ! keytool -list -keystore "$KS" -storepass "$STORE_PASS" -alias "$ALIAS" >/dev/null 2>"$KT_ERR"; then
-            echo "Alias '$ALIAS' non trovato nel keystore. CM_KEY_ALIAS deve coincidere con 'Alias name' da keytool -list. Entry nel keystore:"
-            keytool -list -keystore "$KS" -storepass "$STORE_PASS"
-            exit 1
+            n_pk=$(grep 'PrivateKeyEntry' "$KLIST" | wc -l | tr -d '[:space:]')
+            if [ "${n_pk:-0}" -eq 1 ]; then
+              ALIAS=$(grep 'PrivateKeyEntry' "$KLIST" | head -1 | sed 's/^[[:space:]]*//;s/,.*//')
+              echo "CM_KEY_ALIAS non coincide con il keystore; c'è una sola chiave: uso alias '$ALIAS' (imposta CM_KEY_ALIAS=$ALIAS in Codemagic per evitare questo messaggio)."
+            else
+              echo "Alias '$ALIAS' non trovato. CM_KEY_ALIAS deve essere esattamente il nome prima della virgola in keytool -list (es. upload). Elenco:"
+              cat "$KLIST"
+              exit 1
+            fi
           fi
+          {
+            printf 'storePassword=%s\n' "$STORE_PASS"
+            printf 'keyPassword=%s\n' "$KEY_PASS"
+            printf 'keyAlias=%s\n' "$ALIAS"
+            printf '%s\n' 'storeFile=upload-keystore.jks'
+          } > "$CM_BUILD_DIR/android/key.properties"
       - name: Build AAB
         script: flutter build appbundle --release
     artifacts:
