@@ -156,6 +156,26 @@ Significa che Codemagic sta parsando **JSON vuoto o non valido** come service ac
 
 Il workflow nel repo include uno step **Check Play credentials** che fallisce subito con messaggio esplicito se la variabile è vuota.
 
+### 4.4c Errore Gradle: `Failed to read key … from store "…/upload-keystore.jks": null`
+
+Succede in **`signReleaseBundle`**: Gradle non riesce ad aprire la chiave nel keystore. Cause tipiche:
+
+| Controllo | Cosa verificare |
+|-------------|-----------------|
+| **`CM_KEYSTORE`** | Deve essere il **Base64 su una sola riga** del file **`upload-keystore.jks`** (stesso file che usi in locale per firmare l’upload). Non un `.pem`, non due volte Base64, non path o testo placeholder. Rigenera il Base64 e re-incolla in Codemagic. |
+| **`CM_KEYSTORE_PASSWORD`** | Password del **keystore** (come `storePassword` in `android/key.properties` locale). |
+| **`CM_KEY_ALIAS`** | **Esattamente** l’alias mostrato da `keytool -list -keystore upload-keystore.jks` (niente spazi prima/dopo, niente ritorni a capo incollati dal foglio di calcolo). |
+| **`CM_KEY_PASSWORD`** | Password della **chiave** (`keyPassword` in `key.properties`). Se in locale è uguale alla store password, metti lo stesso valore in Codemagic. |
+| **Caratteri speciali** | Se la password contiene `$`, `` ` ``, `!`, virgolette, il vecchio script con `echo` poteva corrompere `key.properties`. Il `codemagic.yaml` nel repo usa `printf` per evitarlo: aggiorna il workflow. |
+
+**Verifica in locale** (stesso `.jks` che hai codificato in Base64):
+
+```bash
+keytool -list -keystore path/to/upload-keystore.jks
+```
+
+Annota **Alias name** e prova le stesse password che metterai in Codemagic. Dopo l’aggiornamento dello YAML, lo step **Configure Android signing** esegue `keytool` su CI: se fallisce lì, il log indica se il problema è store password / alias, prima del build Gradle.
+
 ### 4.5 Esempio `codemagic.yaml` (Android + Play internal)
 
 Metti questo file in root repository (`codemagic.yaml`) e adatta i nomi variabili/traccia:

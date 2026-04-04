@@ -70,13 +70,30 @@ workflows:
             echo "Missing signing secrets: CM_KEYSTORE_PASSWORD / CM_KEY_ALIAS / CM_KEY_PASSWORD."
             exit 1
           fi
-          echo "$CM_KEYSTORE" | base64 --decode > "$CM_BUILD_DIR/android/upload-keystore.jks"
+          # printf evita che echo interpreti "-" iniziale; niente espansione accidentale nel base64.
+          printf '%s' "$CM_KEYSTORE" | base64 --decode > "$CM_BUILD_DIR/android/upload-keystore.jks"
+          KS="$CM_BUILD_DIR/android/upload-keystore.jks"
+          if [ ! -s "$KS" ]; then
+            echo "upload-keystore.jks è vuoto: CM_KEYSTORE non è Base64 valido del .jks o è troncato."
+            exit 1
+          fi
+          # printf '%s' evita che $ o ! nelle password rompano key.properties (echo le espanderebbe).
+          ALIAS=$(printf '%s' "$CM_KEY_ALIAS" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//;s/\r//g')
           {
-            echo "storePassword=$CM_KEYSTORE_PASSWORD"
-            echo "keyPassword=$CM_KEY_PASSWORD"
-            echo "keyAlias=$CM_KEY_ALIAS"
-            echo "storeFile=upload-keystore.jks"
+            printf 'storePassword=%s\n' "$CM_KEYSTORE_PASSWORD"
+            printf 'keyPassword=%s\n' "$CM_KEY_PASSWORD"
+            printf 'keyAlias=%s\n' "$ALIAS"
+            printf '%s\n' 'storeFile=upload-keystore.jks'
           } > "$CM_BUILD_DIR/android/key.properties"
+          if ! keytool -list -keystore "$KS" -storepass "$CM_KEYSTORE_PASSWORD" >/dev/null 2>&1; then
+            echo "keytool: impossibile aprire il keystore. Controlla CM_KEYSTORE (Base64 su UNA riga, stesso .jks di upload) e CM_KEYSTORE_PASSWORD."
+            exit 1
+          fi
+          if ! keytool -list -keystore "$KS" -storepass "$CM_KEYSTORE_PASSWORD" -alias "$ALIAS" >/dev/null 2>&1; then
+            echo "Alias '$ALIAS' non trovato nel keystore. CM_KEY_ALIAS deve coincidere con 'Alias name' da keytool -list. Entry nel keystore:"
+            keytool -list -keystore "$KS" -storepass "$CM_KEYSTORE_PASSWORD"
+            exit 1
+          fi
       - name: Build AAB
         script: flutter build appbundle --release
     artifacts:
