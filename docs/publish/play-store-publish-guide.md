@@ -138,12 +138,70 @@ Esempio Base64 su PowerShell:
 
 Per l’upload automatico su Play serve un **service account** con accesso alla **Google Play Developer API**:
 
-1. In [Google Cloud Console](https://console.cloud.google.com/) crea (o seleziona) un progetto.
-2. Abilita [Google Play Android Developer API](https://console.developers.google.com/apis/api/androidpublisher.googleapis.com/).
-3. Crea un service account in [IAM → Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts).
-4. Genera una chiave **JSON** (download una sola volta).
-5. In Play Console → [Users and permissions](https://play.google.com/console/users-and-permissions), invita l’email del service account e assegna i permessi di release sulla tua app/traccia.
+1. In [Google Cloud Console](https://console.cloud.google.com/) crea (o seleziona) un **progetto** (annota il **project id** nel JSON).
+2. Abilita [Google Play Android Developer API](https://console.developers.google.com/apis/api/androidpublisher.googleapis.com/) in **quel** progetto.
+3. Crea un service account in [IAM → Service Accounts](https://console.cloud.google.com/iam-admin/serviceaccounts) **in quel progetto**.
+4. Genera una chiave **JSON** (download una sola volta) per quel service account.
+5. In Play Console → [Users and permissions](https://play.google.com/console/users-and-permissions), **invita** l’**email** del service account (`client_email` nel JSON); in **Autorizzazioni app** aggiungi l’app e i permessi sulle **versioni** / release (traccia *internal* inclusa).  
+   Secondo la [documentazione ufficiale attuale](https://developers.google.com/android-publisher/getting_started), **non è più obbligatorio** “collegare” l’account sviluppatore al progetto Cloud da una schermata dedicata in Play Console: conta il service account invitato con i permessi giusti + API abilitata nel progetto dove hai creato la chiave JSON.
 6. Incolla il JSON in `PLAY_SERVICE_ACCOUNT_CREDENTIALS` nel gruppo referenziato da `codemagic.yaml` (es. `google_credentials`).
+
+### 4.4a Passo passo: creare il service account e scaricare il JSON
+
+Usa lo **stesso account Google** con cui accedi a Play Console (o un account con diritti di **Amministratore** sul progetto Cloud). I menu possono essere in inglese nell’interfaccia.
+
+#### Parte A — Progetto Google Cloud
+
+1. Apri [Google Cloud Console](https://console.cloud.google.com/).
+2. In alto, accanto al logo Google Cloud, apri il **selettore di progetto** (nome progetto o “Select a project”).
+3. Clicca **Nuovo progetto** (*New project*):
+   - **Nome progetto:** es. `organizedhive-play` (libero, solo per te).
+   - **Posizione organizzazione:** lascia “Nessuna organizzazione” se sei su account personale.
+4. Clicca **Crea** e attendi qualche secondo; poi **seleziona** quel progetto dal selettore (devi essere *dentro* quel progetto per i passi successivi).
+
+#### Parte B — Abilitare l’API Android Publisher
+
+1. Menu ☰ → **API e servizi** → **Libreria** (*APIs & Services* → *Library*).
+2. Cerca **`Google Play Android Developer API`**.
+3. Apri il risultato e clicca **Abilita** (*Enable*). Attendi che risulti abilitata.
+
+#### Parte C — Creare il service account
+
+1. Menu ☰ → **IAM e amministrazione** → **Account di servizio** (*IAM & Admin* → *Service Accounts*).
+2. Clicca **+ Crea account di servizio** (*Create service account*).
+3. **Passo 1 — Dettagli**
+   - **Nome account di servizio:** es. `play-upload-codemagic`
+   - **ID account di servizio:** si compila da solo (nota l’email che finisce con `@…iam.gserviceaccount.com` — ti servirà dopo).
+4. **Passo 2 — Autorizzazioni (facoltativo per Play)**  
+   Puoi lasciare **nessun ruolo** qui e andare avanti con **Continua**; i permessi veri per pubblicare su Play si danno dalla **Play Console** (Parte F). Se ti obbliga a scegliere, un ruolo minimo tipo **Utilizzatore account di servizio** (*Service Account User*) va bene.
+5. **Passo 3 — Concedi agli utenti l’accesso** → **Fine** / **Fatto**.
+
+#### Parte D — Scaricare la chiave JSON (una sola volta)
+
+1. Nella tabella **Account di servizio**, clicca **sull’email** del service account appena creato (non solo sulla riga).
+2. Vai alla scheda **Chiavi** (*Keys*).
+3. **Aggiungi chiave** → **Crea nuova chiave** (*Add key* → *Create new key*).
+4. Tipo: **JSON** → **Crea**.
+5. Si scarica un file `.json` (es. `progetto-xxxxx-abcdef.json`). **Conservalo in luogo sicuro** — non committarlo nel Git.
+
+**Cosa contiene il file:** testo che inizia con `{` e contiene `"type": "service_account"`, `"project_id"`, `"private_key"`, `"client_email"`, ecc.
+
+**Per Codemagic:** apri il file con Blocco note / VS Code, **seleziona tutto** (`Ctrl+A`), **copia**, e incolla il valore nella variabile Secret **`PLAY_SERVICE_ACCOUNT_CREDENTIALS`** (tutto il JSON, una sola “unità” di testo). Non aggiungere virgolette attorno, non mettere solo il path del file.
+
+#### Parte E — (Opzionale) Pagina “Accesso alle API” in Play Console
+
+Google [dichiara](https://developers.google.com/android-publisher/getting_started) che **non serve più** collegare manualmente l’account sviluppatore al progetto Cloud per usare l’API: molti sviluppatori **non vedono** più il vecchio menu **Impostazioni sviluppatore → Accesso alle API** oppure la schermata è vuota / diversa — **è normale**.
+
+Se la tua console la mostra ancora, puoi provare il link diretto (sostituisci con il tuo account se necessario): [play.google.com/console/api-access](https://play.google.com/console/api-access). Eventuale **collegamento** progetto Cloud qui è **facoltativo**; l’essenziale è: **API abilitata nel progetto** dove hai creato il JSON + **invito** del service account (Parte F).
+
+#### Parte F — Invitare il service account in Play Console
+
+1. Play Console → **Utenti e autorizzazioni** (*Users and permissions*).
+2. **Invita utenti** → nel campo email incolla **`client_email`** del JSON (es. `play-upload-codemagic@progetto-id.iam.gserviceaccount.com`).
+3. Assegna almeno i permessi per **gestire le release** sull’app **The Organized Hive** (o il nome della tua inserzione), inclusa la traccia **test interni** / *internal* se usi quella in `codemagic.yaml`.
+4. Completa l’invito (a volte richiede conferma via link se Google lo chiede per l’account di servizio).
+
+Dopo questi passaggi, il JSON in Codemagic è il file scaricato alla **Parte D**, senza modifiche.
 
 ### 4.4b Errore: `Expecting value: line 1 column 1 (char 0)` (publish Google Play)
 
@@ -175,6 +233,25 @@ keytool -list -keystore path/to/upload-keystore.jks
 ```
 
 Annota **Alias name** e prova le stesse password che metterai in Codemagic. Dopo l’aggiornamento dello YAML, lo step **Configure Android signing** esegue `keytool` su CI: se fallisce lì, il log indica se il problema è store password / alias, prima del build Gradle.
+
+### 4.4d Errore publish: `Package not found: com.organizedhive.app`
+
+L’**AAB è valido** e le credenziali JSON **autenticano** l’API, ma l’**Android Publisher API** non trova un’app con `applicationId` **`com.organizedhive.app`** nel contesto autorizzato per quel service account. Succede quasi sempre se manca uno tra: **permessi app** sul service account, **primo bundle accettato**, **`applicationId` errato nel repo**.
+
+**Controlli nell’ordine:**
+
+| # | Controllo | Cosa fare |
+|---|-----------|-----------|
+| **A** | **API abilitata nel progetto del JSON** | Nel [Google Cloud Console](https://console.cloud.google.com/), seleziona il progetto il cui **`project_id`** è **dentro** il file JSON usato da Codemagic → **API e servizi** → **Libreria** → abilita **Google Play Android Developer API** (*androidpublisher*). |
+| **B** | **Service account invitato in Play Console** | [Utenti e autorizzazioni](https://play.google.com/console/users-and-permissions) → l’email `…@….iam.gserviceaccount.com` del JSON deve comparire come utente attivo (non solo creata in Cloud). |
+| **C** | **Permessi sull’app** | Scheda di quell’utente → **Autorizzazioni app** → aggiungi **The Organized Hive** (o il nome dell’inserzione) → permessi sulle **versioni** / **release** (traccia **internal** / test interni). Senza accesso all’app, l’API può rispondere *Package not found*. |
+| **D** | **Primo `.aab` accettato da Play** | **Test e release** → **Test interno** → crea una release e carica **manualmente** l’`app-release.aab` finché Play **accetta** il bundle; verifica il package in **App bundle explorer**. Poi riprova Codemagic. |
+| **E** | **Stesso `applicationId` nel repo che compila** | Il bundle deve avere **`com.organizedhive.app`**. Verifica su **home-hub** che `android/app/build.gradle.kts` non usi un altro `applicationId`. |
+| **F** | *(Opzionale)* **Collegamento Cloud in Play** | Se la tua console mostra ancora **Accesso alle API** e un collegamento progetto, puoi allinearlo al `project_id` del JSON; [Google indica](https://developers.google.com/android-publisher/getting_started) che **non è più richiesto** per far funzionare l’API. |
+
+**Workaround immediato:** disattiva temporaneamente la sezione `publishing:` in `codemagic.yaml`, scarica l’`.aab` dagli artifact, caricalo a mano in **Test interno**; quando la console mostra il package e i controlli **A–D** sono ok, riattiva il publish automatico.
+
+**Verifica pacchetto dentro l’`.aab` (locale):** con [bundletool](https://github.com/google/bundletool) o aprendo il manifest generato; in alternativa, dopo upload in Console il package è visibile nei dettagli versione / bundle explorer.
 
 ### 4.5 Esempio `codemagic.yaml` (Android + Play internal)
 
@@ -237,11 +314,30 @@ I file in `.github/workflows/` possono restare come CI complementare (analyze/te
 
 ## 5. Creare l’applicazione in Google Play Console
 
+**Prima** di aspettarti un upload riuscito da **Codemagic**, in Play Console deve esistere l’**inserzione app** (dopo **Crea app**) e deve essere stato accettato almeno un **`.aab`** con il package giusto, oppure il service account deve avere accesso a quell’inserzione. Se manca l’inserzione, il bundle o i permessi, il publish fallisce con *Package not found* (§4.4d).
+
 1. Accedi a [Google Play Console](https://play.google.com/console).
 2. **Crea app** (o seleziona l’app se già creata).
-3. Compila i passaggi iniziali: nome app (**The Organized Hive**), lingua predefinita, tipo (app / gioco), gratuito o a pagamento, dichiarazioni policy.
+3. Completa il wizard iniziale (app/gioco, gratuito/a pagamento, dichiarazioni, termini **Play App Signing**). **Non è anomalo se non ti chiede il nome pacchetto:** su molte console quel dato si fissa al **primo upload** del bundle.
+4. Imposta nome e scheda come da **§5.1** e **§8** (es. **The Organized Hive**).
+5. Quando la dashboard lo consente, in **Test interno** carica il primo **`app-release.aab`**: il package sarà quello nel file (per questo progetto: **`com.organizedhive.app`**, vedi `android/app/build.gradle.kts`). Dopo quel passaggio, l’inserzione è “legata” a quel `applicationId`.
 
 **Attenzione:** l’**applicationId** (`com.organizedhive.app`) deve coincidere con il bundle che carichi; non è modificabile dopo la prima release pubblicata senza creare una nuova inserzione.
+
+### 5.1 Checklist: creare e configurare l’app (da zero)
+
+Segui l’ordine: alcuni passaggi sbloccano il caricamento del bundle o il link per i tester.
+
+| # | Dove in Play Console | Cosa fare |
+|---|----------------------|-----------|
+| 1 | **Tutte le app** → **Crea app** | Nome app: **The Organized Hive**. Tipo: **App** o **Gioco**. **Gratuita** o a pagamento. Accetta dichiarazioni (policy, export USA, **Play App Signing**). *Se non compare il campo “nome pacchetto”, è atteso: vedi riga 3.* |
+| 2 | **Dashboard** | Completa le voci evidenziate finché puoi aprire **Test interno** e caricare un bundle. Di solito servono: **Scheda Google Play** (titolo, testi, 2 screenshot, icona 512×512), **Valutazione dei contenuti**, target / pubblico, **Sicurezza dei dati**, **Politica sulla privacy** (URL se richiesto). |
+| 3 | **Release** → **Testing** → **Test interno** → **Nuova release** | Carica **`app-release.aab`** con `applicationId` **`com.organizedhive.app`** (deve coincidere con `android/app/build.gradle.kts`). **Qui** Play associa il package all’inserzione. Se il `.aab` ha un altro package, la console lo segnala e non devi “inventare” un nome a mano. |
+| 4 | Test interno → **Testers** | Aggiungi **indirizzi Google** dei tester; usa il **link** d’invito. |
+| 5 | **Utenti e autorizzazioni** (per Codemagic) | Invita l’**email del service account**. **Autorizzazioni app** → questa app → permessi **versioni / release** (traccia `internal`). Vedi §4.4. |
+| 6 | Dopo il primo `.aab` accettato | Verifica il package in **Test e release** → **App bundle explorer** (o dettaglio versione). Gli upload da **Codemagic** sulla traccia `internal` useranno lo stesso `applicationId`. *Package not found* (§4.4d) = inserzione senza bundle ancora accettato, account sbagliato, o service account senza accesso all’app. |
+
+**Suggerimento:** tieni aperta la [guida ufficiale “Pubblicare un’app”](https://support.google.com/googleplay/android-developer/answer/9859348) in parallelo: le etichette dei menu cambiano leggermente nel tempo.
 
 ---
 
@@ -332,6 +428,18 @@ Per la maggior parte delle app che raccolgono dati o usano permessi sensibili, P
 
 - Se l’app elabora dati solo **in locale** sul dispositivo, comunque documenta cosa succede (backup, export, analytics se presenti).
 - Pubblica la policy su un sito o pagina stabile (GitHub Pages, sito aziendale, ecc.) e incolla l’URL nella console.
+
+Nel repository e disponibile una bozza pronta in `docs/legal/privacy-policy.md`.
+
+URL pratici da usare:
+
+- **Subito (senza setup aggiuntivo):**
+  - `https://github.com/<owner>/<repo>/blob/main/docs/legal/privacy-policy.md`
+- **Consigliato (URL pulito):**
+  - abilita GitHub Pages e pubblica dalla cartella `docs/`, poi usa:
+  - `https://<owner>.github.io/<repo>/legal/privacy-policy/`
+
+Per questo progetto, sostituisci `<owner>/<repo>` con il repository reale che pubblichi su Play (es. `edar-dev/home-hub`).
 
 ---
 
