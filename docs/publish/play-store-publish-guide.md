@@ -253,6 +253,22 @@ L’**AAB è valido** e le credenziali JSON **autenticano** l’API, ma l’**An
 
 **Verifica pacchetto dentro l’`.aab` (locale):** con [bundletool](https://github.com/google/bundletool) o aprendo il manifest generato; in alternativa, dopo upload in Console il package è visibile nei dettagli versione / bundle explorer.
 
+### 4.4e Errore publish: `Only releases with status draft may be created on draft app`
+
+Significa che l'app in Play Console e ancora nello stato iniziale **draft app**: la release su track deve essere creata come **bozza**.
+
+Fix pratico in Codemagic (`publishing.google_play`):
+
+```yaml
+submit_as_draft: true
+```
+
+Dopo che l'app esce dallo stato draft (setup Play completato e release gestibile normalmente), puoi tornare a:
+
+```yaml
+submit_as_draft: false
+```
+
 ### 4.5 Esempio `codemagic.yaml` (Android + Play internal)
 
 Metti questo file in root repository (`codemagic.yaml`) e adatta i nomi variabili/traccia:
@@ -288,7 +304,7 @@ workflows:
       google_play:
         credentials: $PLAY_SERVICE_ACCOUNT_CREDENTIALS
         track: internal
-        submit_as_draft: false
+        submit_as_draft: true
 ```
 
 Il file **`codemagic.yaml` nel repository** non imposta `instance_type`: così Codemagic usa il **default consentito dal tuo piano**. Valori come `linux_x2` richiedono di solito **fatturazione attiva** o un piano a pagamento ([pricing Codemagic](https://docs.codemagic.io/billing/pricing/)). Se vedi *The selected instance type is not available with the current billing plan*, rimuovi o non impostare `instance_type`, oppure abilita il piano che include quella macchina.

@@ -133,4 +133,6 @@ workflows:
       google_play:
         credentials: $PLAY_SERVICE_ACCOUNT_CREDENTIALS
         track: internal
-        submit_as_draft: false
+        # Durante bootstrap Play può accettare solo release draft finché l'app resta "draft app".
+        # Quando Play permette rollout non-draft, puoi riportarlo a false.
+        submit_as_draft: true
